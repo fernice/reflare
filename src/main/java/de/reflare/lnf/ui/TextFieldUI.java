@@ -1,11 +1,11 @@
-package de.reflare.ui;
+package de.reflare.lnf.ui;
 
 import de.flare.helper.NodeHelper;
 import de.flare.peer.PGRegion;
 import de.flare.render.rf.RFComponentPainter;
 import de.flare.render.rf.RFRenderPipeline;
-import de.reflare.FlareBorder;
-import de.reflare.FlareUI;
+import de.reflare.lnf.FlareBorder;
+import de.reflare.lnf.FlareUI;
 import flare.graph.Node;
 import flare.graph.Region;
 import java.awt.Graphics;

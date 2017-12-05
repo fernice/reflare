@@ -1,6 +1,5 @@
-package de.reflare;
+package de.reflare.lnf;
 
-import de.reflare.FlareUI;
 import flare.graph.Node;
 import java.awt.Component;
 import java.awt.Graphics;

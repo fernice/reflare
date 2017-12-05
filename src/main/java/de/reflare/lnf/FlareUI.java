@@ -1,4 +1,4 @@
-package de.reflare;
+package de.reflare.lnf;
 
 
 import flare.graph.Node;
