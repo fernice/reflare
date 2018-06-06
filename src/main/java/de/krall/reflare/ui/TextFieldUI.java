@@ -1,13 +1,10 @@
-package de.reflare.lnf.ui;
+package de.krall.reflare.ui;
 
-import de.flare.helper.NodeHelper;
-import de.flare.peer.PGRegion;
-import de.flare.render.rf.RFComponentPainter;
-import de.flare.render.rf.RFRenderPipeline;
-import de.reflare.lnf.FlareBorder;
-import de.reflare.lnf.FlareUI;
-import flare.graph.Node;
-import flare.graph.Region;
+import de.krall.reflare.FlareBorder;
+import de.krall.reflare.Styleable;
+import de.krall.reflare.meta.DefinedBy;
+import de.krall.reflare.meta.DefinedBy.Api;
+import java.awt.Component;
 import java.awt.Graphics;
 import javax.swing.JComponent;
 import javax.swing.plaf.ComponentUI;
@@ -15,12 +12,12 @@ import javax.swing.plaf.basic.BasicTextFieldUI;
 
 public class TextFieldUI extends BasicTextFieldUI implements FlareUI {
 
+    @DefinedBy(Api.LOOK_AND_FEEL)
     public static ComponentUI createUI(JComponent c) {
         return new TextFieldUI();
     }
 
-    private Region bridge;
-    private PGRegion peer;
+    private Styleable styleable;
 
     @Override
     protected void installDefaults() {
@@ -31,25 +28,17 @@ public class TextFieldUI extends BasicTextFieldUI implements FlareUI {
         component.setOpaque(false);
         component.setBorder(new FlareBorder(this));
 
-        bridge = new Region();
-
-        // We need the helper here as getPeer() is protected
-        peer = (PGRegion) NodeHelper.getPeer(bridge);
+        styleable = new Styleable();
     }
 
     @Override
     protected void uninstallDefaults() {
         super.uninstallDefaults();
-
-        bridge = null;
-        peer = null;
     }
 
     @Override
     protected void paintSafely(final Graphics graphics) {
-        final RFComponentPainter componentPainter = RFRenderPipeline.getInstance().getSharedComponentPainter();
-
-        componentPainter.paint(peer, getComponent(), graphics);
+        styleable.paintBackground(getComponent(), graphics);
 
         super.paintSafely(graphics);
     }
@@ -60,8 +49,12 @@ public class TextFieldUI extends BasicTextFieldUI implements FlareUI {
     }
 
     @Override
-    public Node getBridge() {
-        return bridge;
+    public void paintBorder(final Component c, final Graphics g, final int x, final int y, final int width, final int height) {
+        styleable.paintBorder(c, g);
     }
 
+    @Override
+    public Styleable getStyleable() {
+        return styleable;
+    }
 }

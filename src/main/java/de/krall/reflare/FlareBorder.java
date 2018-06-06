@@ -1,6 +1,7 @@
-package de.reflare.lnf;
+package de.krall.reflare;
 
-import flare.graph.Node;
+import de.krall.reflare.t.TInsets;
+import de.krall.reflare.ui.FlareUI;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Insets;
@@ -8,7 +9,6 @@ import javax.swing.AbstractButton;
 import javax.swing.JMenuBar;
 import javax.swing.JToolBar;
 import javax.swing.border.AbstractBorder;
-import javax.swing.border.Border;
 import javax.swing.text.JTextComponent;
 
 public class FlareBorder extends AbstractBorder {
@@ -21,7 +21,7 @@ public class FlareBorder extends AbstractBorder {
 
     @Override
     public void paintBorder(final Component c, final Graphics g, final int x, final int y, final int width, final int height) {
-
+        ui.paintBorder(c, g, x, y, width, height);
     }
 
     @Override
@@ -35,15 +35,13 @@ public class FlareBorder extends AbstractBorder {
             insets.left = 0;
         }
 
-        final Node cssProperties = ui.getBridge();
+        final Styleable styleable = ui.getStyleable();
 
-        combine(insets, cssProperties.getMargin());
-        combine(insets, cssProperties.getMargin());
+        if (styleable != null) {
+            combine(insets, styleable.getMargin());
+            combine(insets, styleable.getPadding());
 
-        final Border border = cssProperties.getBorder();
-
-        if (border != null) {
-            combine(insets, border.getWidth());
+            combine(insets, styleable.getBorderWidth());
         }
 
         if (c instanceof JTextComponent) {
@@ -68,8 +66,17 @@ public class FlareBorder extends AbstractBorder {
         }
     }
 
+    private void combine(final Insets insets, final TInsets addition) {
+        if (addition != null) {
+            insets.top += addition.top;
+            insets.right += addition.right;
+            insets.bottom += addition.bottom;
+            insets.left += addition.left;
+        }
+    }
+
     @Override
     public boolean isBorderOpaque() {
-        return true;
+        return false;
     }
 }
