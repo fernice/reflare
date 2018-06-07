@@ -1,5 +1,6 @@
 package de.krall.reflare;
 
+import de.krall.flare.dom.Element;
 import de.krall.reflare.t.TInsets;
 import de.krall.reflare.ui.FlareUI;
 import java.awt.Component;
@@ -35,14 +36,7 @@ public class FlareBorder extends AbstractBorder {
             insets.left = 0;
         }
 
-        final Styleable styleable = ui.getStyleable();
-
-        if (styleable != null) {
-            combine(insets, styleable.getMargin());
-            combine(insets, styleable.getPadding());
-
-            combine(insets, styleable.getBorderWidth());
-        }
+        final Element element = ui.getElement();
 
         if (c instanceof JTextComponent) {
             combine(insets, ((JTextComponent) c).getMargin());

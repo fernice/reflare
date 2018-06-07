@@ -1,31 +1,19 @@
 package de.krall.reflare;
 
-import de.krall.flare.Engine;
-import de.krall.flare.dom.Device;
-import de.krall.flare.font.FontMetricsProvider;
-import de.krall.flare.font.FontMetricsQueryResult;
-import de.krall.flare.style.ComputedValues;
-import de.krall.flare.style.properties.stylestruct.Font;
-import de.krall.flare.style.stylesheet.Origin;
-import de.krall.flare.style.stylesheet.Stylesheet;
-import de.krall.flare.style.value.computed.Au;
-import de.krall.flare.style.value.computed.PixelLength;
-import de.krall.flare.style.value.generic.Size2D;
+import de.krall.reflare.meta.DefinedBy;
+import de.krall.reflare.meta.DefinedBy.Api;
 import de.krall.reflare.platform.GTKKeybindings;
 import de.krall.reflare.platform.WindowsKeybindings;
+import de.krall.reflare.ui.LayeredPaneUI;
 import java.awt.Color;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Locale;
+import javax.swing.JComponent;
+import javax.swing.JLayeredPane;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
+import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicLookAndFeel;
-import org.jetbrains.annotations.NotNull;
 import sun.security.action.GetPropertyAction;
 import sun.swing.DefaultLookup;
 import sun.swing.SwingUtilities2;
@@ -67,60 +55,10 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
         return true;
     }
 
-    private Engine engine;
-
-    public Engine getEngine() {
-        return engine;
-    }
-
     @Override
     public void initialize() {
         super.initialize();
         DefaultLookup.setDefaultLookup(new FlareDefaultLookup());
-
-        engine = Engine.Companion.from(new DeviceImpl(), new FontMetricsProviderImpl());
-
-        try {
-            Path path = new File(FlareLookAndFeel.class.getResource("/test.css").getFile()).toPath();
-            byte[] encoded = Files.readAllBytes(path);
-
-            final String text = new String(encoded);
-
-            engine.getStylist().insertStyleheet(Stylesheet.Companion.from(text, Origin.AUTHOR));
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static class DeviceImpl implements Device {
-
-        @NotNull
-        @Override
-        public Size2D<Au> viewportSize() {
-            return new Size2D<>(Au.Companion.from(new PixelLength(600)), Au.Companion.from(new PixelLength(400)));
-        }
-
-        @NotNull
-        @Override
-        public Au rootFontSize() {
-            return Au.Companion.from(new PixelLength(16));
-        }
-
-        @NotNull
-        @Override
-        public ComputedValues defaultComputedValues() {
-            return ComputedValues.Companion.getInitial();
-        }
-    }
-
-    private static class FontMetricsProviderImpl implements FontMetricsProvider {
-
-        @NotNull
-        @Override
-        public FontMetricsQueryResult query(@NotNull final Font font, @NotNull final Au fontSize, @NotNull final Device device) {
-            return new FontMetricsQueryResult.NotAvailable();
-        }
     }
 
     private UIDefaults defaults;
@@ -144,12 +82,23 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
             Object aaTextInfo = getAATextInfo();
             defaults.put(SwingUtilities2.AA_TEXT_PROPERTY_KEY, aaTextInfo);
 
-            final String basicPackageName = "de.krall.fusee.ui.";
+            final String basicPackageName = "de.krall.reflare.ui.";
 
+            defaults.put("RootPaneUI", basicPackageName + "RootPaneUI");
+            defaults.put("PanelUI", basicPackageName + "PanelUI");
             defaults.put("TextFieldUI", basicPackageName + "TextFieldUI");
+            defaults.put("ComponentUI", FlareLookAndFeel.class.getName());
         }
 
         return defaults;
+    }
+
+    @DefinedBy(Api.LOOK_AND_FEEL)
+    public static ComponentUI createUI(JComponent c) {
+        if (c instanceof JLayeredPane) {
+            return new LayeredPaneUI();
+        }
+        throw new IllegalArgumentException();
     }
 
     private static Object getAATextInfo() {
@@ -165,17 +114,4 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
 
         return SwingUtilities2.AATextInfo.getAATextInfo(setAA);
     }
-
-    private static boolean getAATextInfoCondition() {
-        final String language = Locale.getDefault().getLanguage();
-        final String desktop = AccessController.doPrivileged((PrivilegedAction<String>) () -> System.getProperty("sun.desktop"));
-
-        final boolean isCjkLocale = (Locale.CHINESE.getLanguage().equals(language) || Locale.JAPANESE.getLanguage().equals(language) ||
-                Locale.KOREAN.getLanguage().equals(language));
-        final boolean isGnome = "gnome".equals(desktop);
-        final boolean isLocal = SwingUtilities2.isLocalDisplay();
-
-        return isLocal && (!isGnome || !isCjkLocale);
-    }
-
 }

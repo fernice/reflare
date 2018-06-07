@@ -1,14 +1,17 @@
 package de.krall.reflare.ui;
 
 import de.krall.reflare.FlareBorder;
-import de.krall.reflare.Styleable;
+import de.krall.reflare.element.ComponentElement;
+import de.krall.reflare.element.TextFieldElement;
 import de.krall.reflare.meta.DefinedBy;
 import de.krall.reflare.meta.DefinedBy.Api;
 import java.awt.Component;
 import java.awt.Graphics;
 import javax.swing.JComponent;
+import javax.swing.JTextField;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicTextFieldUI;
+import org.jetbrains.annotations.NotNull;
 
 public class TextFieldUI extends BasicTextFieldUI implements FlareUI {
 
@@ -17,28 +20,31 @@ public class TextFieldUI extends BasicTextFieldUI implements FlareUI {
         return new TextFieldUI();
     }
 
-    private Styleable styleable;
+    private ComponentElement element;
 
     @Override
     protected void installDefaults() {
         super.installDefaults();
+        final JTextField textField = (JTextField) getComponent();
 
-        final JComponent component = getComponent();
+        element = new TextFieldElement(textField);
 
-        component.setOpaque(false);
-        component.setBorder(new FlareBorder(this));
+        textField.setOpaque(false);
+        textField.setBorder(new FlareBorder(this));
 
-        styleable = new Styleable();
+        UIKt.registerUI(textField, this);
     }
 
     @Override
     protected void uninstallDefaults() {
+        UIKt.deregisterUI(getComponent());
+
         super.uninstallDefaults();
     }
 
     @Override
     protected void paintSafely(final Graphics graphics) {
-        styleable.paintBackground(getComponent(), graphics);
+        element.paintBackground(getComponent(), graphics);
 
         super.paintSafely(graphics);
     }
@@ -49,12 +55,13 @@ public class TextFieldUI extends BasicTextFieldUI implements FlareUI {
     }
 
     @Override
-    public void paintBorder(final Component c, final Graphics g, final int x, final int y, final int width, final int height) {
-        styleable.paintBorder(c, g);
+    public void paintBorder(@NotNull final Component c, @NotNull final Graphics g, final int x, final int y, final int width, final int height) {
+        element.paintBorder(c, g);
     }
 
+    @NotNull
     @Override
-    public Styleable getStyleable() {
-        return styleable;
+    public ComponentElement getElement() {
+        return element;
     }
 }

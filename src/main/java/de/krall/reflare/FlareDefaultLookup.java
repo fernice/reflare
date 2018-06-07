@@ -1,6 +1,6 @@
 package de.krall.reflare;
 
-import de.krall.fusee.ui.FlareUI;
+import de.krall.reflare.ui.FlareUI;
 import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;

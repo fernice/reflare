@@ -1,0 +1,23 @@
+package de.krall.reflare.element
+
+import javax.swing.JLayeredPane
+import javax.swing.JPanel
+import javax.swing.JRootPane
+
+class RootPaneElement(rootPane: JRootPane) : ComponentElement(rootPane) {
+    override fun localName(): String {
+        return "rootpane"
+    }
+}
+
+class LayeredPaneElement(layeredPane: JLayeredPane) : ComponentElement(layeredPane) {
+    override fun localName(): String {
+        return "layeredpane"
+    }
+}
+
+class PanelElement(panel: JPanel) : ComponentElement(panel) {
+    override fun localName(): String {
+        return "panel"
+    }
+}
