@@ -264,7 +264,7 @@ private fun ensureElement(component: Component): AWTComponentElement {
     return if (element == null) {
         val new = when (component) {
             is JLayeredPane -> LayeredPaneElement(component)
-            else -> throw Ill  egalArgumentException("unsupported component ${component.javaClass.name}")
+            else -> throw IllegalArgumentException("unsupported component ${component.javaClass.name}")
         }
 
         elements[component] = new
