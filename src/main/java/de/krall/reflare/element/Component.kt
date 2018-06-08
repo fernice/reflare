@@ -12,13 +12,18 @@ import de.krall.flare.std.Some
 import de.krall.flare.std.unwrap
 import de.krall.flare.style.ComputedValues
 import de.krall.flare.style.properties.PropertyDeclarationBlock
+import de.krall.flare.style.value.computed.SingleFontFamily
 import de.krall.reflare.render.renderBackground
 import de.krall.reflare.render.renderBorder
+import de.krall.reflare.toAWTColor
 import java.awt.Component
 import java.awt.Container
+import java.awt.Font
 import java.awt.Graphics
 import java.awt.event.ContainerEvent
 import java.awt.event.ContainerListener
+import java.awt.event.FocusEvent
+import java.awt.event.FocusListener
 import java.util.*
 import javax.swing.JComponent
 import javax.swing.JFrame
@@ -34,11 +39,32 @@ abstract class AWTComponentElement(val component: Component) : Element {
         return component as C
     }
 
+    init {
+        component.addFocusListener(object : FocusListener {
+            override fun focusLost(e: FocusEvent) {
+                reapplyCss()
+            }
+
+            override fun focusGained(e: FocusEvent) {
+                reapplyCss()
+            }
+        })
+    }
+
+    // ***************************** Dirty ***************************** //
+
+    private var state: StyleState = StyleState.CLEAN
+
+    fun reapplyCss() {
+        restyle()
+    }
+
     // ***************************** Frame & Parent ***************************** //
 
     var frame: Option<Frame> = None()
         internal set (frame) {
-
+            field = frame
+            parentChanged(field, frame)
         }
 
     internal abstract fun parentChanged(old: Option<Frame>, new: Option<Frame>)
@@ -72,6 +98,36 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
     override fun isRoot(): Boolean {
         return parent.isNone()
+    }
+
+    internal open fun reapplyFont() {
+        val style = getStyle()
+
+        val values = when (style) {
+            is Some -> style.value
+            is None -> return
+        }
+
+        val font = values.font
+        val fontSize = font.fontSize.size().toPx().toInt()
+
+        for (fontFamily in values.font.fontFamily.values) {
+            when (fontFamily) {
+                is SingleFontFamily.Generic -> {
+                    component.font = when (fontFamily.name) {
+                        "serif" -> Font("Times", 0, fontSize)
+                        "sans-serif" -> Font("Helvetica", 0, fontSize)
+                        "monospace" -> Font("Courier", 0, fontSize)
+                        else -> Font("Times", 0, fontSize)
+                    }
+                }
+                is SingleFontFamily.FamilyName -> {
+                    component.font = Font(fontFamily.name.value, 0, fontSize)
+                }
+            }
+        }
+
+        component.foreground = values.color.color.toAWTColor()
     }
 
     // ***************************** Matching ***************************** //
@@ -217,6 +273,14 @@ open class AWTContainerElement(container: Container) : AWTComponentElement(conta
         }
     }
 
+    override fun reapplyFont() {
+        super.reapplyFont()
+
+        for (child in children) {
+            child.reapplyFont()
+        }
+    }
+
     override fun children(): List<Element> {
         return children
     }
@@ -325,4 +389,15 @@ private fun ensureElement(component: Component): AWTComponentElement {
 
 fun Component.into(): AWTComponentElement {
     return ensureElement(this)
+}
+
+enum class StyleState {
+
+    CLEAN,
+
+    UPDATE,
+
+    REAPPLY,
+
+    DIRTY_BRANCH
 }

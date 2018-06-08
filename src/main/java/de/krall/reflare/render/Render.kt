@@ -9,13 +9,20 @@ import de.krall.flare.style.properties.stylestruct.Border
 import de.krall.flare.style.properties.stylestruct.Margin
 import de.krall.flare.style.properties.stylestruct.Padding
 import de.krall.flare.style.value.computed.Au
+import de.krall.flare.style.value.computed.Color
 import de.krall.reflare.t.TBounds
 import de.krall.reflare.t.TColor
 import de.krall.reflare.t.TInsets
 import de.krall.reflare.t.TRadius
 import de.krall.reflare.toAWTColor
-import sun.nio.cs.ext.TIS_620
-import java.awt.*
+import java.awt.Color as AWTColor
+import java.awt.Component
+import java.awt.Dimension
+import java.awt.Graphics
+import java.awt.Graphics2D
+import java.awt.Rectangle
+import java.awt.RenderingHints
+import java.awt.Shape
 import java.awt.geom.Arc2D
 import java.awt.geom.Area
 import java.awt.geom.Path2D
@@ -26,7 +33,7 @@ fun renderBackground(g: Graphics, component: Component, style: Option<ComputedVa
         is None -> {
             val bounds = component.bounds
 
-            g.color = Color.RED
+            g.color = AWTColor.RED
             g.fillRect(0, 0, bounds.width, bounds.height)
             return
         }
@@ -60,19 +67,23 @@ private fun Border.toWidth(): TInsets {
 
 private fun Border.toRadius(bounds: Rectangle): TRadius {
     return TRadius(
-            this.topLeftRadius.toPixelLength(Au.fromPx(bounds.width)).px(),
-            this.topRightRadius.toPixelLength(Au.fromPx(bounds.width)).px(),
-            this.bottomRightRadius.toPixelLength(Au.fromPx(bounds.width)).px(),
-            this.bottomLeftRadius.toPixelLength(Au.fromPx(bounds.width)).px()
+            this.topLeftRadius.width.toPixelLength(Au.fromPx(bounds.width)).px(),
+            this.topLeftRadius.height.toPixelLength(Au.fromPx(bounds.width)).px(),
+            this.topRightRadius.width.toPixelLength(Au.fromPx(bounds.width)).px(),
+            this.topRightRadius.height.toPixelLength(Au.fromPx(bounds.width)).px(),
+            this.bottomRightRadius.width.toPixelLength(Au.fromPx(bounds.width)).px(),
+            this.bottomRightRadius.height.toPixelLength(Au.fromPx(bounds.width)).px(),
+            this.bottomLeftRadius.width.toPixelLength(Au.fromPx(bounds.width)).px(),
+            this.bottomLeftRadius.height.toPixelLength(Au.fromPx(bounds.width)).px()
     )
 }
 
-private fun Border.toColor(): TColor {
+private fun Border.toColor(currentColor: Color): TColor {
     return TColor(
-            this.topColor.toAWTColor(),
-            this.rightColor.toAWTColor(),
-            this.bottomColor.toAWTColor(),
-            this.leftColor.toAWTColor()
+            this.topColor.toAWTColor(currentColor),
+            this.rightColor.toAWTColor(currentColor),
+            this.bottomColor.toAWTColor(currentColor),
+            this.leftColor.toAWTColor(currentColor)
     )
 }
 
@@ -133,7 +144,7 @@ fun paintBorder(g: Graphics, component: Component, computedValues: ComputedValue
 
     val borderWidth = border.toWidth()
     val borderRadius = border.toRadius(bounds)
-    val borderColor = border.toColor()
+    val borderColor = border.toColor(computedValues.color.color)
 
     val margin = computedValues.margin.toInsets(bounds)
     val padding = computedValues.padding.toInsets(bounds)
@@ -204,14 +215,14 @@ private fun computeBackgroundClip(clip: Clip, size: Dimension, borderWidth: TIns
 private fun computeRoundedRectangle(rect: TBounds, radii: TRadius, width: TInsets): Path2D {
     val path = Path2D.Float()
 
-    val tls = if (width.top < radii.topLeft) radii.topLeft - width.top else 0f
-    val tlt = if (width.left < radii.topLeft) radii.topLeft - width.left else 0f
-    val trs = if (width.top < radii.topRight) radii.topRight - width.top else 0f
-    val trt = if (width.right < radii.topRight) radii.topRight - width.right else 0f
-    val brs = if (width.bottom < radii.bottomRight) radii.bottomRight - width.bottom else 0f
-    val brt = if (width.right < radii.bottomRight) radii.bottomRight - width.right else 0f
-    val bls = if (width.bottom < radii.bottomLeft) radii.bottomLeft - width.bottom else 0f
-    val blt = if (width.left < radii.bottomLeft) radii.bottomLeft - width.left else 0f
+    val tls = if (width.top < radii.topLeftHeight) radii.topLeftHeight - width.top else 0f
+    val tlt = if (width.left < radii.topLeftWidth) radii.topLeftWidth - width.left else 0f
+    val trs = if (width.top < radii.topRightHeight) radii.topRightHeight - width.top else 0f
+    val trt = if (width.right < radii.topRightWidth) radii.topRightWidth - width.right else 0f
+    val brs = if (width.bottom < radii.bottomRightHeight) radii.bottomRightHeight - width.bottom else 0f
+    val brt = if (width.right < radii.bottomRightWidth) radii.bottomRightWidth - width.right else 0f
+    val bls = if (width.bottom < radii.bottomLeftHeight) radii.bottomLeftHeight - width.bottom else 0f
+    val blt = if (width.left < radii.bottomLeftWidth) radii.bottomLeftWidth - width.left else 0f
 
     path.moveTo((rect.x + tlt).toDouble(), rect.y.toDouble())
     path.lineTo((rect.x + rect.width - trt).toDouble(), rect.y.toDouble())
@@ -244,23 +255,23 @@ private fun computeBorderEdges(size: Dimension, borderWidth: TInsets, borderRadi
 private fun computeTopBorder(rect: TBounds, radii: TRadius, width: TInsets): Path2D {
     val path = Path2D.Float()
 
-    val tlt = if (width.top < radii.topLeft) radii.topLeft - width.top else 0f
-    val tls = if (width.left < radii.topLeft) radii.topLeft - width.left else 0f
-    val trt = if (width.top < radii.topRight) radii.topRight - width.top else 0f
-    val trs = if (width.right < radii.topRight) radii.topRight - width.right else 0f
+    val tlt = if (width.top < radii.topLeftHeight) radii.topLeftHeight - width.top else 0f
+    val tls = if (width.left < radii.topLeftWidth) radii.topLeftWidth - width.left else 0f
+    val trt = if (width.top < radii.topRightHeight) radii.topRightHeight - width.top else 0f
+    val trs = if (width.right < radii.topRightWidth) radii.topRightWidth - width.right else 0f
 
-    path.moveTo((rect.x + radii.topLeft).toDouble(), rect.y.toDouble())
-    path.lineTo((rect.x + rect.width - radii.topRight).toDouble(), rect.y.toDouble())
+    path.moveTo((rect.x + radii.topLeftWidth).toDouble(), rect.y.toDouble())
+    path.lineTo((rect.x + rect.width - radii.topRightWidth).toDouble(), rect.y.toDouble())
 
-    path.append(Arc2D.Float(rect.x + rect.width - radii.topRight * 2, rect.y, radii.topRight * 2, radii.topRight * 2, 90f, -45f, Arc2D.OPEN), true)
-    path.append(Arc2D.Float(rect.x + rect.width - Math.max(radii.topRight, width.right) - trs, rect.y + width.top, trs * 2, trt * 2, 45f, 45f, Arc2D.OPEN),
+    path.append(Arc2D.Float(rect.x + rect.width - radii.topRightWidth * 2, rect.y, radii.topRightWidth * 2, radii.topRightHeight * 2, 90f, -45f, Arc2D.OPEN), true)
+    path.append(Arc2D.Float(rect.x + rect.width - Math.max(radii.topRightWidth, width.right) - trs, rect.y + width.top, trs * 2, trt * 2, 45f, 45f, Arc2D.OPEN),
             true)
 
-    path.lineTo((rect.x + Math.max(radii.topLeft, width.left)).toDouble(), (rect.y + width.top).toDouble())
+    path.lineTo((rect.x + Math.max(radii.topLeftWidth, width.left)).toDouble(), (rect.y + width.top).toDouble())
 
-    path.append(Arc2D.Float(rect.x + Math.max(radii.topLeft, width.left) - tls, rect.y + Math.max(radii.topRight, width.top) - tlt, tls * 2, tlt * 2, 90f, 45f,
+    path.append(Arc2D.Float(rect.x + Math.max(radii.topLeftWidth, width.left) - tls, rect.y + Math.max(radii.topRightHeight, width.top) - tlt, tls * 2, tlt * 2, 90f, 45f,
             Arc2D.OPEN), true)
-    path.append(Arc2D.Float(rect.x, rect.y, radii.topLeft * 2, radii.topLeft * 2, 135f, -45f, Arc2D.OPEN), true)
+    path.append(Arc2D.Float(rect.x, rect.y, radii.topLeftWidth * 2, radii.topLeftHeight * 2, 135f, -45f, Arc2D.OPEN), true)
 
     return path
 }
@@ -268,24 +279,24 @@ private fun computeTopBorder(rect: TBounds, radii: TRadius, width: TInsets): Pat
 private fun computeRightBorder(rect: TBounds, radii: TRadius, width: TInsets): Path2D {
     val path = Path2D.Float()
 
-    val brt = if (width.bottom < radii.bottomRight) radii.bottomRight - width.bottom else 0f
-    val brs = if (width.right < radii.bottomRight) radii.bottomRight - width.right else 0f
-    val trt = if (width.top < radii.topRight) radii.topRight - width.top else 0f
-    val trs = if (width.right < radii.topRight) radii.topRight - width.right else 0f
+    val brt = if (width.bottom < radii.bottomRightHeight) radii.bottomRightHeight - width.bottom else 0f
+    val brs = if (width.right < radii.bottomRightWidth) radii.bottomRightWidth - width.right else 0f
+    val trt = if (width.top < radii.topRightHeight) radii.topRightWidth - width.top else 0f
+    val trs = if (width.right < radii.topRightWidth) radii.topRightWidth - width.right else 0f
 
-    path.moveTo((rect.x + rect.width).toDouble(), (rect.y + radii.topRight).toDouble())
-    path.lineTo((rect.x + rect.width).toDouble(), (rect.y + rect.height - radii.bottomRight).toDouble())
+    path.moveTo((rect.x + rect.width).toDouble(), (rect.y + radii.topRightHeight).toDouble())
+    path.lineTo((rect.x + rect.width).toDouble(), (rect.y + rect.height - radii.bottomRightHeight).toDouble())
 
-    path.append(Arc2D.Float(rect.x + rect.width - radii.bottomRight * 2, rect.y + rect.height - radii.bottomRight * 2, radii.bottomRight * 2,
-            radii.bottomRight * 2, 0f, -45f, Arc2D.OPEN), true)
-    path.append(Arc2D.Float(rect.x + rect.width - Math.max(radii.bottomRight, width.right) - brs,
-            rect.y + rect.height - Math.max(radii.bottomRight, width.bottom) - brt, brs * 2, brt * 2, -45f, 45f, Arc2D.OPEN), true)
+    path.append(Arc2D.Float(rect.x + rect.width - radii.bottomRightWidth * 2, rect.y + rect.height - radii.bottomRightHeight * 2, radii.bottomRightWidth * 2,
+            radii.bottomRightHeight * 2, 0f, -45f, Arc2D.OPEN), true)
+    path.append(Arc2D.Float(rect.x + rect.width - Math.max(radii.bottomRightWidth, width.right) - brs,
+            rect.y + rect.height - Math.max(radii.bottomRightHeight, width.bottom) - brt, brs * 2, brt * 2, -45f, 45f, Arc2D.OPEN), true)
 
-    path.lineTo((rect.x + rect.width - width.right).toDouble(), (rect.y + Math.max(radii.topRight, width.bottom)).toDouble())
+    path.lineTo((rect.x + rect.width - width.right).toDouble(), (rect.y + Math.max(radii.topRightHeight, width.bottom)).toDouble())
 
-    path.append(Arc2D.Float(rect.x + rect.width - Math.max(radii.topRight, width.right) - trs, rect.y + Math.max(radii.topRight, width.top) - trt, trs * 2,
+    path.append(Arc2D.Float(rect.x + rect.width - Math.max(radii.topRightWidth, width.right) - trs, rect.y + Math.max(radii.topRightHeight, width.top) - trt, trs * 2,
             trt * 2, 0f, 45f, Arc2D.OPEN), true)
-    path.append(Arc2D.Float(rect.x + rect.width - radii.topRight * 2, rect.y, radii.topRight * 2, radii.topRight * 2, 45f, -45f, Arc2D.OPEN), true)
+    path.append(Arc2D.Float(rect.x + rect.width - radii.topRightWidth * 2, rect.y, radii.topRightWidth * 2, radii.topRightHeight * 2, 45f, -45f, Arc2D.OPEN), true)
 
     return path
 }
@@ -293,25 +304,25 @@ private fun computeRightBorder(rect: TBounds, radii: TRadius, width: TInsets): P
 private fun computeBottomBorder(rect: TBounds, radii: TRadius, width: TInsets): Path2D {
     val path = Path2D.Float()
 
-    val blt = if (width.bottom < radii.bottomLeft) radii.bottomLeft - width.bottom else 0f
-    val bls = if (width.left < radii.bottomLeft) radii.bottomLeft - width.left else 0f
-    val brt = if (width.bottom < radii.bottomRight) radii.bottomRight - width.bottom else 0f
-    val brs = if (width.right < radii.bottomRight) radii.bottomRight - width.right else 0f
+    val blt = if (width.bottom < radii.bottomLeftHeight) radii.bottomLeftHeight - width.bottom else 0f
+    val bls = if (width.left < radii.bottomLeftWidth) radii.bottomLeftWidth - width.left else 0f
+    val brt = if (width.bottom < radii.bottomRightHeight) radii.bottomRightHeight - width.bottom else 0f
+    val brs = if (width.right < radii.bottomRightWidth) radii.bottomRightWidth - width.right else 0f
 
-    path.moveTo((rect.x + radii.topLeft).toDouble(), (rect.y + rect.height).toDouble())
-    path.lineTo((rect.x + rect.width - radii.bottomRight).toDouble(), (rect.y + rect.height).toDouble())
+    path.moveTo((rect.x + radii.topLeftWidth).toDouble(), (rect.y + rect.height).toDouble())
+    path.lineTo((rect.x + rect.width - radii.bottomRightWidth).toDouble(), (rect.y + rect.height).toDouble())
 
-    path.append(Arc2D.Float(rect.x + rect.width - radii.bottomRight * 2, rect.y + rect.height - radii.bottomRight * 2, radii.bottomRight * 2,
-            radii.bottomRight * 2, -90f, 45f, Arc2D.OPEN), true)
-    path.append(Arc2D.Float(rect.x + rect.width - Math.max(radii.bottomRight, width.right) - brs,
-            rect.y + rect.height - Math.max(radii.bottomRight, width.bottom) - brt, brs * 2, brt * 2, -45f, -45f, Arc2D.OPEN), true)
+    path.append(Arc2D.Float(rect.x + rect.width - radii.bottomRightWidth * 2, rect.y + rect.height - radii.bottomRightHeight * 2, radii.bottomRightWidth * 2,
+            radii.bottomRightHeight * 2, -90f, 45f, Arc2D.OPEN), true)
+    path.append(Arc2D.Float(rect.x + rect.width - Math.max(radii.bottomRightWidth, width.right) - brs,
+            rect.y + rect.height - Math.max(radii.bottomRightHeight, width.bottom) - brt, brs * 2, brt * 2, -45f, -45f, Arc2D.OPEN), true)
 
-    path.lineTo((rect.x + Math.max(radii.topLeft, width.left)).toDouble(), (rect.y + rect.height - width.bottom).toDouble())
+    path.lineTo((rect.x + Math.max(radii.topLeftWidth, width.left)).toDouble(), (rect.y + rect.height - width.bottom).toDouble())
 
     path.append(
-            Arc2D.Float(rect.x + Math.max(radii.bottomLeft, width.left) - bls, rect.y + rect.height - Math.max(radii.bottomLeft, width.bottom) - blt, bls * 2,
+            Arc2D.Float(rect.x + Math.max(radii.bottomLeftWidth, width.left) - bls, rect.y + rect.height - Math.max(radii.bottomLeftHeight, width.bottom) - blt, bls * 2,
                     blt * 2, -90f, -45f, Arc2D.OPEN), true)
-    path.append(Arc2D.Float(rect.x, rect.y + rect.height - radii.bottomLeft * 2, radii.bottomLeft * 2, radii.bottomLeft * 2, -135f, 45f, Arc2D.OPEN), true)
+    path.append(Arc2D.Float(rect.x, rect.y + rect.height - radii.bottomLeftHeight * 2, radii.bottomLeftWidth * 2, radii.bottomLeftHeight * 2, -135f, 45f, Arc2D.OPEN), true)
 
     return path
 }
@@ -319,24 +330,24 @@ private fun computeBottomBorder(rect: TBounds, radii: TRadius, width: TInsets): 
 private fun computeLeftBorder(rect: TBounds, radii: TRadius, width: TInsets): Path2D {
     val path = Path2D.Float()
 
-    val blt = if (width.bottom < radii.bottomLeft) radii.bottomLeft - width.bottom else 0f
-    val bls = if (width.left < radii.bottomLeft) radii.bottomLeft - width.left else 0f
-    val tlt = if (width.top < radii.topLeft) radii.topLeft - width.top else 0f
-    val tls = if (width.left < radii.topLeft) radii.topLeft - width.left else 0f
+    val blt = if (width.bottom < radii.bottomLeftHeight) radii.bottomLeftHeight - width.bottom else 0f
+    val bls = if (width.left < radii.bottomLeftWidth) radii.bottomLeftWidth - width.left else 0f
+    val tlt = if (width.top < radii.topLeftHeight) radii.topLeftHeight - width.top else 0f
+    val tls = if (width.left < radii.topLeftWidth) radii.topLeftWidth - width.left else 0f
 
-    path.moveTo(rect.x.toDouble(), (rect.y + radii.topLeft).toDouble())
-    path.lineTo(rect.x.toDouble(), (rect.y + rect.height - radii.bottomLeft).toDouble())
+    path.moveTo(rect.x.toDouble(), (rect.y + radii.topLeftHeight).toDouble())
+    path.lineTo(rect.x.toDouble(), (rect.y + rect.height - radii.bottomLeftHeight).toDouble())
 
-    path.append(Arc2D.Float(rect.x, rect.y + rect.height - radii.bottomLeft * 2, radii.bottomLeft * 2, radii.bottomLeft * 2, 180f, 45f, Arc2D.OPEN), true)
+    path.append(Arc2D.Float(rect.x, rect.y + rect.height - radii.bottomLeftHeight * 2, radii.bottomLeftWidth * 2, radii.bottomLeftHeight * 2, 180f, 45f, Arc2D.OPEN), true)
     path.append(
-            Arc2D.Float(rect.x + Math.max(radii.bottomLeft, width.left) - bls, rect.y + rect.height - Math.max(radii.bottomLeft, width.bottom) - blt, bls * 2,
+            Arc2D.Float(rect.x + Math.max(radii.bottomLeftWidth, width.left) - bls, rect.y + rect.height - Math.max(radii.bottomLeftHeight, width.bottom) - blt, bls * 2,
                     blt * 2, 225f, -45f, Arc2D.OPEN), true)
 
-    path.lineTo((rect.x + width.left).toDouble(), (rect.y + Math.max(radii.topLeft, width.top)).toDouble())
+    path.lineTo((rect.x + width.left).toDouble(), (rect.y + Math.max(radii.topLeftHeight, width.top)).toDouble())
 
-    path.append(Arc2D.Float(rect.x + Math.max(radii.topLeft, width.left) - tls, rect.y + Math.max(radii.topLeft, width.top) - tlt, tls * 2, tlt * 2, 180f, -45f,
+    path.append(Arc2D.Float(rect.x + Math.max(radii.topLeftWidth, width.left) - tls, rect.y + Math.max(radii.topLeftHeight, width.top) - tlt, tls * 2, tlt * 2, 180f, -45f,
             Arc2D.OPEN), true)
-    path.append(Arc2D.Float(rect.x, rect.y, radii.topLeft * 2, radii.topLeft * 2, 135f, 45f, Arc2D.OPEN), true)
+    path.append(Arc2D.Float(rect.x, rect.y, radii.topLeftWidth * 2, radii.topLeftHeight * 2, 135f, 45f, Arc2D.OPEN), true)
 
     return path
 }

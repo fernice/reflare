@@ -2,51 +2,92 @@ package de.krall.reflare.t;
 
 public class TRadius {
 
-    public float topLeft;
-    public float topRight;
-    public float bottomRight;
-    public float bottomLeft;
+    public float topLeftWidth;
+    public float topLeftHeight;
+    public float topRightWidth;
+    public float topRightHeight;
+    public float bottomRightWidth;
+    public float bottomRightHeight;
+    public float bottomLeftWidth;
+    public float bottomLeftHeight;
 
-    public TRadius(){
+    public TRadius() {
 
     }
 
-    public TRadius(final float topLeft, final float topRight, final float bottomRight, final float bottomLeft) {
-        this.topLeft = topLeft;
-        this.topRight = topRight;
-        this.bottomRight = bottomRight;
-        this.bottomLeft = bottomLeft;
+    public TRadius(final float topLeftWidth, final float topLeftHeight, final float topRightWidth, final float topRightHeight, final float bottomRightWidth,
+            final float bottomRightHeight, final float bottomLeftWidth, final float bottomLeftHeight) {
+        this.topLeftWidth = topLeftWidth;
+        this.topLeftHeight = topLeftHeight;
+        this.topRightWidth = topRightWidth;
+        this.topRightHeight = topRightHeight;
+        this.bottomRightWidth = bottomRightWidth;
+        this.bottomRightHeight = bottomRightHeight;
+        this.bottomLeftWidth = bottomLeftWidth;
+        this.bottomLeftHeight = bottomLeftHeight;
     }
 
-    public float getTopLeft() {
-        return topLeft;
+    public float getTopLeftWidth() {
+        return topLeftWidth;
     }
 
-    public void setTopLeft(final float topLeft) {
-        this.topLeft = topLeft;
+    public void setTopLeftWidth(final float topLeftWidth) {
+        this.topLeftWidth = topLeftWidth;
     }
 
-    public float getTopRight() {
-        return topRight;
+    public float getTopLeftHeight() {
+        return topLeftHeight;
     }
 
-    public void setTopRight(final float topRight) {
-        this.topRight = topRight;
+    public void setTopLeftHeight(final float topLeftHeight) {
+        this.topLeftHeight = topLeftHeight;
     }
 
-    public float getBottomRight() {
-        return bottomRight;
+    public float getTopRightWidth() {
+        return topRightWidth;
     }
 
-    public void setBottomRight(final float bottomRight) {
-        this.bottomRight = bottomRight;
+    public void setTopRightWidth(final float topRightWidth) {
+        this.topRightWidth = topRightWidth;
     }
 
-    public float getBottomLeft() {
-        return bottomLeft;
+    public float getTopRightHeight() {
+        return topRightHeight;
     }
 
-    public void setBottomLeft(final float bottomLeft) {
-        this.bottomLeft = bottomLeft;
+    public void setTopRightHeight(final float topRightHeight) {
+        this.topRightHeight = topRightHeight;
+    }
+
+    public float getBottomRightWidth() {
+        return bottomRightWidth;
+    }
+
+    public void setBottomRightWidth(final float bottomRightWidth) {
+        this.bottomRightWidth = bottomRightWidth;
+    }
+
+    public float getBottomRightHeight() {
+        return bottomRightHeight;
+    }
+
+    public void setBottomRightHeight(final float bottomRightHeight) {
+        this.bottomRightHeight = bottomRightHeight;
+    }
+
+    public float getBottomLeftWidth() {
+        return bottomLeftWidth;
+    }
+
+    public void setBottomLeftWidth(final float bottomLeftWidth) {
+        this.bottomLeftWidth = bottomLeftWidth;
+    }
+
+    public float getBottomLeftHeight() {
+        return bottomLeftHeight;
+    }
+
+    public void setBottomLeftHeight(final float bottomLeftHeight) {
+        this.bottomLeftHeight = bottomLeftHeight;
     }
 }

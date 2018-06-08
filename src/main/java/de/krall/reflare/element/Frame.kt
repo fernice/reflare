@@ -34,7 +34,7 @@ class Frame(val frame: JFrame) : Device {
     )
 
     init {
-        val path = File(FlareLookAndFeel::class.java.getResource("/test.css").file).toPath()
+        val path = File(FlareLookAndFeel::class.java.getResource("/darkmode.css").file).toPath()
         val encoded = Files.readAllBytes(path)
 
         val text = String(encoded)
@@ -104,8 +104,9 @@ class Frame(val frame: JFrame) : Device {
     fun restyle() {
         for (root in children) {
             cssEngine.applyStyles(root)
-
+            root.reapplyFont()
         }
+
         frame.contentPane.revalidate()
         frame.repaint()
     }
