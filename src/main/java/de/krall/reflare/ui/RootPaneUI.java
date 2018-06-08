@@ -1,7 +1,7 @@
 package de.krall.reflare.ui;
 
-import de.krall.reflare.FlareBorder;
 import de.krall.reflare.element.ComponentElement;
+import de.krall.reflare.element.ComponentKt;
 import de.krall.reflare.element.RootPaneElement;
 import de.krall.reflare.meta.DefinedBy;
 import de.krall.reflare.meta.DefinedBy.Api;
@@ -31,12 +31,12 @@ public class RootPaneUI extends BasicRootPaneUI implements FlareUI {
         rootPane.setOpaque(false);
         rootPane.setBorder(new FlareBorder(this));
 
-        UIKt.registerUI(rootPane, this);
+        ComponentKt.registerElement(rootPane, element);
     }
 
     @Override
     protected void uninstallDefaults(JRootPane rootPane) {
-        UIKt.deregisterUI(rootPane);
+        ComponentKt.deregisterElement(rootPane);
 
         super.uninstallDefaults(rootPane);
     }

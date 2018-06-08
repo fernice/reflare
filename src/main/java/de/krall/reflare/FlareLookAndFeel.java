@@ -4,12 +4,10 @@ import de.krall.reflare.meta.DefinedBy;
 import de.krall.reflare.meta.DefinedBy.Api;
 import de.krall.reflare.platform.GTKKeybindings;
 import de.krall.reflare.platform.WindowsKeybindings;
-import de.krall.reflare.ui.LayeredPaneUI;
 import java.awt.Color;
 import java.security.AccessController;
 import java.util.Locale;
 import javax.swing.JComponent;
-import javax.swing.JLayeredPane;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.plaf.ComponentUI;
@@ -95,9 +93,6 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
 
     @DefinedBy(Api.LOOK_AND_FEEL)
     public static ComponentUI createUI(JComponent c) {
-        if (c instanceof JLayeredPane) {
-            return new LayeredPaneUI();
-        }
         throw new IllegalArgumentException();
     }
 

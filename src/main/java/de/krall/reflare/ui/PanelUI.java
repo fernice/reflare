@@ -1,7 +1,7 @@
 package de.krall.reflare.ui;
 
-import de.krall.reflare.FlareBorder;
 import de.krall.reflare.element.ComponentElement;
+import de.krall.reflare.element.ComponentKt;
 import de.krall.reflare.element.PanelElement;
 import de.krall.reflare.meta.DefinedBy;
 import de.krall.reflare.meta.DefinedBy.Api;
@@ -24,21 +24,21 @@ public class PanelUI extends BasicPanelUI implements FlareUI {
 
     @Override
     protected void installDefaults(JPanel panel) {
-        super.installDefaults(panel);
+        //super.installDefaults(panel);
 
         element = new PanelElement(panel);
 
         panel.setOpaque(false);
         panel.setBorder(new FlareBorder(this));
 
-        UIKt.registerUI(panel, this);
+        ComponentKt.registerElement(panel, element);
     }
 
     @Override
     protected void uninstallDefaults(JPanel panel) {
-        UIKt.deregisterUI(panel);
+        ComponentKt.deregisterElement(panel);
 
-        super.uninstallDefaults(panel);
+        //super.uninstallDefaults(panel);
     }
 
     @Override

@@ -1,12 +1,13 @@
 package de.krall.reflare.ui;
 
-import de.krall.reflare.FlareBorder;
 import de.krall.reflare.element.ComponentElement;
+import de.krall.reflare.element.ComponentKt;
 import de.krall.reflare.element.TextFieldElement;
 import de.krall.reflare.meta.DefinedBy;
 import de.krall.reflare.meta.DefinedBy.Api;
 import java.awt.Component;
 import java.awt.Graphics;
+import java.awt.Insets;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 import javax.swing.plaf.ComponentUI;
@@ -32,12 +33,12 @@ public class TextFieldUI extends BasicTextFieldUI implements FlareUI {
         textField.setOpaque(false);
         textField.setBorder(new FlareBorder(this));
 
-        UIKt.registerUI(textField, this);
+        ComponentKt.registerElement(textField, element);
     }
 
     @Override
     protected void uninstallDefaults() {
-        UIKt.deregisterUI(getComponent());
+        ComponentKt.deregisterElement(getComponent());
 
         super.uninstallDefaults();
     }

@@ -7,6 +7,6 @@ abstract class TextElement(textComponent: JTextComponent) : ComponentElement(tex
 
 class TextFieldElement(textField: JTextField) : TextElement(textField) {
     override fun localName(): String {
-        return "TextField"
+        return "textfield"
     }
 }

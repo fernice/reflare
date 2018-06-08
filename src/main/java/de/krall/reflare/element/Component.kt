@@ -17,9 +17,14 @@ import de.krall.reflare.render.renderBorder
 import java.awt.Component
 import java.awt.Container
 import java.awt.Graphics
+import java.awt.event.ContainerEvent
+import java.awt.event.ContainerListener
 import java.util.*
 import javax.swing.JComponent
+import javax.swing.JFrame
 import javax.swing.JLayeredPane
+import javax.swing.event.AncestorEvent
+import javax.swing.event.AncestorListener
 import java.awt.Color as AWTColor
 
 abstract class AWTComponentElement(val component: Component) : Element {
@@ -32,7 +37,11 @@ abstract class AWTComponentElement(val component: Component) : Element {
     // ***************************** Frame & Parent ***************************** //
 
     var frame: Option<Frame> = None()
-        internal set
+        internal set (frame) {
+
+        }
+
+    internal abstract fun parentChanged(old: Option<Frame>, new: Option<Frame>)
 
     var parent: Option<AWTContainerElement> = None()
         internal set
@@ -143,7 +152,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
         data = None()
     }
 
-    private fun getStyle(): Option<ComputedValues> {
+    fun getStyle(): Option<ComputedValues> {
         val elementData = getData()
 
         val data = when (elementData) {
@@ -163,9 +172,50 @@ abstract class AWTComponentElement(val component: Component) : Element {
     }
 }
 
-abstract class AWTContainerElement(container: Container) : AWTComponentElement(container) {
+open class AWTContainerElement(container: Container) : AWTComponentElement(container) {
 
-    private val children: MutableList<ComponentElement> = mutableListOf()
+    private val children: MutableList<AWTComponentElement> = mutableListOf()
+
+    init {
+        container.addContainerListener(object : ContainerListener {
+            override fun componentAdded(e: ContainerEvent) {
+                childAdded(e.child)
+            }
+
+            override fun componentRemoved(e: ContainerEvent) {
+                childRemoved(e.child)
+            }
+        })
+
+        for (child in container.components) {
+            childAdded(child)
+        }
+    }
+
+    private fun childAdded(child: Component) {
+        val childElement = child.into()
+
+        val container = component as Container
+        val index = container.getComponentZOrder(child)
+
+        childElement.parent = parent
+        children.add(index, childElement)
+
+        restyle()
+    }
+
+    private fun childRemoved(child: Component) {
+        val childElement = child.into()
+
+        childElement.parent = None()
+        children.remove(childElement)
+    }
+
+    final override fun parentChanged(old: Option<Frame>, new: Option<Frame>) {
+        for (child in children) {
+            child.frame = new
+        }
+    }
 
     override fun children(): List<Element> {
         return children
@@ -226,37 +276,34 @@ abstract class AWTContainerElement(container: Container) : AWTComponentElement(c
 
 abstract class ComponentElement(component: JComponent) : AWTContainerElement(component) {
 
-    /*
-    component.addContainerListener(object : ContainerListener {
-        override fun componentAdded(e: ContainerEvent?) {
-            if (e!!.child !is JComponent) {
-                return
+    init {
+        component.addAncestorListener(object : AncestorListener {
+            override fun ancestorAdded(event: AncestorEvent) {
+                if (event.ancestor is JFrame) {
+                    val frame = event.ancestor as JFrame
+
+                    frame.into()
+                }
             }
 
-            val childComponent = e.child as JComponent
-            val childElement = childComponent.into()
-
-            val index = component.getComponentZOrder(childComponent)
-
-            children.add(index, childElement)
-        }
-
-        override fun componentRemoved(e: ContainerEvent?) {
-            if (e!!.child !is JComponent) {
-                return
+            override fun ancestorMoved(event: AncestorEvent) {
             }
 
-            val childComponent = e.child as JComponent
-            val childElement = childComponent.into()
-
-            children.remove(childElement)
-
-        }
-    })
-    */
+            override fun ancestorRemoved(event: AncestorEvent) {
+            }
+        })
+    }
 }
 
 private val elements: MutableMap<Component, AWTComponentElement> = WeakHashMap()
+
+fun registerElement(component: Component, element: AWTComponentElement) {
+    elements[component] = element
+}
+
+fun deregisterElement(component: Component) {
+    elements.remove(component)
+}
 
 private fun ensureElement(component: Component): AWTComponentElement {
     val element = elements[component]
@@ -264,6 +311,7 @@ private fun ensureElement(component: Component): AWTComponentElement {
     return if (element == null) {
         val new = when (component) {
             is JLayeredPane -> LayeredPaneElement(component)
+            is Container -> AWTContainerElement(component)
             else -> throw IllegalArgumentException("unsupported component ${component.javaClass.name}")
         }
 

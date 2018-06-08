@@ -1,7 +1,30 @@
 textfield {
-  background-color: aqua;
+  background-color: white;
+  border-top-width: 2px;
+  border-top-color: rgb(41, 163, 136);
+  border-left-width: 2px;
+  border-left-color: rgb(41, 163, 136);
+  border-bottom-width: 2px;
+  border-bottom-color: rgb(41, 163, 136);
+  border-right-width: 2px;
+  border-right-color: rgb(41, 163, 136);
+
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+
+  margin-top: 3px;
+  margin-right: 3px;
+  margin-bottom: 3px;
+  margin-left: 3px;
+
+  padding-top: 3px;
+  padding-right: 3px;
+  padding-bottom: 3px;
+  padding-left: 3px;
 }
 
 rootpane {
-  background-color: crimson;
+  background-color: aliceblue;
 }
