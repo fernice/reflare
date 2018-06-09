@@ -5,6 +5,7 @@ import de.krall.flare.dom.Device
 import de.krall.flare.font.FontMetricsProvider
 import de.krall.flare.font.FontMetricsQueryResult
 import de.krall.flare.std.None
+import de.krall.flare.std.Option
 import de.krall.flare.std.Some
 import de.krall.flare.style.properties.stylestruct.Font
 import de.krall.flare.style.stylesheet.Origin
@@ -13,14 +14,13 @@ import de.krall.flare.style.value.computed.Au
 import de.krall.flare.style.value.generic.Size2D
 import de.krall.reflare.FlareLookAndFeel
 import java.awt.Component
-import java.awt.event.ComponentAdapter
-import java.awt.event.ComponentEvent
 import java.awt.event.ContainerEvent
 import java.awt.event.ContainerListener
 import java.io.File
 import java.nio.file.Files
-import java.util.*
+import java.util.WeakHashMap
 import javax.swing.JFrame
+import javax.swing.SwingUtilities
 
 class Frame(val frame: JFrame) : Device {
 
@@ -33,27 +33,10 @@ class Frame(val frame: JFrame) : Device {
             }
     )
 
-    init {
-        val path = File(FlareLookAndFeel::class.java.getResource("/darkmode.css").file).toPath()
-        val encoded = Files.readAllBytes(path)
-
-        val text = String(encoded)
-
-        val stylesheet = Stylesheet.from(text, Origin.AUTHOR)
-
-        cssEngine.stylist.insertStyleheet(stylesheet)
-    }
-
-    private val children: MutableList<AWTComponentElement> = mutableListOf()
+    private var root: Option<AWTComponentElement> = None()
 
     init {
         frames[frame] = this
-
-        frame.addComponentListener(object : ComponentAdapter() {
-            override fun componentResized(e: ComponentEvent?) {
-                restyle()
-            }
-        })
 
         frame.addContainerListener(object : ContainerListener {
             override fun componentAdded(e: ContainerEvent) {
@@ -71,13 +54,19 @@ class Frame(val frame: JFrame) : Device {
     }
 
     private fun childAdded(child: Component) {
+        if (root is Some) {
+            System.err.println("= ERROR ==========================")
+            System.err.println(" A SECOND CHILD WAS ADDED TO THE ")
+            System.err.println(" FRAME. PLEASE REPORT THIS BUG.")
+        }
+
+
         val childElement = child.into()
 
         childElement.frame = Some(this@Frame)
+        root = Some(childElement)
 
-        children.add(childElement)
-
-        restyle()
+        markElementDirty(childElement)
     }
 
     private fun childRemoved(child: Component) {
@@ -85,7 +74,7 @@ class Frame(val frame: JFrame) : Device {
 
         childElement.parent = None()
 
-        children.remove(childElement)
+        root = None()
     }
 
     override fun viewportSize(): Size2D<Au> {
@@ -102,13 +91,80 @@ class Frame(val frame: JFrame) : Device {
     }
 
     fun restyle() {
-        for (root in children) {
-            cssEngine.applyStyles(root)
-            root.reapplyFont()
+        invokeLater {
+            val root = root
+
+            if (root is Some) {
+                markElementDirty(root.value)
+            } else {
+                frame.contentPane.revalidate()
+                frame.repaint()
+            }
+
         }
+    }
+
+    fun markElementDirty(element: AWTComponentElement) {
+        cssEngine.applyStyles(element)
+        element.reapplyFont()
 
         frame.contentPane.revalidate()
         frame.repaint()
+    }
+
+// ***************************** Stylesheet ***************************** //
+
+    private val stylesheets: MutableMap<File, Stylesheet> = mutableMapOf()
+
+    init {
+        addStylesheet(File(FlareLookAndFeel::class.java.getResource("/default.css").file), Origin.USER_AGENT)
+    }
+
+    fun addStylesheet(file: File) {
+        addStylesheet(file, Origin.AUTHOR)
+    }
+
+    private fun addStylesheet(file: File, origin: Origin) {
+        val path = file.toPath()
+        val encoded = Files.readAllBytes(path)
+
+        val text = String(encoded)
+
+        val stylesheet = Stylesheet.from(text, origin)
+
+        stylesheets[file] = stylesheet
+
+        invokeAndWait {
+            cssEngine.stylist.addStylesheet(stylesheet)
+
+            restyle()
+        }
+    }
+
+    fun removeStylesheet(file: File) {
+        val stylesheet = stylesheets.remove(file)
+
+        if (stylesheet != null) {
+            invokeAndWait {
+                cssEngine.stylist.removeStylesheet(stylesheet)
+            }
+        }
+    }
+
+    private fun invokeLater(runnable: () -> Unit) {
+        if (SwingUtilities.isEventDispatchThread()) {
+            runnable()
+        } else {
+            SwingUtilities.invokeLater(runnable)
+        }
+    }
+
+    private fun invokeAndWait(runnable: () -> Unit) {
+        if (SwingUtilities.isEventDispatchThread()) {
+            runnable()
+        } else {
+            SwingUtilities.invokeAndWait(runnable)
+        }
     }
 }
 

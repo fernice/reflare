@@ -18,6 +18,19 @@ public class TInsets {
         this.left = left;
     }
 
+    public TInsets set(float top, float right, float bottom, float left) {
+        this.top = top;
+        this.right = right;
+        this.bottom = bottom;
+        this.left = left;
+
+        return this;
+    }
+
+    public boolean isZero() {
+        return top == 0 && right == 0 && bottom == 0 && left == 0;
+    }
+
     public float getTop() {
         return top;
     }

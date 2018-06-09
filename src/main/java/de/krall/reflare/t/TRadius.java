@@ -27,6 +27,20 @@ public class TRadius {
         this.bottomLeftHeight = bottomLeftHeight;
     }
 
+    public TRadius set(final float topLeftWidth, final float topLeftHeight, final float topRightWidth, final float topRightHeight, final float bottomRightWidth,
+            final float bottomRightHeight, final float bottomLeftWidth, final float bottomLeftHeight) {
+        this.topLeftWidth = topLeftWidth;
+        this.topLeftHeight = topLeftHeight;
+        this.topRightWidth = topRightWidth;
+        this.topRightHeight = topRightHeight;
+        this.bottomRightWidth = bottomRightWidth;
+        this.bottomRightHeight = bottomRightHeight;
+        this.bottomLeftWidth = bottomLeftWidth;
+        this.bottomLeftHeight = bottomLeftHeight;
+
+        return this;
+    }
+
     public float getTopLeftWidth() {
         return topLeftWidth;
     }

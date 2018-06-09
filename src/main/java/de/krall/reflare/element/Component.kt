@@ -13,6 +13,7 @@ import de.krall.flare.std.unwrap
 import de.krall.flare.style.ComputedValues
 import de.krall.flare.style.properties.PropertyDeclarationBlock
 import de.krall.flare.style.value.computed.SingleFontFamily
+import de.krall.reflare.render.RenderCacheStrategy
 import de.krall.reflare.render.renderBackground
 import de.krall.reflare.render.renderBorder
 import de.krall.reflare.toAWTColor
@@ -20,11 +21,15 @@ import java.awt.Component
 import java.awt.Container
 import java.awt.Font
 import java.awt.Graphics
+import java.awt.event.ComponentAdapter
+import java.awt.event.ComponentEvent
 import java.awt.event.ContainerEvent
 import java.awt.event.ContainerListener
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
-import java.util.*
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
+import java.util.WeakHashMap
 import javax.swing.JComponent
 import javax.swing.JFrame
 import javax.swing.JLayeredPane
@@ -42,11 +47,29 @@ abstract class AWTComponentElement(val component: Component) : Element {
     init {
         component.addFocusListener(object : FocusListener {
             override fun focusLost(e: FocusEvent) {
-                reapplyCss()
+                invalidateStyle()
             }
 
             override fun focusGained(e: FocusEvent) {
-                reapplyCss()
+                invalidateStyle()
+            }
+        })
+
+        component.addComponentListener(object : ComponentAdapter() {
+            override fun componentResized(e: ComponentEvent?) {
+                invalidateBounds()
+            }
+        })
+
+        component.addMouseListener(object : MouseAdapter() {
+            override fun mouseEntered(e: MouseEvent?) {
+                hover = true
+                invalidateStyle()
+            }
+
+            override fun mouseExited(e: MouseEvent?) {
+                hover = false
+                invalidateStyle()
             }
         })
     }
@@ -57,6 +80,26 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
     fun reapplyCss() {
         restyle()
+    }
+
+    fun invalidateBounds() {
+        renderCacheStrategy.invalidateSizeDependant()
+        component.repaint()
+    }
+
+    fun invalidateStyle() {
+        renderCacheStrategy.invalidate()
+
+        restyle()
+    }
+
+
+    fun restyle() {
+        val frame = frame
+
+        when (frame) {
+            is Some -> frame.value.markElementDirty(this)
+        }
     }
 
     // ***************************** Frame & Parent ***************************** //
@@ -70,21 +113,19 @@ abstract class AWTComponentElement(val component: Component) : Element {
     internal abstract fun parentChanged(old: Option<Frame>, new: Option<Frame>)
 
     var parent: Option<AWTContainerElement> = None()
-        internal set
-
-    fun restyle() {
-        val frame = frame
-
-        when (frame) {
-            is Some -> frame.value.restyle()
+        internal set (parent) {
+            field = parent
         }
-    }
 
     override fun parent(): Option<Element> {
         return parent
     }
 
     override fun owner(): Option<Element> {
+        return parent
+    }
+
+    override fun traversalParent(): Option<Element> {
         return parent
     }
 
@@ -153,7 +194,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
         }
     }
 
-    val classes: List<String> = mutableListOf()
+    val classes: MutableList<String> = mutableListOf()
 
     override fun classes(): List<String> {
         return classes
@@ -167,11 +208,14 @@ abstract class AWTComponentElement(val component: Component) : Element {
         return false
     }
 
+    private var hover = false
+
     override fun matchNonTSPseudoClass(pseudoClass: NonTSPseudoClass): Boolean {
         return when (pseudoClass) {
             is NonTSPseudoClass.Enabled -> component.isEnabled
             is NonTSPseudoClass.Disabled -> !component.isEnabled
             is NonTSPseudoClass.Focus -> component.isFocusOwner
+            is NonTSPseudoClass.Hover -> hover
             else -> false
         }
     }
@@ -219,12 +263,16 @@ abstract class AWTComponentElement(val component: Component) : Element {
         return data.getStyles().primary
     }
 
+    // ***************************** Render ***************************** //
+
+    var renderCacheStrategy: RenderCacheStrategy = RenderCacheStrategy.NoCache()
+
     fun paintBackground(component: Component, g: Graphics) {
-        renderBackground(g, component, getStyle())
+        renderBackground(g, component, this, getStyle())
     }
 
     fun paintBorder(component: Component, g: Graphics) {
-        renderBorder(g, component, getStyle())
+        renderBorder(g, component, this, getStyle())
     }
 }
 
@@ -254,7 +302,8 @@ open class AWTContainerElement(container: Container) : AWTComponentElement(conta
         val container = component as Container
         val index = container.getComponentZOrder(child)
 
-        childElement.parent = parent
+        childElement.frame = frame
+        childElement.parent = Some(this)
         children.add(index, childElement)
 
         restyle()
@@ -263,6 +312,7 @@ open class AWTContainerElement(container: Container) : AWTComponentElement(conta
     private fun childRemoved(child: Component) {
         val childElement = child.into()
 
+        childElement.frame = None()
         childElement.parent = None()
         children.remove(childElement)
     }

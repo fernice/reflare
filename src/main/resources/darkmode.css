@@ -18,3 +18,22 @@ textfield:focus {
 rootpane {
   background-color: #222222;
 }
+
+button {
+  background-color: rgb(41, 163, 136);
+  color: white;
+  font-family: sans-serif;
+  font-size: 12px;
+  padding: 5px 8px;
+  border-radius: 2px;
+}
+
+button:hover {
+  background-color: rgb(72, 184, 159);
+}
+
+.title {
+  color: white;
+  font-family: sans-serif;
+  font-size: 20px;
+}

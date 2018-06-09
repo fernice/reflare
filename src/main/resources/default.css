@@ -1,0 +1,48 @@
+
+rootpane {
+  background-color: white;
+
+  font-family: sans-serif;
+  font-size: 12px;
+}
+
+textfield {
+  background-color: #eeeeee;
+  border: 1px #848484;
+  border-radius: 2px;
+  margin: 4px;
+  padding: 3px;
+
+  color: black;
+}
+
+textfield:hover {
+  border-color: black;
+}
+
+textfield:focus {
+  margin: 3px;
+  border: 2px dodgerblue;
+}
+
+button {
+  margin: 2px;
+  background-color: #a0a0a0;
+  color: white;
+  padding: 5px 8px;
+  border-radius: 2px;
+}
+
+button:hover {
+  background-color: #b6b6b6;
+}
+
+button:focus {
+  margin: 0;
+  border: 2px dodgerblue;
+  background-color: #848484;
+}
+
+label {
+  color: black;
+}

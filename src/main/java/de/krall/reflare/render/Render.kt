@@ -1,21 +1,18 @@
 package de.krall.reflare.render
 
-import de.krall.flare.std.None
 import de.krall.flare.std.Option
 import de.krall.flare.std.Some
 import de.krall.flare.style.ComputedValues
 import de.krall.flare.style.properties.longhand.Clip
-import de.krall.flare.style.properties.stylestruct.Border
 import de.krall.flare.style.properties.stylestruct.Margin
 import de.krall.flare.style.properties.stylestruct.Padding
 import de.krall.flare.style.value.computed.Au
-import de.krall.flare.style.value.computed.Color
+import de.krall.reflare.element.AWTComponentElement
 import de.krall.reflare.t.TBounds
 import de.krall.reflare.t.TColor
 import de.krall.reflare.t.TInsets
 import de.krall.reflare.t.TRadius
 import de.krall.reflare.toAWTColor
-import java.awt.Color as AWTColor
 import java.awt.Component
 import java.awt.Dimension
 import java.awt.Graphics
@@ -26,66 +23,39 @@ import java.awt.Shape
 import java.awt.geom.Arc2D
 import java.awt.geom.Area
 import java.awt.geom.Path2D
+import java.awt.Color as AWTColor
 
-fun renderBackground(g: Graphics, component: Component, style: Option<ComputedValues>) {
-    val values = when (style) {
-        is Some -> style.value
-        is None -> {
-            val bounds = component.bounds
-
-            g.color = AWTColor.RED
-            g.fillRect(0, 0, bounds.width, bounds.height)
-            return
-        }
-    }
-
-    paintBackground(g, component, values)
-}
-
-fun renderBorder(g: Graphics, component: Component, style: Option<ComputedValues>) {
+fun renderBackground(g: Graphics, component: Component, element: AWTComponentElement, style: Option<ComputedValues>) {
     if (style is Some) {
-        paintBorder(g, component, style.value)
-    }
+        paintBackground(g, component, style.value, element.renderCacheStrategy)
+    } else {
+        val bounds = component.bounds
 
+        g.color = AWTColor.RED
+        g.fillRect(0, 0, bounds.width, bounds.height)
+    }
 }
 
-fun setRenderingHints(g: Graphics) {
+fun renderBorder(g: Graphics, component: Component, element: AWTComponentElement, style: Option<ComputedValues>) {
+    if (style is Some) {
+        paintBorder(g, component, style.value, element.renderCacheStrategy)
+    } else {
+        val bounds = component.bounds
+
+        g.color = AWTColor.BLACK
+        g.drawRect(0, 0, bounds.width, bounds.height)
+    }
+}
+
+fun getGraphics(g: Graphics): Graphics2D {
     val g2 = g as Graphics2D
     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
     g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
     g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
+
+    return g2
 }
 
-private fun Border.toWidth(): TInsets {
-    return TInsets(
-            this.topWidth.length.px(),
-            this.rightWidth.length.px(),
-            this.bottomWidth.length.px(),
-            this.leftWidth.length.px()
-    )
-}
-
-private fun Border.toRadius(bounds: Rectangle): TRadius {
-    return TRadius(
-            this.topLeftRadius.width.toPixelLength(Au.fromPx(bounds.width)).px(),
-            this.topLeftRadius.height.toPixelLength(Au.fromPx(bounds.width)).px(),
-            this.topRightRadius.width.toPixelLength(Au.fromPx(bounds.width)).px(),
-            this.topRightRadius.height.toPixelLength(Au.fromPx(bounds.width)).px(),
-            this.bottomRightRadius.width.toPixelLength(Au.fromPx(bounds.width)).px(),
-            this.bottomRightRadius.height.toPixelLength(Au.fromPx(bounds.width)).px(),
-            this.bottomLeftRadius.width.toPixelLength(Au.fromPx(bounds.width)).px(),
-            this.bottomLeftRadius.height.toPixelLength(Au.fromPx(bounds.width)).px()
-    )
-}
-
-private fun Border.toColor(currentColor: Color): TColor {
-    return TColor(
-            this.topColor.toAWTColor(currentColor),
-            this.rightColor.toAWTColor(currentColor),
-            this.bottomColor.toAWTColor(currentColor),
-            this.leftColor.toAWTColor(currentColor)
-    )
-}
 
 private fun Margin.toInsets(bounds: Rectangle): TInsets {
     return TInsets(
@@ -105,10 +75,8 @@ private fun Padding.toInsets(bounds: Rectangle): TInsets {
     )
 }
 
-fun paintBackground(g: Graphics, component: Component, computedValues: ComputedValues) {
-    val g2 = g as Graphics2D
-
-    setRenderingHints(g)
+fun paintBackground(g: Graphics, component: Component, computedValues: ComputedValues, renderCache: RenderCacheStrategy) {
+    val g2 = getGraphics(g)
 
     val background = computedValues.background
     val border = computedValues.border
@@ -116,8 +84,8 @@ fun paintBackground(g: Graphics, component: Component, computedValues: ComputedV
     val bounds = component.bounds
     val size = component.size
 
-    val borderWidth = border.toWidth()
-    val borderRadius = border.toRadius(bounds)
+    val borderWidth = renderCache.computedBorderWidth(border)
+    val borderRadius = renderCache.computedBorderRadius(border, bounds)
 
     val margin = computedValues.margin.toInsets(bounds)
     val padding = computedValues.padding.toInsets(bounds)
@@ -132,19 +100,22 @@ fun paintBackground(g: Graphics, component: Component, computedValues: ComputedV
     g2.fill(clip)
 }
 
-fun paintBorder(g: Graphics, component: Component, computedValues: ComputedValues) {
-    val g2 = g as Graphics2D
-
-    setRenderingHints(g)
-
+fun paintBorder(g: Graphics, component: Component, computedValues: ComputedValues, renderCache: RenderCacheStrategy) {
     val border = computedValues.border
+
+    val borderWidth = renderCache.computedBorderWidth(border)
+
+    if (borderWidth.isZero) {
+        return
+    }
+
+    val g2 = getGraphics(g)
 
     val bounds = component.bounds
     val size = component.size
 
-    val borderWidth = border.toWidth()
-    val borderRadius = border.toRadius(bounds)
-    val borderColor = border.toColor(computedValues.color.color)
+    val borderRadius = renderCache.computedBorderRadius(border, bounds)
+    val borderColor = renderCache.computedBorderColor(border, computedValues.color.color)
 
     val margin = computedValues.margin.toInsets(bounds)
     val padding = computedValues.padding.toInsets(bounds)

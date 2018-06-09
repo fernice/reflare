@@ -85,6 +85,8 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
             defaults.put("RootPaneUI", basicPackageName + "RootPaneUI");
             defaults.put("PanelUI", basicPackageName + "PanelUI");
             defaults.put("TextFieldUI", basicPackageName + "TextFieldUI");
+            defaults.put("ButtonUI", basicPackageName + "ButtonUI");
+            defaults.put("LabelUI", basicPackageName + "LabelUI");
             defaults.put("ComponentUI", FlareLookAndFeel.class.getName());
         }
 

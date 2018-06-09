@@ -20,6 +20,15 @@ public class TColor {
         this.left = left;
     }
 
+    public TColor set(final Color top, final Color right, final Color bottom, final Color left) {
+        this.top = top;
+        this.right = right;
+        this.bottom = bottom;
+        this.left = left;
+
+        return this;
+    }
+
     public Color getTop() {
         return top;
     }

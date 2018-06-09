@@ -1,5 +1,5 @@
 textfield {
-  background-color: white;
+  background-color: #eeeeee;
   border: 1px #848484;
   border-radius: 5px;
   margin: 3px;
@@ -16,5 +16,24 @@ textfield:focus {
 }
 
 rootpane {
-  background-color: aliceblue;
+  background-color: white;
+}
+
+button {
+  background-color: rgb(41, 163, 136);
+  color: white;
+  font-family: sans-serif;
+  font-size: 12px;
+  padding: 5px 8px;
+  border-radius: 2px;
+}
+
+button:hover {
+  background-color: rgb(72, 184, 159);
+}
+
+.title {
+  color: #848484;
+  font-family: sans-serif;
+  font-size: 20px;
 }
