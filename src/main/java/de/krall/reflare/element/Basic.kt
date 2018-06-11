@@ -6,7 +6,7 @@ import javax.swing.JRootPane
 
 class RootPaneElement(rootPane: JRootPane) : ComponentElement(rootPane) {
     override fun localName(): String {
-        return "rootpane"
+        return "root"
     }
 }
 

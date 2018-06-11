@@ -91,25 +91,25 @@ class Frame(val frame: JFrame) : Device {
     }
 
     fun restyle() {
-        invokeLater {
-            val root = root
+        val root = root
 
-            if (root is Some) {
-                markElementDirty(root.value)
-            } else {
-                frame.contentPane.revalidate()
-                frame.repaint()
-            }
-
+        if (root is Some) {
+            markElementDirty(root.value)
+        } else {
+            frame.contentPane.revalidate()
+            frame.repaint()
         }
+
     }
 
     fun markElementDirty(element: AWTComponentElement) {
-        cssEngine.applyStyles(element)
-        element.reapplyFont()
+        invokeAndWait {
+            cssEngine.applyStyles(element)
+            element.reapplyFont()
 
-        frame.contentPane.revalidate()
-        frame.repaint()
+            frame.contentPane.revalidate()
+            frame.repaint()
+        }
     }
 
 // ***************************** Stylesheet ***************************** //
@@ -125,6 +125,10 @@ class Frame(val frame: JFrame) : Device {
     }
 
     private fun addStylesheet(file: File, origin: Origin) {
+        if (stylesheets.containsKey(file)) {
+            removeStylesheet(file)
+        }
+
         val path = file.toPath()
         val encoded = Files.readAllBytes(path)
 
@@ -147,6 +151,8 @@ class Frame(val frame: JFrame) : Device {
         if (stylesheet != null) {
             invokeAndWait {
                 cssEngine.stylist.removeStylesheet(stylesheet)
+
+                restyle()
             }
         }
     }

@@ -4,7 +4,6 @@ import de.krall.reflare.meta.DefinedBy;
 import de.krall.reflare.meta.DefinedBy.Api;
 import de.krall.reflare.platform.GTKKeybindings;
 import de.krall.reflare.platform.WindowsKeybindings;
-import java.awt.Color;
 import java.security.AccessController;
 import java.util.Locale;
 import javax.swing.JComponent;
@@ -17,8 +16,6 @@ import sun.swing.DefaultLookup;
 import sun.swing.SwingUtilities2;
 
 public class FlareLookAndFeel extends BasicLookAndFeel {
-
-    public static final Color GREEN = new Color(0, 105, 78);
 
     public static void init() {
         try {
@@ -75,8 +72,6 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
                 GTKKeybindings.installKeybindings(defaults);
             }
 
-            //putAATextInfo(getAATextInfoCondition(), defaults);
-
             Object aaTextInfo = getAATextInfo();
             defaults.put(SwingUtilities2.AA_TEXT_PROPERTY_KEY, aaTextInfo);
 
@@ -85,8 +80,15 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
             defaults.put("RootPaneUI", basicPackageName + "RootPaneUI");
             defaults.put("PanelUI", basicPackageName + "PanelUI");
             defaults.put("TextFieldUI", basicPackageName + "TextFieldUI");
+            defaults.put("PasswordFieldUI", basicPackageName + "PasswordFieldUI");
+            defaults.put("TextAreaUI", basicPackageName + "TextAreaUI");
             defaults.put("ButtonUI", basicPackageName + "ButtonUI");
             defaults.put("LabelUI", basicPackageName + "LabelUI");
+            defaults.put("ComboBoxUI", basicPackageName + "ComboBoxUI");
+            defaults.put("PopupMenuUI", basicPackageName + "PopupMenuUI");
+            defaults.put("ListUI", basicPackageName + "ListUI");
+            defaults.put("ScrollPaneUI", basicPackageName + "ScrollPaneUI");
+            defaults.put("ViewportUI", basicPackageName + "ViewportUI");
             defaults.put("ComponentUI", FlareLookAndFeel.class.getName());
         }
 

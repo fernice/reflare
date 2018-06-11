@@ -1,12 +1,12 @@
 
-rootpane {
+root {
   background-color: white;
 
   font-family: sans-serif;
   font-size: 12px;
 }
 
-textfield {
+text, textarea, password {
   background-color: #eeeeee;
   border: 1px #848484;
   border-radius: 2px;
@@ -16,11 +16,11 @@ textfield {
   color: black;
 }
 
-textfield:hover {
+text:hover, textarea:hover, password:hover {
   border-color: black;
 }
 
-textfield:focus {
+text:focus, textarea:focus, password:focus {
   margin: 3px;
   border: 2px dodgerblue;
 }
@@ -33,7 +33,7 @@ button {
   border-radius: 2px;
 }
 
-button:hover {
+button:hover, button:focus:hover {
   background-color: #b6b6b6;
 }
 
@@ -43,6 +43,41 @@ button:focus {
   background-color: #848484;
 }
 
+button:focus:hover:active {
+  background-color: dodgerblue;
+}
+
 label {
   color: black;
+  background-color: transparent;
+}
+
+combobox {
+  background-color: #eeeeee;
+  border: 1px #848484;
+  border-radius: 2px;
+  padding: 3px;
+
+  color: black;
+}
+
+combobox > button {
+  background-color: dodgerblue;
+  border-radius: 2px;
+}
+
+popup -flr-renderer > label {
+  color: black;
+  padding: 5px;
+  border: 2px red;
+}
+
+popup -flr-renderer > label:active {
+  background-color: dodgerblue;
+  color: white;
+}
+
+popup {
+  background-color: #efefef;
+  border: 1px #6f6f6f;
 }

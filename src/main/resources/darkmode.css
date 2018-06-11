@@ -1,4 +1,4 @@
-textfield {
+text, textarea, password {
   background-color: #333333;
   border: 1px #848484;
   border-radius: 5px;
@@ -11,11 +11,11 @@ textfield {
   color: white;
 }
 
-textfield:focus {
+text:focus, textarea:focus, password:focus {
   border-color: rgb(41, 163, 136);
 }
 
-rootpane {
+root {
   background-color: #222222;
 }
 

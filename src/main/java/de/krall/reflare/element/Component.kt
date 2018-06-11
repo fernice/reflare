@@ -30,6 +30,7 @@ import java.awt.event.FocusListener
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.util.WeakHashMap
+import javax.swing.CellRendererPane
 import javax.swing.JComponent
 import javax.swing.JFrame
 import javax.swing.JLayeredPane
@@ -93,8 +94,13 @@ abstract class AWTComponentElement(val component: Component) : Element {
         restyle()
     }
 
+    open fun notifyRestyle(){
+
+    }
 
     fun restyle() {
+        notifyRestyle()
+
         val frame = frame
 
         when (frame) {
@@ -208,13 +214,14 @@ abstract class AWTComponentElement(val component: Component) : Element {
         return false
     }
 
-    private var hover = false
+    protected var hover = false
+    protected var focus = false
 
     override fun matchNonTSPseudoClass(pseudoClass: NonTSPseudoClass): Boolean {
         return when (pseudoClass) {
             is NonTSPseudoClass.Enabled -> component.isEnabled
             is NonTSPseudoClass.Disabled -> !component.isEnabled
-            is NonTSPseudoClass.Focus -> component.isFocusOwner
+            is NonTSPseudoClass.Focus -> component.isFocusOwner || focus
             is NonTSPseudoClass.Hover -> hover
             else -> false
         }
@@ -424,6 +431,7 @@ private fun ensureElement(component: Component): AWTComponentElement {
 
     return if (element == null) {
         val new = when (component) {
+            is CellRendererPane -> CellRendererPaneElement(component)
             is JLayeredPane -> LayeredPaneElement(component)
             is Container -> AWTContainerElement(component)
             else -> throw IllegalArgumentException("unsupported component ${component.javaClass.name}")
