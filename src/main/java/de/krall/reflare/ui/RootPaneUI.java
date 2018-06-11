@@ -26,7 +26,9 @@ public class RootPaneUI extends BasicRootPaneUI implements FlareUI {
     protected void installDefaults(JRootPane rootPane) {
         super.installDefaults(rootPane);
 
-        element = new RootPaneElement(rootPane);
+        if (element == null) {
+            element = new RootPaneElement(rootPane);
+        }
 
         rootPane.setOpaque(false);
         rootPane.setBorder(new FlareBorder(this));

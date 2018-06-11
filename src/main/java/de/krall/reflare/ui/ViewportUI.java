@@ -26,7 +26,9 @@ public class ViewportUI extends BasicViewportUI implements FlareUI {
     protected void installDefaults(JComponent component) {
         JViewport viewport = (JViewport) component;
 
-        element = new ViewportElement(viewport);
+        if (element == null) {
+            element = new ViewportElement(viewport);
+        }
 
         component.setOpaque(false);
        // component.setBorder(new FlareBorder(this));

@@ -8,6 +8,7 @@ import de.krall.reflare.meta.DefinedBy;
 import de.krall.reflare.meta.DefinedBy.Api;
 import java.awt.Component;
 import java.awt.Graphics;
+import javax.swing.CellRendererPane;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComponent;
 import javax.swing.JList;
@@ -28,7 +29,9 @@ public class ListUI extends BasicListUI implements FlareUI {
 
     @Override
     protected void installDefaults() {
-        element = new ListElement(list);
+        if (element == null) {
+            element = new ListElement(list);
+        }
 
         list.setOpaque(false);
         list.setBorder(new FlareBorder(this));
@@ -38,6 +41,8 @@ public class ListUI extends BasicListUI implements FlareUI {
         if (list.getCellRenderer() == null || (list.getCellRenderer() instanceof UIResource)) {
             list.setCellRenderer(new FlareListCellRenderer());
         }
+
+        //rendererPane = new CellRendererPane();
     }
 
     @Override
@@ -47,16 +52,23 @@ public class ListUI extends BasicListUI implements FlareUI {
         if (list.getCellRenderer() instanceof UIResource) {
             list.setCellRenderer(null);
         }
+
     }
 
     private final static int heightChanged = 1 << 8;
+
+    public void invalidateHeight() {
+        updateLayoutStateNeeded = heightChanged;
+    }
+
+    public CellRendererPane getRenderPane() {
+        return rendererPane;
+    }
 
     @Override
     public void paint(final Graphics graphics, JComponent component) {
         element.paintBackground(component, graphics);
 
-
-        updateLayoutStateNeeded |= heightChanged;
         super.paint(graphics, component);
     }
 

@@ -15,14 +15,22 @@ class LabelElement(label: JLabel) : ComponentElement(label) {
     fun hoverHint(hover: Boolean): Boolean {
         val old = this.hover
         this.hover = hover
-        invalidateStyle()
+
+        if (old != hover) {
+            invalidateStyle()
+        }
+
         return old
     }
 
     fun focusHint(focus: Boolean): Boolean {
         val old = this.focus
         this.focus = focus
-        invalidateStyle()
+
+        if (old != focus) {
+            invalidateStyle()
+        }
+
         return old
     }
 
@@ -31,7 +39,11 @@ class LabelElement(label: JLabel) : ComponentElement(label) {
     fun activeHint(active: Boolean): Boolean {
         val old = this.active
         this.active = active
-        invalidateStyle()
+
+        if (old != active) {
+            invalidateStyle()
+        }
+
         return old
     }
 

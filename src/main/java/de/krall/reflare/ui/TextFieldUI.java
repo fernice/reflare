@@ -28,7 +28,9 @@ public class TextFieldUI extends BasicTextFieldUI implements FlareUI {
         super.installDefaults();
         final JTextField textField = (JTextField) getComponent();
 
-        element = new TextFieldElement(textField);
+        if (element == null) {
+            element = new TextFieldElement(textField);
+        }
 
         textField.setOpaque(false);
         textField.setBorder(new FlareBorder(this));

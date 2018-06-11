@@ -26,7 +26,9 @@ public class PanelUI extends BasicPanelUI implements FlareUI {
     protected void installDefaults(JPanel panel) {
         //super.installDefaults(panel);
 
-        element = new PanelElement(panel);
+        if (element == null) {
+            element = new PanelElement(panel);
+        }
 
         panel.setOpaque(false);
         panel.setBorder(new FlareBorder(this));

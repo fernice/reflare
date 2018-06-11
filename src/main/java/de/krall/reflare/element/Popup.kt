@@ -1,10 +1,18 @@
 package de.krall.reflare.element
 
+import de.krall.reflare.ui.FlareComboBoxPopup
 import javax.swing.JPopupMenu
 
-class PopupMenuElement(popupMenu: JPopupMenu) : ComponentElement(popupMenu) {
+open class PopupMenuElement(popupMenu: JPopupMenu) : ComponentElement(popupMenu) {
 
     override fun localName(): String {
         return "popup"
+    }
+}
+
+class ComboBoxPopupElement(popupMenu: FlareComboBoxPopup) : PopupMenuElement(popupMenu) {
+
+    override fun localName(): String {
+        return "comboboxpopup"
     }
 }

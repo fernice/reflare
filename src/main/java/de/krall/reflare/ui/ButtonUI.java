@@ -24,7 +24,9 @@ public class ButtonUI extends BasicButtonUI implements FlareUI {
 
     @Override
     protected void installDefaults(AbstractButton button) {
-        element = new ButtonElement(button);
+        if (element == null) {
+            element = new ButtonElement(button);
+        }
 
         button.setOpaque(false);
         button.setBorder(new FlareBorder(this));
@@ -39,9 +41,9 @@ public class ButtonUI extends BasicButtonUI implements FlareUI {
 
     @Override
     public void paint(final Graphics graphics, JComponent component) {
-        paintBackground(component,graphics);
+        paintBackground(component, graphics);
 
-        super.paint(graphics,component);
+        super.paint(graphics, component);
     }
 
     private void paintBackground(JComponent component, Graphics g) {

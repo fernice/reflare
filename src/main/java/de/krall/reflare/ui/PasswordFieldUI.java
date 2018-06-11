@@ -30,7 +30,9 @@ public class PasswordFieldUI extends BasicPasswordFieldUI implements FlareUI {
         super.installDefaults();
         final JPasswordField textField = (JPasswordField) getComponent();
 
-        element = new PasswordFieldElement(textField);
+        if (element == null) {
+            element = new PasswordFieldElement(textField);
+        }
 
         textField.setOpaque(false);
         textField.setBorder(new FlareBorder(this));

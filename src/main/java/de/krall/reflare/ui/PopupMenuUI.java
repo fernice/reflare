@@ -25,7 +25,9 @@ public class PopupMenuUI extends BasicPopupMenuUI implements FlareUI {
     public void installDefaults() {
         super.installDefaults();
 
-        element = new PopupMenuElement(popupMenu);
+        if (element == null) {
+            element = new PopupMenuElement(popupMenu);
+        }
 
         popupMenu.setOpaque(false);
         popupMenu.setBorder(new FlareBorder(this));

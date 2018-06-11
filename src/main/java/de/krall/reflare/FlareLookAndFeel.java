@@ -89,6 +89,7 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
             defaults.put("ListUI", basicPackageName + "ListUI");
             defaults.put("ScrollPaneUI", basicPackageName + "ScrollPaneUI");
             defaults.put("ViewportUI", basicPackageName + "ViewportUI");
+            defaults.put("ComboBoxPopupUI", basicPackageName + "ComboBoxPopupUI");
             defaults.put("ComponentUI", FlareLookAndFeel.class.getName());
         }
 

@@ -8,23 +8,19 @@ import de.krall.reflare.meta.DefinedBy;
 import de.krall.reflare.meta.DefinedBy.Api;
 import java.awt.Component;
 import java.awt.Graphics;
-import java.awt.Insets;
 import java.awt.Rectangle;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
-import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
-import javax.swing.border.Border;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicComboBoxUI;
-import javax.swing.plaf.basic.BasicComboPopup;
+import javax.swing.plaf.basic.ComboPopup;
 import org.jetbrains.annotations.NotNull;
 
 public class ComboBoxUI extends BasicComboBoxUI implements FlareUI {
@@ -81,6 +77,7 @@ public class ComboBoxUI extends BasicComboBoxUI implements FlareUI {
         return element;
     }
 
+    // Prevents any background from being painted apart from our CSS Background
     public void paintCurrentValue(Graphics g, Rectangle bounds, boolean hasFocus) {
         ListCellRenderer renderer = comboBox.getRenderer();
         Component c;
@@ -105,6 +102,11 @@ public class ComboBoxUI extends BasicComboBoxUI implements FlareUI {
     @Override
     protected ListCellRenderer createRenderer() {
         return new FlareComboBoxRenderer();
+    }
+
+    @Override
+    protected ComboPopup createPopup() {
+        return new FlareComboBoxPopup(comboBox);
     }
 
     private class FlareComboBoxRenderer extends JLabel implements ListCellRenderer<Object>, UIResource {
@@ -150,73 +152,6 @@ public class ComboBoxUI extends BasicComboBoxUI implements FlareUI {
 
             element.focusHint(false);
             element.activeHint(false);
-        }
-    }
-
-    class FlareComboPopup extends BasicComboPopup {
-        public FlareComboPopup( JComboBox combo ) {
-            super(combo);
-        }
-
-        @Override
-        protected void configureList() {
-            list.setFont( comboBox.getFont() );
-            list.setCellRenderer( comboBox.getRenderer() );
-            list.setFocusable( false );
-            list.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
-            int selectedIndex = comboBox.getSelectedIndex();
-            if ( selectedIndex == -1 ) {
-                list.clearSelection();
-            }
-            else {
-                list.setSelectedIndex( selectedIndex );
-                list.ensureIndexIsVisible( selectedIndex );
-            }
-            installListListeners();
-        }
-
-        /**
-         * @inheritDoc
-         *
-         * Overridden to take into account any popup insets specified in
-         * SynthComboBoxUI
-         */
-        @Override
-        protected Rectangle computePopupBounds(int px, int py, int pw, int ph) {
-            return super.computePopupBounds(px, py, pw, ph);
-        }
-
-        protected int getPopupHeightForRowCount(int maxRowCount) {
-            // Set the cached value of the minimum row count
-            int minRowCount = Math.min( maxRowCount, comboBox.getItemCount() );
-            int height = 0;
-            ListCellRenderer renderer = list.getCellRenderer();
-            Object value = null;
-
-            for ( int i = 0; i < minRowCount; ++i ) {
-                value = list.getModel().getElementAt( i );
-                Component c = renderer.getListCellRendererComponent( list, value, i, false, false );
-                ComponentKt.into(c).invalidateStyle();
-                height += c.getPreferredSize().height;
-            }
-
-            if (height == 0) {
-                height = comboBox.getHeight();
-            }
-
-            Border border = scroller.getViewportBorder();
-            if (border != null) {
-                Insets insets = border.getBorderInsets(null);
-                height += insets.top + insets.bottom;
-            }
-
-            border = scroller.getBorder();
-            if (border != null) {
-                Insets insets = border.getBorderInsets(null);
-                height += insets.top + insets.bottom;
-            }
-
-            return height;
         }
     }
 }

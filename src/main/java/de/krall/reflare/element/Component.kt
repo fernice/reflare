@@ -36,6 +36,7 @@ import javax.swing.JFrame
 import javax.swing.JLayeredPane
 import javax.swing.event.AncestorEvent
 import javax.swing.event.AncestorListener
+import de.krall.reflare.render.CellRendererPane as ModernCellRenderPane
 import java.awt.Color as AWTColor
 
 abstract class AWTComponentElement(val component: Component) : Element {
@@ -94,7 +95,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
         restyle()
     }
 
-    open fun notifyRestyle(){
+    open fun notifyRestyle() {
 
     }
 
@@ -313,15 +314,27 @@ open class AWTContainerElement(container: Container) : AWTComponentElement(conta
         childElement.parent = Some(this)
         children.add(index, childElement)
 
-        restyle()
+        invalidateStyle()
     }
 
-    private fun childRemoved(child: Component) {
+    private  fun childRemoved(child: Component) {
         val childElement = child.into()
 
         childElement.frame = None()
         childElement.parent = None()
         children.remove(childElement)
+
+        invalidateStyle()
+    }
+
+    fun addVirtualChild(childElement: AWTComponentElement){
+        childElement.frame = frame
+        childElement.parent = Some(this)
+    }
+
+    fun removeVirtualChild(childElement: AWTComponentElement){
+        childElement.frame = None()
+        childElement.parent = None()
     }
 
     final override fun parentChanged(old: Option<Frame>, new: Option<Frame>) {
@@ -432,6 +445,7 @@ private fun ensureElement(component: Component): AWTComponentElement {
     return if (element == null) {
         val new = when (component) {
             is CellRendererPane -> CellRendererPaneElement(component)
+            is ModernCellRenderPane -> ModernCellRendererPaneElement(component)
             is JLayeredPane -> LayeredPaneElement(component)
             is Container -> AWTContainerElement(component)
             else -> throw IllegalArgumentException("unsupported component ${component.javaClass.name}")

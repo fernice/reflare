@@ -66,18 +66,18 @@ combobox > button {
   border-radius: 2px;
 }
 
-popup -flr-renderer > label {
+comboboxpopup -flr-renderer > label {
   color: black;
   padding: 5px;
-  border: 2px red;
 }
 
-popup -flr-renderer > label:active {
+comboboxpopup -flr-renderer > label:active {
   background-color: dodgerblue;
   color: white;
 }
 
-popup {
+comboboxpopup {
   background-color: #efefef;
-  border: 1px #6f6f6f;
+  padding: 2px;
+  border: 1px #b6b6b6;
 }

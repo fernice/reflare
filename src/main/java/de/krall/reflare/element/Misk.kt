@@ -5,6 +5,7 @@ import javax.swing.JComboBox
 import javax.swing.JList
 import javax.swing.JScrollPane
 import javax.swing.JViewport
+import de.krall.reflare.render.CellRendererPane as ModernCellRenderPane
 
 class ComboBoxElement(comboBox: JComboBox<*>) : ComponentElement(comboBox) {
 
@@ -41,9 +42,12 @@ class ViewportElement(viewport: JViewport) : ComponentElement(viewport) {
  */
 class CellRendererPaneElement(cellRendererPane: CellRendererPane) : AWTContainerElement(cellRendererPane) {
 
-    override fun notifyRestyle() {
-        super.notifyRestyle()
+    override fun localName(): String {
+        return "-flr-renderer"
     }
+}
+
+class ModernCellRendererPaneElement(cellRendererPane: ModernCellRenderPane) : AWTContainerElement(cellRendererPane) {
 
     override fun localName(): String {
         return "-flr-renderer"

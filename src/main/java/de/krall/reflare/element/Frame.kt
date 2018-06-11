@@ -19,6 +19,7 @@ import java.awt.event.ContainerListener
 import java.io.File
 import java.nio.file.Files
 import java.util.WeakHashMap
+import java.util.concurrent.atomic.AtomicInteger
 import javax.swing.JFrame
 import javax.swing.SwingUtilities
 
@@ -102,14 +103,16 @@ class Frame(val frame: JFrame) : Device {
 
     }
 
+    private val dirtyChildren: MutableSet<AWTComponentElement> = mutableSetOf()
+
     fun markElementDirty(element: AWTComponentElement) {
         invokeAndWait {
             cssEngine.applyStyles(element)
             element.reapplyFont()
-
-            frame.contentPane.revalidate()
-            frame.repaint()
         }
+
+       // frame.contentPane.revalidate()
+       // frame.repaint()
     }
 
 // ***************************** Stylesheet ***************************** //
