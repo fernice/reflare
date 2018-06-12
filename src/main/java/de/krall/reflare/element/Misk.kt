@@ -10,7 +10,7 @@ import de.krall.reflare.render.CellRendererPane as ModernCellRenderPane
 class ComboBoxElement(comboBox: JComboBox<*>) : ComponentElement(comboBox) {
 
     override fun localName(): String {
-        return "combobox"
+        return "combo-box"
     }
 }
 
@@ -24,7 +24,7 @@ class ListElement(list: JList<*>) : ComponentElement(list) {
 class ScrollPaneElement(scrollPane: JScrollPane) : ComponentElement(scrollPane) {
 
     override fun localName(): String {
-        return "scrollpane"
+        return "scroll-pane"
     }
 }
 

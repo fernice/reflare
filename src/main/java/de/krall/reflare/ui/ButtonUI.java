@@ -24,6 +24,8 @@ public class ButtonUI extends BasicButtonUI implements FlareUI {
 
     @Override
     protected void installDefaults(AbstractButton button) {
+        super.installDefaults(button);
+
         if (element == null) {
             element = new ButtonElement(button);
         }
@@ -37,6 +39,8 @@ public class ButtonUI extends BasicButtonUI implements FlareUI {
     @Override
     protected void uninstallDefaults(AbstractButton button) {
         ComponentKt.deregisterElement(button);
+
+        super.uninstallDefaults(button);
     }
 
     @Override

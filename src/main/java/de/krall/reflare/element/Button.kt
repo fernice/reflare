@@ -16,7 +16,7 @@ class ButtonElement(button: AbstractButton) : ComponentElement(button) {
             is NonTSPseudoClass.Active -> {
                 val button = component as AbstractButton
 
-                button.model.isArmed
+                button.model.isArmed || active
             }
             else -> super.matchNonTSPseudoClass(pseudoClass)
         }

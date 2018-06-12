@@ -4,16 +4,12 @@ import de.krall.reflare.meta.DefinedBy;
 import de.krall.reflare.meta.DefinedBy.Api;
 import de.krall.reflare.platform.GTKKeybindings;
 import de.krall.reflare.platform.WindowsKeybindings;
-import java.security.AccessController;
-import java.util.Locale;
 import javax.swing.JComponent;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicLookAndFeel;
-import sun.security.action.GetPropertyAction;
 import sun.swing.DefaultLookup;
-import sun.swing.SwingUtilities2;
 
 public class FlareLookAndFeel extends BasicLookAndFeel {
 
@@ -72,14 +68,16 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
                 GTKKeybindings.installKeybindings(defaults);
             }
 
-            Object aaTextInfo = getAATextInfo();
-            defaults.put(SwingUtilities2.AA_TEXT_PROPERTY_KEY, aaTextInfo);
+            Object aaTextInfo = AATextInfo.getAATextInfo();
+            defaults.put(AATextInfo.AA_TEXT_INFO_KEY, aaTextInfo);
 
             final String basicPackageName = "de.krall.reflare.ui.";
 
             defaults.put("RootPaneUI", basicPackageName + "RootPaneUI");
             defaults.put("PanelUI", basicPackageName + "PanelUI");
+            defaults.put("TabbedPaneUI", basicPackageName + "FlareTabbedPaneUI");
             defaults.put("TextFieldUI", basicPackageName + "TextFieldUI");
+            defaults.put("FormattedTextFieldUI", basicPackageName + "FormattedTextFieldUI");
             defaults.put("PasswordFieldUI", basicPackageName + "PasswordFieldUI");
             defaults.put("TextAreaUI", basicPackageName + "TextAreaUI");
             defaults.put("ButtonUI", basicPackageName + "ButtonUI");
@@ -101,17 +99,5 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
         throw new IllegalArgumentException();
     }
 
-    private static Object getAATextInfo() {
-        String language = Locale.getDefault().getLanguage();
-        String desktop = AccessController.doPrivileged(new GetPropertyAction("sun.desktop"));
 
-        boolean isCjkLocale = (Locale.CHINESE.getLanguage().equals(language) || Locale.JAPANESE.getLanguage().equals(language) ||
-                Locale.KOREAN.getLanguage().equals(language));
-        boolean isGnome = "gnome".equals(desktop);
-        boolean isLocal = SwingUtilities2.isLocalDisplay();
-
-        boolean setAA = isLocal && (!isGnome || !isCjkLocale);
-
-        return SwingUtilities2.AATextInfo.getAATextInfo(setAA);
-    }
 }

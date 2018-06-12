@@ -3,6 +3,7 @@ package de.krall.reflare.element
 import javax.swing.JLayeredPane
 import javax.swing.JPanel
 import javax.swing.JRootPane
+import javax.swing.JTabbedPane
 
 class RootPaneElement(rootPane: JRootPane) : ComponentElement(rootPane) {
     override fun localName(): String {
@@ -19,5 +20,11 @@ class LayeredPaneElement(layeredPane: JLayeredPane) : ComponentElement(layeredPa
 class PanelElement(panel: JPanel) : ComponentElement(panel) {
     override fun localName(): String {
         return "panel"
+    }
+}
+
+class TabbedPaneElement(tabbedPane: JTabbedPane) : ComponentElement(tabbedPane) {
+    override fun localName(): String {
+        return "tabbed"
     }
 }

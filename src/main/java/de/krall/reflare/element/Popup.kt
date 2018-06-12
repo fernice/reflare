@@ -13,6 +13,6 @@ open class PopupMenuElement(popupMenu: JPopupMenu) : ComponentElement(popupMenu)
 class ComboBoxPopupElement(popupMenu: FlareComboBoxPopup) : PopupMenuElement(popupMenu) {
 
     override fun localName(): String {
-        return "comboboxpopup"
+        return "combo-box-popup"
     }
 }

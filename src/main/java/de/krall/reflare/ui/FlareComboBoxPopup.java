@@ -4,10 +4,8 @@ import de.krall.reflare.element.AWTComponentElement;
 import de.krall.reflare.element.AWTContainerElement;
 import de.krall.reflare.element.ComponentKt;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Insets;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.beans.PropertyChangeListener;
 import javax.swing.JComboBox;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
@@ -29,8 +27,9 @@ public class FlareComboBoxPopup extends BasicComboPopup {
 
     @Override
     protected void configureList() {
-        list.setFont(comboBox.getFont());
-        list.setCellRenderer(comboBox.getRenderer());
+        ComboBoxUI comboBoxUI = (ComboBoxUI) comboBox.getUI();
+
+        list.setCellRenderer(comboBoxUI.getRendererWrapper());
         list.setFocusable(false);
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         int selectedIndex = comboBox.getSelectedIndex();
@@ -50,58 +49,22 @@ public class FlareComboBoxPopup extends BasicComboPopup {
         }
     }
 
-    private boolean vague = true;
-
-    public void show() {
-        comboBox.firePopupMenuWillBecomeVisible();
-        setListSelection(comboBox.getSelectedIndex());
-        if (vague) {
-            getPopupLocation();
-            revalidate();
-            vague = false;
-        }
-
-        Point location = getPopupLocation();
-        show(comboBox, location.x, location.y);
-    }
-
-    private void setListSelection(int selectedIndex) {
-        if (selectedIndex == -1) {
-            list.clearSelection();
-        } else {
-            list.setSelectedIndex(selectedIndex);
-            list.ensureIndexIsVisible(selectedIndex);
-        }
-    }
-
-    private Point getPopupLocation() {
-        Dimension popupSize = comboBox.getSize();
-        Insets insets = getInsets();
-
-        // reduce the width of the scrollpane by the insets so that the popup
-        // is the same width as the combo box.
-        popupSize.setSize(popupSize.width - (insets.right + insets.left), getPopupHeightForRowCount(comboBox.getMaximumRowCount()));
-        Rectangle popupBounds = computePopupBounds(0, comboBox.getBounds().height, popupSize.width, popupSize.height);
-        Dimension scrollSize = popupBounds.getSize();
-        Point popupLocation = popupBounds.getLocation();
-
-        scroller.setMaximumSize(scrollSize);
-        scroller.setPreferredSize(scrollSize);
-        scroller.setMinimumSize(scrollSize);
-
-        list.revalidate();
-
-        return popupLocation;
-    }
-
     @Override
-    protected Rectangle computePopupBounds(final int px, final int py, final int pw, final int ph) {
-        return super.computePopupBounds(px, py, pw, ph);
-    }
+    protected PropertyChangeListener createPropertyChangeListener() {
+        PropertyChangeListener parent = super.createPropertyChangeListener();
 
-    @Override
-    public Dimension getPreferredSize() {
-        return super.getPreferredSize();
+        return (evt) -> {
+            if (evt.getPropertyName() == "renderer") {
+                ComboBoxUI comboBoxUI = (ComboBoxUI) comboBox.getUI();
+
+                list.setCellRenderer(comboBoxUI.getRendererWrapper());
+                if (isVisible()) {
+                    hide();
+                }
+            } else {
+                parent.propertyChange(evt);
+            }
+        };
     }
 
     @Override

@@ -9,8 +9,12 @@ import de.krall.flare.selector.PseudoElement
 import de.krall.flare.std.None
 import de.krall.flare.std.Option
 import de.krall.flare.std.Some
+import de.krall.flare.std.mapOr
 import de.krall.flare.std.unwrap
 import de.krall.flare.style.ComputedValues
+import de.krall.flare.style.PerPseudoElementMap
+import de.krall.flare.style.ResolvedElementStyles
+import de.krall.flare.style.context.StyleContext
 import de.krall.flare.style.properties.PropertyDeclarationBlock
 import de.krall.flare.style.value.computed.SingleFontFamily
 import de.krall.reflare.render.RenderCacheStrategy
@@ -148,7 +152,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
         return parent.isNone()
     }
 
-    internal open fun reapplyFont() {
+    private fun reapplyFont() {
         val style = getStyle()
 
         val values = when (style) {
@@ -224,6 +228,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
             is NonTSPseudoClass.Disabled -> !component.isEnabled
             is NonTSPseudoClass.Focus -> component.isFocusOwner || focus
             is NonTSPseudoClass.Hover -> hover
+            is NonTSPseudoClass.Active -> active
             else -> false
         }
     }
@@ -244,7 +249,10 @@ abstract class AWTComponentElement(val component: Component) : Element {
         return when (data) {
             is Some -> data.unwrap()
             is None -> {
-                val new = ElementData(ElementStyles(None()))
+                val new = ElementData(ElementStyles(
+                        None(),
+                        PerPseudoElementMap()
+                ))
                 data = Some(new)
 
                 new
@@ -268,7 +276,39 @@ abstract class AWTComponentElement(val component: Component) : Element {
             is None -> return None()
         }
 
-        return data.getStyles().primary
+        return data.styles.primary
+    }
+
+    override fun finishRestyle(context: StyleContext, data: ElementData, elementStyles: ResolvedElementStyles) {
+        val oldStyle = data.setStyles(elementStyles)
+
+        val primaryStyle = getStyle().unwrap()
+
+        updateStyle(primaryStyle)
+
+        if (isRoot()) {
+            val fontSize = primaryStyle.font.fontSize
+
+            if (oldStyle.primary.mapOr({ style -> style.font.fontSize != fontSize }, false)) {
+                context.stylist.device.setRootFontSize(fontSize.size())
+            }
+        }
+
+        reapplyFont()
+
+        for ((i, style) in data.styles.pseudos.iter().withIndex()) {
+            if (style is Some) {
+                updatePseudoElement(PseudoElement.fromEagerOrdinal(i), style.value)
+            }
+        }
+    }
+
+    protected open fun updateStyle(style: ComputedValues) {
+
+    }
+
+    protected open fun updatePseudoElement(pseudoElement: PseudoElement, style: ComputedValues) {
+
     }
 
     // ***************************** Render ***************************** //
@@ -281,6 +321,43 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
     fun paintBorder(component: Component, g: Graphics) {
         renderBorder(g, component, this, getStyle())
+    }
+
+    // ***************************** Renderer Override ***************************** //
+
+    fun hoverHint(hover: Boolean): Boolean {
+        val old = this.hover
+        this.hover = hover
+
+        if (old != hover) {
+            invalidateStyle()
+        }
+
+        return old
+    }
+
+    fun focusHint(focus: Boolean): Boolean {
+        val old = this.focus
+        this.focus = focus
+
+        if (old != focus) {
+            invalidateStyle()
+        }
+
+        return old
+    }
+
+    protected var active: Boolean = false
+
+    fun activeHint(active: Boolean): Boolean {
+        val old = this.active
+        this.active = active
+
+        if (old != active) {
+            invalidateStyle()
+        }
+
+        return old
     }
 }
 
@@ -317,7 +394,7 @@ open class AWTContainerElement(container: Container) : AWTComponentElement(conta
         invalidateStyle()
     }
 
-    private  fun childRemoved(child: Component) {
+    private fun childRemoved(child: Component) {
         val childElement = child.into()
 
         childElement.frame = None()
@@ -327,12 +404,12 @@ open class AWTContainerElement(container: Container) : AWTComponentElement(conta
         invalidateStyle()
     }
 
-    fun addVirtualChild(childElement: AWTComponentElement){
+    fun addVirtualChild(childElement: AWTComponentElement) {
         childElement.frame = frame
         childElement.parent = Some(this)
     }
 
-    fun removeVirtualChild(childElement: AWTComponentElement){
+    fun removeVirtualChild(childElement: AWTComponentElement) {
         childElement.frame = None()
         childElement.parent = None()
     }
@@ -340,14 +417,6 @@ open class AWTContainerElement(container: Container) : AWTComponentElement(conta
     final override fun parentChanged(old: Option<Frame>, new: Option<Frame>) {
         for (child in children) {
             child.frame = new
-        }
-    }
-
-    override fun reapplyFont() {
-        super.reapplyFont()
-
-        for (child in children) {
-            child.reapplyFont()
         }
     }
 

@@ -5,12 +5,12 @@ import de.krall.reflare.element.into
 import java.io.File
 import javax.swing.JButton
 import javax.swing.JComboBox
+import javax.swing.JFormattedTextField
 import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.JPanel
-import javax.swing.JPasswordField
+import javax.swing.JTabbedPane
 import javax.swing.JTextArea
-import javax.swing.JTextField
 import javax.swing.WindowConstants
 
 fun main(args: Array<String>) {
@@ -28,7 +28,7 @@ fun main(args: Array<String>) {
 
     panel.add(title)
 
-    val textField = JPasswordField()
+    val textField = JFormattedTextField()
     textField.columns = 15
     textField.into().id = Some("t1")
 
@@ -68,7 +68,11 @@ fun main(args: Array<String>) {
 
     panel.add(comboBox)
 
-    frame.contentPane = panel
+    val tabbedPane = JTabbedPane()
+    tabbedPane.addTab("first", panel)
+    tabbedPane.addTab("second", JButton("Lol"))
+
+    frame.contentPane = tabbedPane
 
     frame.isVisible = true
 }

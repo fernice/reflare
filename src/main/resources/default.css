@@ -6,22 +6,26 @@ root {
   font-size: 12px;
 }
 
-text, textarea, password {
+tabbed {
+  background-color: white;
+}
+
+text, formatted, textarea, password {
   background-color: #eeeeee;
   border: 1px #848484;
   border-radius: 2px;
-  margin: 4px;
+  margin: 2px;
   padding: 3px;
 
   color: black;
 }
 
-text:hover, textarea:hover, password:hover {
+text:hover, formatted:hover, textarea:hover, password:hover {
   border-color: black;
 }
 
-text:focus, textarea:focus, password:focus {
-  margin: 3px;
+text:focus, formatted:focus, textarea:focus, password:focus {
+  margin: 1px;
   border: 2px dodgerblue;
 }
 
@@ -49,10 +53,9 @@ button:focus:hover:active {
 
 label {
   color: black;
-  background-color: transparent;
 }
 
-combobox {
+combo-box {
   background-color: #eeeeee;
   border: 1px #848484;
   border-radius: 2px;
@@ -61,22 +64,31 @@ combobox {
   color: black;
 }
 
-combobox > button {
+combo-box:hover {
+  border: 1px black;
+}
+
+
+combo-box:focus {
+  border: 1px dodgerblue;
+}
+
+combo-box > button {
   background-color: dodgerblue;
   border-radius: 2px;
 }
 
-comboboxpopup -flr-renderer > label {
+combo-box-popup -flr-renderer > label {
   color: black;
   padding: 5px;
 }
 
-comboboxpopup -flr-renderer > label:active {
+combo-box-popup -flr-renderer > label:active {
   background-color: dodgerblue;
   color: white;
 }
 
-comboboxpopup {
+combo-box-popup {
   background-color: #efefef;
   padding: 2px;
   border: 1px #b6b6b6;

@@ -79,13 +79,6 @@ class FlareBorder(private val ui: FlareUI) : AbstractBorder() {
             combine(insets, values.border.toWidth())
         }
 
-        when (c) {
-            is JTextComponent -> combine(insets, c.margin)
-            is AbstractButton -> combine(insets, c.margin)
-            is JToolBar -> combine(insets, c.margin)
-            is JMenuBar -> combine(insets, c.margin)
-        }
-
         return insets
     }
 

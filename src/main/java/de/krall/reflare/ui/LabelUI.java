@@ -24,6 +24,8 @@ public class LabelUI extends BasicLabelUI implements FlareUI {
 
     @Override
     protected void installDefaults(JLabel label) {
+        super.installDefaults(label);
+
         if (element == null) {
             element = new LabelElement(label);
         }
@@ -37,6 +39,8 @@ public class LabelUI extends BasicLabelUI implements FlareUI {
     @Override
     protected void uninstallDefaults(JLabel label) {
         ComponentKt.deregisterElement(label);
+
+        super.uninstallDefaults(label);
     }
 
     @Override

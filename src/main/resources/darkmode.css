@@ -1,4 +1,4 @@
-text, textarea, password {
+text, formatted, textarea, password {
   background-color: #333333;
   border: 1px #848484;
   border-radius: 5px;
@@ -11,11 +11,15 @@ text, textarea, password {
   color: white;
 }
 
-text:focus, textarea:focus, password:focus {
+text:focus, formatted:focus, textarea:focus, password:focus {
   border-color: rgb(41, 163, 136);
 }
 
 root {
+  background-color: #222222;
+}
+
+tabbed {
   background-color: #222222;
 }
 
@@ -36,4 +40,38 @@ button:hover {
   color: white;
   font-family: sans-serif;
   font-size: 20px;
+}
+
+combo-box {
+  background-color: #333333;
+  border: 1px #848484;
+  border-radius: 2px;
+  padding: 3px;
+
+  color: white;
+}
+
+combo-box > button {
+  background-color: rgb(72, 184, 159);
+  border-radius: 2px;
+}
+
+combo-box label {
+  color: white;
+}
+
+combo-box-popup -flr-renderer > label {
+  color: white;
+  padding: 5px;
+}
+
+combo-box-popup -flr-renderer > label:active {
+  background-color: rgb(72, 184, 159);
+  color: white;
+}
+
+combo-box-popup {
+  background-color: #444444;
+  padding: 0;
+  border: 0;
 }

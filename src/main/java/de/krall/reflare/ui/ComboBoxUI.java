@@ -1,9 +1,9 @@
 package de.krall.reflare.ui;
 
+import de.krall.reflare.element.AWTComponentElement;
 import de.krall.reflare.element.ComboBoxElement;
 import de.krall.reflare.element.ComponentElement;
 import de.krall.reflare.element.ComponentKt;
-import de.krall.reflare.element.LabelElement;
 import de.krall.reflare.meta.DefinedBy;
 import de.krall.reflare.meta.DefinedBy.Api;
 import java.awt.Component;
@@ -79,7 +79,7 @@ public class ComboBoxUI extends BasicComboBoxUI implements FlareUI {
 
     // Prevents any background from being painted apart from our CSS Background
     public void paintCurrentValue(Graphics g, Rectangle bounds, boolean hasFocus) {
-        ListCellRenderer renderer = comboBox.getRenderer();
+        ListCellRenderer renderer = getRendererWrapper();
         Component c;
 
         if (hasFocus && !isPopupVisible(comboBox)) {
@@ -99,6 +99,21 @@ public class ComboBoxUI extends BasicComboBoxUI implements FlareUI {
         currentValuePane.paintComponent(g, c, comboBox, x, y, w, h, shouldValidate);
     }
 
+    private ListCellRenderer<Object> renderer;
+    private FlareComboBoxRendererWrapper wrapper;
+
+    public FlareComboBoxRendererWrapper getRendererWrapper() {
+        if (renderer == null || comboBox.getRenderer() != renderer) {
+            renderer = comboBox.getRenderer();
+            if (renderer == null) {
+                return null;
+            }
+
+            wrapper = new FlareComboBoxRendererWrapper(renderer);
+        }
+        return wrapper;
+    }
+
     @Override
     protected ListCellRenderer createRenderer() {
         return new FlareComboBoxRenderer();
@@ -107,6 +122,27 @@ public class ComboBoxUI extends BasicComboBoxUI implements FlareUI {
     @Override
     protected ComboPopup createPopup() {
         return new FlareComboBoxPopup(comboBox);
+    }
+
+    private class FlareComboBoxRendererWrapper implements ListCellRenderer<Object>, UIResource {
+
+        private final ListCellRenderer<Object> renderer;
+
+        FlareComboBoxRendererWrapper(ListCellRenderer<Object> renderer) {
+            this.renderer = renderer;
+        }
+
+        @Override
+        public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index, final boolean isSelected, final boolean focus) {
+            Component component = renderer.getListCellRendererComponent(list, value, index, isSelected, focus);
+
+            AWTComponentElement element = ComponentKt.into(component);
+
+            element.focusHint(focus);
+            element.activeHint(isSelected);
+
+            return component;
+        }
     }
 
     private class FlareComboBoxRenderer extends JLabel implements ListCellRenderer<Object>, UIResource {
@@ -118,12 +154,6 @@ public class ComboBoxUI extends BasicComboBoxUI implements FlareUI {
 
         @Override
         public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean focus) {
-
-            LabelElement element = (LabelElement) ComponentKt.into(this);
-
-            element.focusHint(focus);
-            element.activeHint(isSelected);
-
             if (value instanceof Icon) {
                 setIcon((Icon) value);
                 setText("");
@@ -142,16 +172,6 @@ public class ComboBoxUI extends BasicComboBoxUI implements FlareUI {
             }
 
             return this;
-        }
-
-        @Override
-        public void paint(Graphics g) {
-            super.paint(g);
-
-            LabelElement element = (LabelElement) ComponentKt.into(this);
-
-            element.focusHint(false);
-            element.activeHint(false);
         }
     }
 }
