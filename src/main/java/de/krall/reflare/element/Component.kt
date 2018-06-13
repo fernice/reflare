@@ -133,7 +133,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
     }
 
     override fun owner(): Option<Element> {
-        return parent
+        return Some(this)
     }
 
     override fun traversalParent(): Option<Element> {

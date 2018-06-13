@@ -11,6 +11,10 @@ text, formatted, textarea, password {
   color: black;
 }
 
+text:hover, formatted:hover, textarea:hover, password:hover {
+  border-color: black;
+}
+
 text:focus, formatted:focus, textarea:focus, password:focus {
   border-color: rgb(41, 163, 136);
 }

@@ -11,6 +11,10 @@ text, formatted, textarea, password {
   color: white;
 }
 
+text:hover, formatted:hover, textarea:hover, password:hover {
+  border-color: white;
+}
+
 text:focus, formatted:focus, textarea:focus, password:focus {
   border-color: rgb(41, 163, 136);
 }
@@ -74,4 +78,9 @@ combo-box-popup {
   background-color: #444444;
   padding: 0;
   border: 0;
+}
+
+::selection {
+  background-color: rgb(72, 184, 159);
+  color: white;
 }

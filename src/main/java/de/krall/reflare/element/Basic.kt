@@ -1,5 +1,7 @@
 package de.krall.reflare.element
 
+import java.awt.Graphics
+import java.awt.Rectangle
 import javax.swing.JLayeredPane
 import javax.swing.JPanel
 import javax.swing.JRootPane
@@ -26,5 +28,9 @@ class PanelElement(panel: JPanel) : ComponentElement(panel) {
 class TabbedPaneElement(tabbedPane: JTabbedPane) : ComponentElement(tabbedPane) {
     override fun localName(): String {
         return "tabbed"
+    }
+
+    fun renderTabArea(graphics: Graphics, bounds: Rectangle) {
+
     }
 }

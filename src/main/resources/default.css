@@ -60,6 +60,7 @@ combo-box {
   border: 1px #848484;
   border-radius: 2px;
   padding: 3px;
+  margin: 2px;
 
   color: black;
 }
@@ -68,9 +69,9 @@ combo-box:hover {
   border: 1px black;
 }
 
-
 combo-box:focus {
-  border: 1px dodgerblue;
+  border: 2px dodgerblue;
+  margin: 1px;
 }
 
 combo-box > button {
@@ -92,4 +93,9 @@ combo-box-popup {
   background-color: #efefef;
   padding: 2px;
   border: 1px #b6b6b6;
+}
+
+::selection {
+  background-color: dodgerblue;
+  color: white;
 }

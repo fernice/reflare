@@ -1,5 +1,6 @@
 package de.krall.reflare.ui;
 
+import de.krall.reflare.FlareLookAndFeel;
 import de.krall.reflare.element.ComponentElement;
 import de.krall.reflare.element.ComponentKt;
 import de.krall.reflare.element.LabelElement;
@@ -24,8 +25,6 @@ public class LabelUI extends BasicLabelUI implements FlareUI {
 
     @Override
     protected void installDefaults(JLabel label) {
-        super.installDefaults(label);
-
         if (element == null) {
             element = new LabelElement(label);
         }
@@ -34,13 +33,12 @@ public class LabelUI extends BasicLabelUI implements FlareUI {
         label.setBorder(new FlareBorder(this));
 
         ComponentKt.registerElement(label, element);
+        label.setFont(FlareLookAndFeel.DEFAULT_FONT);
     }
 
     @Override
     protected void uninstallDefaults(JLabel label) {
         ComponentKt.deregisterElement(label);
-
-        super.uninstallDefaults(label);
     }
 
     @Override

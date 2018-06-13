@@ -1,5 +1,6 @@
 package de.krall.reflare.ui;
 
+import de.krall.reflare.FlareLookAndFeel;
 import de.krall.reflare.element.ButtonElement;
 import de.krall.reflare.element.ComponentElement;
 import de.krall.reflare.element.ComponentKt;
@@ -24,14 +25,13 @@ public class ButtonUI extends BasicButtonUI implements FlareUI {
 
     @Override
     protected void installDefaults(AbstractButton button) {
-        super.installDefaults(button);
-
         if (element == null) {
             element = new ButtonElement(button);
         }
 
         button.setOpaque(false);
         button.setBorder(new FlareBorder(this));
+        button.setFont(FlareLookAndFeel.DEFAULT_FONT);
 
         ComponentKt.registerElement(button, element);
     }
@@ -39,8 +39,6 @@ public class ButtonUI extends BasicButtonUI implements FlareUI {
     @Override
     protected void uninstallDefaults(AbstractButton button) {
         ComponentKt.deregisterElement(button);
-
-        super.uninstallDefaults(button);
     }
 
     @Override

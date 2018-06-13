@@ -4,6 +4,7 @@ import de.krall.reflare.meta.DefinedBy;
 import de.krall.reflare.meta.DefinedBy.Api;
 import de.krall.reflare.platform.GTKKeybindings;
 import de.krall.reflare.platform.WindowsKeybindings;
+import java.awt.Font;
 import javax.swing.JComponent;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
@@ -100,4 +101,5 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
     }
 
 
+    public static final Font DEFAULT_FONT = new Font("sans-serif", java.awt.Font.PLAIN, 12);
 }

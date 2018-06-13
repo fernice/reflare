@@ -1,12 +1,12 @@
 package de.krall.reflare.ui;
 
+import de.krall.reflare.FlareLookAndFeel;
 import de.krall.reflare.element.ComponentElement;
 import de.krall.reflare.element.ComponentKt;
 import de.krall.reflare.element.PanelElement;
 import de.krall.reflare.meta.DefinedBy;
 import de.krall.reflare.meta.DefinedBy.Api;
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.Graphics;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -25,9 +25,7 @@ public class PanelUI extends BasicPanelUI implements FlareUI {
 
     @Override
     protected void installDefaults(JPanel panel) {
-        //super.installDefaults(panel);
-
-        panel.setFont(new Font("sans-serif", Font.PLAIN, 12));
+        panel.setFont(FlareLookAndFeel.DEFAULT_FONT);
 
         if (element == null) {
             element = new PanelElement(panel);
@@ -42,8 +40,6 @@ public class PanelUI extends BasicPanelUI implements FlareUI {
     @Override
     protected void uninstallDefaults(JPanel panel) {
         ComponentKt.deregisterElement(panel);
-
-        //super.uninstallDefaults(panel);
     }
 
     @Override

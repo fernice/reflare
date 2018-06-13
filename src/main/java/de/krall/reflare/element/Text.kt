@@ -1,5 +1,6 @@
 package de.krall.reflare.element
 
+import de.krall.flare.selector.PseudoElement
 import de.krall.flare.style.ComputedValues
 import de.krall.reflare.render.RenderCacheStrategy
 import de.krall.reflare.toAWTColor
@@ -23,10 +24,30 @@ abstract class TextElement(textComponent: JTextComponent) : ComponentElement(tex
         renderCacheStrategy = RenderCacheStrategy.CacheAll()
     }
 
+    override fun matchPseudoElement(pseudoElement: PseudoElement): Boolean {
+        return when (pseudoElement) {
+            is PseudoElement.Selection -> true
+            else -> super.matchPseudoElement(pseudoElement)
+        }
+    }
+
     override fun updateStyle(style: ComputedValues) {
         val component = component as JTextComponent
 
         component.caretColor = style.color.color.toAWTColor()
+    }
+
+    override fun updatePseudoElement(pseudoElement: PseudoElement, style: ComputedValues) {
+        super.updatePseudoElement(pseudoElement, style)
+
+        val component = component as JTextComponent
+
+        when (pseudoElement) {
+            is PseudoElement.Selection -> {
+                component.selectedTextColor = style.color.color.toAWTColor()
+                component.selectionColor = style.background.color.toAWTColor()
+            }
+        }
     }
 }
 
