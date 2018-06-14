@@ -1,5 +1,6 @@
 package de.krall.reflare.render
 
+import de.krall.flare.cssparser.RGBA
 import de.krall.flare.style.properties.stylestruct.Border
 import de.krall.flare.style.value.computed.Au
 import de.krall.flare.style.value.computed.Color
@@ -20,7 +21,7 @@ sealed class RenderCacheStrategy {
 
     abstract fun computedBorderRadius(border: Border, bounds: Rectangle): TRadius
 
-    abstract fun computedBorderColor(border: Border, currentColor: Color): TColor
+    abstract fun computedBorderColor(border: Border, currentColor: RGBA): TColor
 
     class NoCache : RenderCacheStrategy() {
         override fun invalidateSizeDependant() {
@@ -37,7 +38,7 @@ sealed class RenderCacheStrategy {
             return border.toRadius(bounds, TRadius())
         }
 
-        override fun computedBorderColor(border: Border, currentColor: Color): TColor {
+        override fun computedBorderColor(border: Border, currentColor: RGBA): TColor {
             return border.toColor(currentColor, TColor())
         }
     }
@@ -78,7 +79,7 @@ sealed class RenderCacheStrategy {
         private var borderColorInvalid = true
         private val borderColor: TColor = TColor()
 
-        override fun computedBorderColor(border: Border, currentColor: Color): TColor {
+        override fun computedBorderColor(border: Border, currentColor: RGBA): TColor {
             if (borderColorInvalid) {
                 border.toColor(currentColor, borderColor)
                 borderColorInvalid = false
@@ -119,7 +120,7 @@ private fun Border.toRadius(bounds: Rectangle, radius: TRadius): TRadius {
     )
 }
 
-private fun Border.toColor(currentColor: Color, color: TColor): TColor {
+private fun Border.toColor(currentColor: RGBA, color: TColor): TColor {
     return color.set(
             this.topColor.toAWTColor(currentColor),
             this.rightColor.toAWTColor(currentColor),
