@@ -2,8 +2,10 @@ package modern.reflare
 
 import de.krall.flare.std.Some
 import modern.reflare.element.into
+import java.awt.Component
 import java.io.File
 import javax.swing.JButton
+import javax.swing.JCheckBox
 import javax.swing.JComboBox
 import javax.swing.JFormattedTextField
 import javax.swing.JFrame
@@ -24,7 +26,7 @@ fun main(args: Array<String>) {
     val panel = JPanel()
 
     val title = JLabel("Form")
-    title.into().classes.add("title")
+    title.getStyleClasses().add("title")
 
     panel.add(title)
 
@@ -68,6 +70,9 @@ fun main(args: Array<String>) {
 
     panel.add(comboBox)
 
+    val checkbox = JCheckBox("remember me")
+    panel.add(checkbox)
+
     val tabbedPane = JTabbedPane()
     tabbedPane.addTab("first", panel)
     tabbedPane.addTab("second", JButton("Lol"))
@@ -76,4 +81,9 @@ fun main(args: Array<String>) {
 
     frame.isVisible = true
 
+}
+
+
+fun Component.getStyleClasses(): MutableList<String> {
+    return this.into().classes
 }

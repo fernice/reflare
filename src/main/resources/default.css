@@ -99,3 +99,8 @@ combo-box-popup {
   background-color: dodgerblue;
   color: white;
 }
+
+checkbox:active {
+  background-color: transparent;
+  border: 1px  dodgerblue;
+}

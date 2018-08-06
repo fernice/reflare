@@ -2,8 +2,11 @@ package modern.reflare.element
 
 import de.krall.flare.selector.NonTSPseudoClass
 import javax.swing.AbstractButton
+import javax.swing.JCheckBox
+import javax.swing.JRadioButton
+import javax.swing.JToggleButton
 
-class ButtonElement(button: AbstractButton) : ComponentElement(button) {
+open class ButtonElement(button: AbstractButton) : ComponentElement(button) {
 
     init {
         button.model.addChangeListener {
@@ -16,7 +19,7 @@ class ButtonElement(button: AbstractButton) : ComponentElement(button) {
             is NonTSPseudoClass.Active -> {
                 val button = component as AbstractButton
 
-                button.model.isArmed || active
+                button.model.isArmed || active || button.isSelected
             }
             else -> super.matchNonTSPseudoClass(pseudoClass)
         }
@@ -24,5 +27,26 @@ class ButtonElement(button: AbstractButton) : ComponentElement(button) {
 
     override fun localName(): String {
         return "button"
+    }
+}
+
+open class ToggleButtonElement(toggleButton: JToggleButton) : ButtonElement(toggleButton) {
+
+    override fun localName(): String {
+        return "toggle-button"
+    }
+}
+
+class RadioButtonElement(radioButton: JRadioButton) : ToggleButtonElement(radioButton) {
+
+    override fun localName(): String {
+        return "radio-button"
+    }
+}
+
+class CheckBoxElement(checkbox: JCheckBox) : ToggleButtonElement(checkbox) {
+
+    override fun localName(): String {
+        return "checkbox"
     }
 }

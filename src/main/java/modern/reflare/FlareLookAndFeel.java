@@ -81,11 +81,14 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
             defaults.put("FormattedTextFieldUI", basicPackageName + "FormattedTextFieldUI");
             defaults.put("PasswordFieldUI", basicPackageName + "PasswordFieldUI");
             defaults.put("TextAreaUI", basicPackageName + "TextAreaUI");
-            defaults.put("ButtonUI", basicPackageName + "ButtonUI");
+            defaults.put("ButtonUI", basicPackageName + "FlareButtonUI");
+            defaults.put("ToggleButtonUI", basicPackageName + "FlareToggleButtonUI");
+            defaults.put("RadioButtonUI", basicPackageName + "FlareRadioButtonUI");
+            defaults.put("CheckBoxUI", basicPackageName + "FlareCheckBoxUI");
             defaults.put("LabelUI", basicPackageName + "LabelUI");
             defaults.put("ComboBoxUI", basicPackageName + "ComboBoxUI");
             defaults.put("PopupMenuUI", basicPackageName + "PopupMenuUI");
-            defaults.put("ListUI", basicPackageName + "ListUI");
+            defaults.put("ListUI", basicPackageName + "FlareListUI");
             defaults.put("ScrollPaneUI", basicPackageName + "ScrollPaneUI");
             defaults.put("ViewportUI", basicPackageName + "ViewportUI");
             defaults.put("ComboBoxPopupUI", basicPackageName + "ComboBoxPopupUI");

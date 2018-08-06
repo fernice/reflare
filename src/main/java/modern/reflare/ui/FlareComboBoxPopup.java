@@ -76,7 +76,7 @@ public class FlareComboBoxPopup extends BasicComboPopup {
 
         element.restyle();
 
-        ListUI listUI = (ListUI) list.getUI();
+        FlareListUI listUI = (FlareListUI) list.getUI();
 
         listUI.invalidateHeight();
 

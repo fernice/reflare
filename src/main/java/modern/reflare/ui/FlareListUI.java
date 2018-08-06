@@ -18,11 +18,12 @@ import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicListUI;
 import org.jetbrains.annotations.NotNull;
 
-public class ListUI extends BasicListUI implements FlareUI {
+// fixme(kralli) render needs to be wrapped
+public class FlareListUI extends BasicListUI implements FlareUI {
 
     @DefinedBy(Api.LOOK_AND_FEEL)
     public static ComponentUI createUI(JComponent c) {
-        return new ListUI();
+        return new FlareListUI();
     }
 
     private ComponentElement element;
