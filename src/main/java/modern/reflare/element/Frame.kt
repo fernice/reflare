@@ -112,6 +112,12 @@ class Frame(val frame: JFrame) : Device {
         }
     }
 
+    fun applyStyles(element: AWTComponentElement) {
+        invokeAndWait {
+            cssEngine.applyStyles(element)
+        }
+    }
+
 // ***************************** Stylesheet ***************************** //
 
     private val stylesheets: MutableMap<File, Stylesheet> = mutableMapOf()

@@ -3,31 +3,32 @@ package modern.reflare.render
 import de.krall.flare.std.Option
 import de.krall.flare.std.Some
 import de.krall.flare.style.ComputedValues
-import de.krall.flare.style.properties.longhand.Clip
-import de.krall.flare.style.properties.stylestruct.Margin
-import de.krall.flare.style.properties.stylestruct.Padding
+import de.krall.flare.style.properties.longhand.Attachment
+import de.krall.flare.style.properties.stylestruct.ImageLayer
 import de.krall.flare.style.value.computed.Au
+import de.krall.flare.style.value.computed.BackgroundSize
+import de.krall.flare.style.value.computed.ComputedUrl
+import de.krall.flare.style.value.computed.Gradient
+import de.krall.flare.style.value.computed.Image
+import modern.reflare.cache.ImageCache
 import modern.reflare.element.AWTComponentElement
-import modern.reflare.t.TBounds
-import modern.reflare.t.TColor
-import modern.reflare.t.TInsets
-import modern.reflare.t.TRadius
+import modern.reflare.geom.toColors
+import modern.reflare.geom.toInsets
+import modern.reflare.geom.Insets
+import modern.reflare.shape.BorderShape
 import modern.reflare.toAWTColor
 import java.awt.Component
-import java.awt.Dimension
 import java.awt.Graphics
 import java.awt.Graphics2D
-import java.awt.Rectangle
+import java.awt.Insets as AWTInsets
 import java.awt.RenderingHints
-import java.awt.Shape
-import java.awt.geom.Arc2D
-import java.awt.geom.Area
-import java.awt.geom.Path2D
+import java.awt.image.BufferedImage
+import javax.swing.SwingUtilities
 import java.awt.Color as AWTColor
 
 fun renderBackground(g: Graphics, component: Component, element: AWTComponentElement, style: Option<ComputedValues>) {
     if (style is Some) {
-        paintBackground(g, component, style.value, element.renderCacheStrategy)
+        paintBackground(g, component, element, style.value, element.cache)
     } else {
         val bounds = component.bounds
 
@@ -38,7 +39,7 @@ fun renderBackground(g: Graphics, component: Component, element: AWTComponentEle
 
 fun renderBorder(g: Graphics, component: Component, element: AWTComponentElement, style: Option<ComputedValues>) {
     if (style is Some) {
-        paintBorder(g, component, style.value, element.renderCacheStrategy)
+        paintBorder(g, component, style.value, element.cache)
     } else {
         val bounds = component.bounds
 
@@ -57,268 +58,143 @@ fun getGraphics(g: Graphics): Graphics2D {
 }
 
 
-private fun Margin.toInsets(bounds: Rectangle): TInsets {
-    return TInsets(
-            this.top.toPixelLength(Au.fromPx(bounds.width)).px(),
-            this.right.toPixelLength(Au.fromPx(bounds.width)).px(),
-            this.bottom.toPixelLength(Au.fromPx(bounds.width)).px(),
-            this.left.toPixelLength(Au.fromPx(bounds.width)).px()
-    )
-}
-
-private fun Padding.toInsets(bounds: Rectangle): TInsets {
-    return TInsets(
-            this.top.toPixelLength(Au.fromPx(bounds.width)).px(),
-            this.right.toPixelLength(Au.fromPx(bounds.width)).px(),
-            this.bottom.toPixelLength(Au.fromPx(bounds.width)).px(),
-            this.left.toPixelLength(Au.fromPx(bounds.width)).px()
-    )
-}
-
-fun paintBackground(g: Graphics, component: Component, computedValues: ComputedValues, renderCache: RenderCacheStrategy) {
+fun paintBackground(g: Graphics,
+                    component: Component,
+                    element: AWTComponentElement,
+                    computedValues: ComputedValues,
+                    renderCache: Cache) {
     val g2 = getGraphics(g)
 
     val background = computedValues.background
-    val border = computedValues.border
-
-    val bounds = component.bounds
-    val size = component.size
-
-    val borderWidth = renderCache.computedBorderWidth(border)
-    val borderRadius = renderCache.computedBorderRadius(border, bounds)
-
-    val margin = computedValues.margin.toInsets(bounds)
-    val padding = computedValues.padding.toInsets(bounds)
-
-    val backgroundClip = background.clip
-
-    val clip = computeBackgroundClip(backgroundClip, size, borderWidth, borderRadius, margin, padding)
-
-    g2.clip = clip
 
     g2.color = background.color.toAWTColor()
-    g2.fill(clip)
+    g2.fill(renderCache.backgroundShape.shape)
+
+    loop@
+    for (layer in background.reversedImageLayerIterator()) {
+        val image = layer.image
+        when (image) {
+            is Image.Url -> {
+                val url = when (image.url) {
+                    is ComputedUrl.Valid -> (image.url as ComputedUrl.Valid).url
+                    is ComputedUrl.Invalid -> continue@loop
+                }
+
+                val future = ImageCache.image(url)
+
+                if (future.isDone || future.isCompletedExceptionally) {
+                    paintBackgroundImage(
+                            g2,
+                            component,
+                            future.get(),
+                            layer,
+                            element.padding,
+                            element.margin
+                    )
+                }
+            }
+            is Image.Gradient -> {
+                paintBackgroundGradient(g2, image.gradient)
+            }
+        }
+    }
 }
 
-fun paintBorder(g: Graphics, component: Component, computedValues: ComputedValues, renderCache: RenderCacheStrategy) {
+fun paintBackgroundImage(g2: Graphics2D,
+                         component: Component,
+                         image: BufferedImage,
+                         layer: ImageLayer,
+                         padding: Insets,
+                         margin: Insets) {
+
+    val componentBounds = when (layer.attachment) {
+        is Attachment.Scroll,
+        is Attachment.Local -> {
+            component.size
+        }
+        is Attachment.Fixed -> {
+            SwingUtilities.getRoot(component).size
+        }
+    }
+
+    val backgroundSize = layer.size
+
+    val (width, height) = when (backgroundSize) {
+        is BackgroundSize.Cover -> {
+            val max = Math.max(componentBounds.width, componentBounds.height).toDouble()
+
+            if (image.height < image.width) {
+                Pair(
+                        (image.width * (max / image.height)).toFloat(),
+                        max.toFloat()
+                )
+            } else {
+                Pair(
+                        max.toFloat(),
+                        (image.height * (max / image.width)).toFloat()
+                )
+            }
+        }
+        is BackgroundSize.Contain -> {
+            val min = Math.min(componentBounds.width, componentBounds.height).toDouble()
+
+            if (image.height < image.width) {
+                Pair(
+                        min.toFloat(),
+                        (image.width * (min / image.height)).toFloat()
+                )
+            } else {
+                Pair(
+                        (image.height * (min / image.width)).toFloat(),
+                        min.toFloat()
+                )
+            }
+        }
+        is BackgroundSize.Explicit -> {
+            Pair(
+                    backgroundSize.width.toPixelLength(Au.fromPx(componentBounds.width)).px(),
+                    backgroundSize.height.toPixelLength(Au.fromPx(componentBounds.height)).px()
+            )
+        }
+    }
+
+}
+
+fun paintBackgroundGradient(g2: Graphics2D, imageGradient: Gradient) {
+    throw UnsupportedOperationException()
+}
+
+fun paintBorder(g: Graphics, component: Component, computedValues: ComputedValues, renderCache: Cache) {
     val border = computedValues.border
 
-    val borderWidth = renderCache.computedBorderWidth(border)
+    val borderWidth = border.toInsets()
 
-    if (borderWidth.isZero) {
+    if (borderWidth.isZero()) {
         return
     }
 
     val g2 = getGraphics(g)
+    val borderColor = border.toColors(computedValues.color.color)
 
-    val bounds = component.bounds
-    val size = component.size
+    val borderShape = renderCache.borderShape
 
-    val borderRadius = renderCache.computedBorderRadius(border, bounds)
-    val borderColor = renderCache.computedBorderColor(border, computedValues.color.color)
-
-    val margin = computedValues.margin.toInsets(bounds)
-    val padding = computedValues.padding.toInsets(bounds)
-
-    if (hasOnlyOneColor(borderColor)) {
-        val borderClip = computeBackgroundClip(Clip.BORDER_BOX, size, borderWidth, borderRadius, margin, padding)
-        val paddingClip = computeBackgroundClip(Clip.PADDING_BOX, size, borderWidth, borderRadius, margin, padding)
-
-        val clip = Area(borderClip)
-        clip.subtract(Area(paddingClip))
-
-        g2.color = borderColor.top
-        g2.fill(clip)
-    } else {
-        val edges = computeBorderEdges(size, borderWidth, borderRadius, margin)
-
-        g2.color = borderColor.top
-        g2.fill(edges[0])
-
-        g2.color = borderColor.right
-        g2.fill(edges[1])
-
-        g2.color = borderColor.bottom
-        g2.fill(edges[2])
-
-        g2.color = borderColor.left
-        g2.fill(edges[3])
-    }
-}
-
-private fun hasOnlyOneColor(color: TColor): Boolean {
-    return color.top == color.right && color.right == color.bottom && color.bottom == color.left
-}
-
-private fun computeBackgroundClip(clip: Clip, size: Dimension, borderWidth: TInsets, borderRadius: TRadius,
-                                  margin: TInsets, padding: TInsets): Shape {
-    val width = TInsets()
-    val bounds = TBounds(size)
-
-    when (clip) {
-        Clip.CONTENT_BOX -> {
-            width.increase(padding)
-            bounds.reduce(padding)
-            width.increase(borderWidth)
-            bounds.reduce(borderWidth)
-            bounds.reduce(margin)
+    when (borderShape) {
+        is BorderShape.Simple -> {
+            g2.color = borderColor.top
+            g2.fill(borderShape.shape)
         }
-        Clip.PADDING_BOX -> {
-            width.increase(borderWidth)
-            bounds.reduce(borderWidth)
-            bounds.reduce(margin)
+        is BorderShape.Complex -> {
+            g2.color = borderColor.top
+            g2.fill(borderShape.top)
+
+            g2.color = borderColor.right
+            g2.fill(borderShape.right)
+
+            g2.color = borderColor.bottom
+            g2.fill(borderShape.bottom)
+
+            g2.color = borderColor.left
+            g2.fill(borderShape.left)
         }
-        Clip.BORDER_BOX -> bounds.reduce(margin)
     }
-
-    return computeRoundedRectangle(bounds, borderRadius, width)
-}
-
-/**
- * Computes a rounded rectangle shape using the bounds as a basic basic rectangle an refining it by adding round corners
- * accordingly. The corner radius shrinks with the specified "border" (width).
- *
- * @param rect  the basic rectangle
- * @param radii the corner radius at the corner of the virtual space
- * @param width the width that define the virtual space together with the rectangle
- * @return the rounded rectangle
- */
-private fun computeRoundedRectangle(rect: TBounds, radii: TRadius, width: TInsets): Path2D {
-    val path = Path2D.Float()
-
-    val tls = if (width.top < radii.topLeftHeight) radii.topLeftHeight - width.top else 0f
-    val tlt = if (width.left < radii.topLeftWidth) radii.topLeftWidth - width.left else 0f
-    val trs = if (width.top < radii.topRightHeight) radii.topRightHeight - width.top else 0f
-    val trt = if (width.right < radii.topRightWidth) radii.topRightWidth - width.right else 0f
-    val brs = if (width.bottom < radii.bottomRightHeight) radii.bottomRightHeight - width.bottom else 0f
-    val brt = if (width.right < radii.bottomRightWidth) radii.bottomRightWidth - width.right else 0f
-    val bls = if (width.bottom < radii.bottomLeftHeight) radii.bottomLeftHeight - width.bottom else 0f
-    val blt = if (width.left < radii.bottomLeftWidth) radii.bottomLeftWidth - width.left else 0f
-
-    path.moveTo((rect.x + tlt).toDouble(), rect.y.toDouble())
-    path.lineTo((rect.x + rect.width - trt).toDouble(), rect.y.toDouble())
-    path.quadTo((rect.x + rect.width).toDouble(), rect.y.toDouble(), (rect.x + rect.width).toDouble(), (rect.y + trs).toDouble())
-    path.lineTo((rect.x + rect.width).toDouble(), (rect.y + rect.height - brs).toDouble())
-    path.quadTo((rect.x + rect.width).toDouble(), (rect.y + rect.height).toDouble(), (rect.x + rect.width - brt).toDouble(), (rect.y + rect.height).toDouble())
-    path.lineTo((rect.x + blt).toDouble(), (rect.y + rect.height).toDouble())
-    path.quadTo(rect.x.toDouble(), (rect.y + rect.height).toDouble(), rect.x.toDouble(), (rect.y + rect.height - bls).toDouble())
-    path.lineTo(rect.x.toDouble(), (rect.y + tls).toDouble())
-    path.quadTo(rect.x.toDouble(), rect.y.toDouble(), (rect.x + tlt).toDouble(), rect.y.toDouble())
-
-    return path
-}
-
-private fun computeBorderEdges(size: Dimension, borderWidth: TInsets, borderRadius: TRadius, margin: TInsets): Array<Shape?> {
-    val bounds = TBounds(size)
-
-    bounds.reduce(margin)
-
-    val edges = arrayOfNulls<Shape>(4)
-
-    edges[0] = computeTopBorder(bounds, borderRadius, borderWidth)
-    edges[1] = computeRightBorder(bounds, borderRadius, borderWidth)
-    edges[2] = computeBottomBorder(bounds, borderRadius, borderWidth)
-    edges[3] = computeLeftBorder(bounds, borderRadius, borderWidth)
-
-    return edges
-}
-
-private fun computeTopBorder(rect: TBounds, radii: TRadius, width: TInsets): Path2D {
-    val path = Path2D.Float()
-
-    val tlt = if (width.top < radii.topLeftHeight) radii.topLeftHeight - width.top else 0f
-    val tls = if (width.left < radii.topLeftWidth) radii.topLeftWidth - width.left else 0f
-    val trt = if (width.top < radii.topRightHeight) radii.topRightHeight - width.top else 0f
-    val trs = if (width.right < radii.topRightWidth) radii.topRightWidth - width.right else 0f
-
-    path.moveTo((rect.x + radii.topLeftWidth).toDouble(), rect.y.toDouble())
-    path.lineTo((rect.x + rect.width - radii.topRightWidth).toDouble(), rect.y.toDouble())
-
-    path.append(Arc2D.Float(rect.x + rect.width - radii.topRightWidth * 2, rect.y, radii.topRightWidth * 2, radii.topRightHeight * 2, 90f, -45f, Arc2D.OPEN), true)
-    path.append(Arc2D.Float(rect.x + rect.width - Math.max(radii.topRightWidth, width.right) - trs, rect.y + width.top, trs * 2, trt * 2, 45f, 45f, Arc2D.OPEN),
-            true)
-
-    path.lineTo((rect.x + Math.max(radii.topLeftWidth, width.left)).toDouble(), (rect.y + width.top).toDouble())
-
-    path.append(Arc2D.Float(rect.x + Math.max(radii.topLeftWidth, width.left) - tls, rect.y + Math.max(radii.topRightHeight, width.top) - tlt, tls * 2, tlt * 2, 90f, 45f,
-            Arc2D.OPEN), true)
-    path.append(Arc2D.Float(rect.x, rect.y, radii.topLeftWidth * 2, radii.topLeftHeight * 2, 135f, -45f, Arc2D.OPEN), true)
-
-    return path
-}
-
-private fun computeRightBorder(rect: TBounds, radii: TRadius, width: TInsets): Path2D {
-    val path = Path2D.Float()
-
-    val brt = if (width.bottom < radii.bottomRightHeight) radii.bottomRightHeight - width.bottom else 0f
-    val brs = if (width.right < radii.bottomRightWidth) radii.bottomRightWidth - width.right else 0f
-    val trt = if (width.top < radii.topRightHeight) radii.topRightWidth - width.top else 0f
-    val trs = if (width.right < radii.topRightWidth) radii.topRightWidth - width.right else 0f
-
-    path.moveTo((rect.x + rect.width).toDouble(), (rect.y + radii.topRightHeight).toDouble())
-    path.lineTo((rect.x + rect.width).toDouble(), (rect.y + rect.height - radii.bottomRightHeight).toDouble())
-
-    path.append(Arc2D.Float(rect.x + rect.width - radii.bottomRightWidth * 2, rect.y + rect.height - radii.bottomRightHeight * 2, radii.bottomRightWidth * 2,
-            radii.bottomRightHeight * 2, 0f, -45f, Arc2D.OPEN), true)
-    path.append(Arc2D.Float(rect.x + rect.width - Math.max(radii.bottomRightWidth, width.right) - brs,
-            rect.y + rect.height - Math.max(radii.bottomRightHeight, width.bottom) - brt, brs * 2, brt * 2, -45f, 45f, Arc2D.OPEN), true)
-
-    path.lineTo((rect.x + rect.width - width.right).toDouble(), (rect.y + Math.max(radii.topRightHeight, width.bottom)).toDouble())
-
-    path.append(Arc2D.Float(rect.x + rect.width - Math.max(radii.topRightWidth, width.right) - trs, rect.y + Math.max(radii.topRightHeight, width.top) - trt, trs * 2,
-            trt * 2, 0f, 45f, Arc2D.OPEN), true)
-    path.append(Arc2D.Float(rect.x + rect.width - radii.topRightWidth * 2, rect.y, radii.topRightWidth * 2, radii.topRightHeight * 2, 45f, -45f, Arc2D.OPEN), true)
-
-    return path
-}
-
-private fun computeBottomBorder(rect: TBounds, radii: TRadius, width: TInsets): Path2D {
-    val path = Path2D.Float()
-
-    val blt = if (width.bottom < radii.bottomLeftHeight) radii.bottomLeftHeight - width.bottom else 0f
-    val bls = if (width.left < radii.bottomLeftWidth) radii.bottomLeftWidth - width.left else 0f
-    val brt = if (width.bottom < radii.bottomRightHeight) radii.bottomRightHeight - width.bottom else 0f
-    val brs = if (width.right < radii.bottomRightWidth) radii.bottomRightWidth - width.right else 0f
-
-    path.moveTo((rect.x + radii.topLeftWidth).toDouble(), (rect.y + rect.height).toDouble())
-    path.lineTo((rect.x + rect.width - radii.bottomRightWidth).toDouble(), (rect.y + rect.height).toDouble())
-
-    path.append(Arc2D.Float(rect.x + rect.width - radii.bottomRightWidth * 2, rect.y + rect.height - radii.bottomRightHeight * 2, radii.bottomRightWidth * 2,
-            radii.bottomRightHeight * 2, -90f, 45f, Arc2D.OPEN), true)
-    path.append(Arc2D.Float(rect.x + rect.width - Math.max(radii.bottomRightWidth, width.right) - brs,
-            rect.y + rect.height - Math.max(radii.bottomRightHeight, width.bottom) - brt, brs * 2, brt * 2, -45f, -45f, Arc2D.OPEN), true)
-
-    path.lineTo((rect.x + Math.max(radii.topLeftWidth, width.left)).toDouble(), (rect.y + rect.height - width.bottom).toDouble())
-
-    path.append(
-            Arc2D.Float(rect.x + Math.max(radii.bottomLeftWidth, width.left) - bls, rect.y + rect.height - Math.max(radii.bottomLeftHeight, width.bottom) - blt, bls * 2,
-                    blt * 2, -90f, -45f, Arc2D.OPEN), true)
-    path.append(Arc2D.Float(rect.x, rect.y + rect.height - radii.bottomLeftHeight * 2, radii.bottomLeftWidth * 2, radii.bottomLeftHeight * 2, -135f, 45f, Arc2D.OPEN), true)
-
-    return path
-}
-
-private fun computeLeftBorder(rect: TBounds, radii: TRadius, width: TInsets): Path2D {
-    val path = Path2D.Float()
-
-    val blt = if (width.bottom < radii.bottomLeftHeight) radii.bottomLeftHeight - width.bottom else 0f
-    val bls = if (width.left < radii.bottomLeftWidth) radii.bottomLeftWidth - width.left else 0f
-    val tlt = if (width.top < radii.topLeftHeight) radii.topLeftHeight - width.top else 0f
-    val tls = if (width.left < radii.topLeftWidth) radii.topLeftWidth - width.left else 0f
-
-    path.moveTo(rect.x.toDouble(), (rect.y + radii.topLeftHeight).toDouble())
-    path.lineTo(rect.x.toDouble(), (rect.y + rect.height - radii.bottomLeftHeight).toDouble())
-
-    path.append(Arc2D.Float(rect.x, rect.y + rect.height - radii.bottomLeftHeight * 2, radii.bottomLeftWidth * 2, radii.bottomLeftHeight * 2, 180f, 45f, Arc2D.OPEN), true)
-    path.append(
-            Arc2D.Float(rect.x + Math.max(radii.bottomLeftWidth, width.left) - bls, rect.y + rect.height - Math.max(radii.bottomLeftHeight, width.bottom) - blt, bls * 2,
-                    blt * 2, 225f, -45f, Arc2D.OPEN), true)
-
-    path.lineTo((rect.x + width.left).toDouble(), (rect.y + Math.max(radii.topLeftHeight, width.top)).toDouble())
-
-    path.append(Arc2D.Float(rect.x + Math.max(radii.topLeftWidth, width.left) - tls, rect.y + Math.max(radii.topLeftHeight, width.top) - tlt, tls * 2, tlt * 2, 180f, -45f,
-            Arc2D.OPEN), true)
-    path.append(Arc2D.Float(rect.x, rect.y, radii.topLeftWidth * 2, radii.topLeftHeight * 2, 135f, 45f, Arc2D.OPEN), true)
-
-    return path
 }

@@ -17,7 +17,9 @@ import de.krall.flare.style.ResolvedElementStyles
 import de.krall.flare.style.context.StyleContext
 import de.krall.flare.style.properties.PropertyDeclarationBlock
 import de.krall.flare.style.value.computed.SingleFontFamily
-import modern.reflare.render.RenderCacheStrategy
+import modern.reflare.geom.Insets
+import modern.reflare.geom.toInsets
+import modern.reflare.render.Cache
 import modern.reflare.render.renderBackground
 import modern.reflare.render.renderBorder
 import modern.reflare.toAWTColor
@@ -92,27 +94,33 @@ abstract class AWTComponentElement(val component: Component) : Element {
     private var state: StyleState = StyleState.CLEAN
 
     fun invalidateBounds() {
-        renderCacheStrategy.invalidateSizeDependant()
+        paddingDelegate.invalidate()
+        marginDelegate.invalidate()
+
+        cache.invalidateBounds()
         component.repaint()
     }
 
     fun invalidateStyle() {
-        renderCacheStrategy.invalidate()
+        //ca.invalidate()
+
 
         restyle()
     }
 
-    open fun notifyRestyle() {
-
-    }
-
     fun restyle() {
-        notifyRestyle()
-
         val frame = frame
 
         when (frame) {
             is Some -> frame.value.markElementDirty(this)
+        }
+    }
+
+    fun restyleImmediately() {
+        val frame = frame
+
+        when (frame) {
+            is Some -> frame.value.applyStyles(this)
         }
     }
 
@@ -313,7 +321,8 @@ abstract class AWTComponentElement(val component: Component) : Element {
     }
 
     protected open fun updateStyle(style: ComputedValues) {
-
+        paddingDelegate.invalidate()
+        marginDelegate.invalidate()
     }
 
     protected open fun updatePseudoElement(pseudoElement: PseudoElement, style: ComputedValues) {
@@ -322,7 +331,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
     // ***************************** Render ***************************** //
 
-    var renderCacheStrategy: RenderCacheStrategy = RenderCacheStrategy.NoCache()
+    val cache: Cache by lazy { Cache(this) }
 
     fun paintBackground(component: Component, g: Graphics) {
         renderBackground(g, component, this, getStyle())
@@ -368,6 +377,28 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
         return old
     }
+
+    // ***************************** Style Properties ***************************** //
+
+    private val marginDelegate = cssProperty {
+        val style = getStyle()
+        when (style) {
+            is Some -> style.value.margin.toInsets(component.bounds)
+            is None -> Insets.empty()
+        }
+    }
+
+    val margin: Insets by marginDelegate
+
+    private val paddingDelegate = cssProperty {
+        val style = getStyle()
+        when (style) {
+            is Some -> style.value.padding.toInsets(component.bounds)
+            is None -> Insets.empty()
+        }
+    }
+
+    val padding: Insets by paddingDelegate
 }
 
 open class AWTContainerElement(container: Container) : AWTComponentElement(container) {
@@ -575,7 +606,7 @@ fun Component.into(): AWTComponentElement {
     return ensureElement(this)
 }
 
-fun Component.css(): AWTComponentElement {
+fun Component.css(): Element {
     return ensureElement(this)
 }
 

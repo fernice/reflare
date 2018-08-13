@@ -1,5 +1,6 @@
 package modern.reflare.ui;
 
+import java.awt.Color;
 import modern.reflare.FlareLookAndFeel;
 import modern.reflare.element.ComponentElement;
 import modern.reflare.element.LabelElement;
@@ -13,6 +14,7 @@ import javax.swing.JLabel;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicLabelUI;
 import org.jetbrains.annotations.NotNull;
+import sun.swing.SwingUtilities2;
 
 public class LabelUI extends BasicLabelUI implements FlareUI {
 
@@ -46,6 +48,10 @@ public class LabelUI extends BasicLabelUI implements FlareUI {
         paintBackground(component, graphics);
 
         super.paint(graphics, component);
+    }
+
+    protected void paintDisabledText(JLabel l, Graphics g, String s, int textX, int textY) {
+        paintEnabledText(l, g, s, textX, textY);
     }
 
     private void paintBackground(JComponent component, Graphics g) {

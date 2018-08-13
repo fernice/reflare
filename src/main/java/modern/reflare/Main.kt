@@ -1,8 +1,10 @@
 package modern.reflare
 
 import de.krall.flare.std.Some
-import modern.reflare.element.into
-import java.awt.Component
+import modern.reflare.element.addStylesheet
+import modern.reflare.element.classes
+import modern.reflare.element.id
+import modern.reflare.element.removeStylesheet
 import java.io.File
 import javax.swing.JButton
 import javax.swing.JCheckBox
@@ -26,7 +28,7 @@ fun main(args: Array<String>) {
     val panel = JPanel()
 
     val title = JLabel("Form")
-    title.getStyleClasses().add("title")
+    title.classes.add("title")
 
     panel.add(title)
 
@@ -38,7 +40,7 @@ fun main(args: Array<String>) {
     val textField2 = JTextArea()
     textField2.columns = 15
     textField2.rows = 6
-    textField2.into().id = Some("t2")
+    textField2.id = Some("t2")
 
     panel.add(textField2)
 
@@ -50,24 +52,22 @@ fun main(args: Array<String>) {
     val submit = JButton("Submit")
     submit.addActionListener {
         if (dark) {
-            frame.into().addStylesheet(lightMode)
-            frame.into().removeStylesheet(darkMode)
+            frame.addStylesheet(lightMode)
+            frame.removeStylesheet(darkMode)
         } else {
-            frame.into().addStylesheet(darkMode)
-            frame.into().removeStylesheet(lightMode)
+            frame.addStylesheet(darkMode)
+            frame.removeStylesheet(lightMode)
         }
         dark = !dark
     }
-    submit.into().classes.add("submit")
+    submit.classes.add("submit")
 
     panel.add(submit)
 
     val cancel = JButton("Cancel")
-
     panel.add(cancel)
 
     val comboBox = JComboBox<String>(arrayOf("Value 1", "Value 2"))
-
     panel.add(comboBox)
 
     val checkbox = JCheckBox("remember me")
@@ -81,9 +81,4 @@ fun main(args: Array<String>) {
 
     frame.isVisible = true
 
-}
-
-
-fun Component.getStyleClasses(): MutableList<String> {
-    return this.into().classes
 }

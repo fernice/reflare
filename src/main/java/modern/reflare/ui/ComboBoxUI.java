@@ -147,6 +147,7 @@ public class ComboBoxUI extends BasicComboBoxUI implements FlareUI {
 
             element.focusHint(focus);
             element.activeHint(isSelected);
+            element.getCache().setUncachable();
 
             return component;
         }

@@ -2,7 +2,6 @@ package modern.reflare.element
 
 import de.krall.flare.selector.PseudoElement
 import de.krall.flare.style.ComputedValues
-import modern.reflare.render.RenderCacheStrategy
 import modern.reflare.toAWTColor
 import javax.swing.JFormattedTextField
 import javax.swing.JLabel
@@ -19,10 +18,6 @@ class LabelElement(label: JLabel) : ComponentElement(label) {
 }
 
 abstract class TextElement(textComponent: JTextComponent) : ComponentElement(textComponent) {
-
-    init {
-        renderCacheStrategy = RenderCacheStrategy.CacheAll()
-    }
 
     override fun matchPseudoElement(pseudoElement: PseudoElement): Boolean {
         return when (pseudoElement) {
@@ -47,7 +42,8 @@ abstract class TextElement(textComponent: JTextComponent) : ComponentElement(tex
                 component.selectedTextColor = style.color.color.toAWTColor()
                 component.selectionColor = style.background.color.toAWTColor()
             }
-            else -> {}
+            else -> {
+            }
         }
     }
 }
