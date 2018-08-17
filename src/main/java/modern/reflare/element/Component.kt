@@ -113,6 +113,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
         when (frame) {
             is Some -> frame.value.markElementDirty(this)
+            else -> {}
         }
     }
 
@@ -121,6 +122,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
         when (frame) {
             is Some -> frame.value.applyStyles(this)
+            else -> {}
         }
     }
 

@@ -1,23 +1,24 @@
 package modern.reflare.ui;
 
 import modern.reflare.element.ComponentElement;
-import modern.reflare.element.FormattedTextFieldElement;
+import modern.reflare.element.TextFieldElement;
 import modern.reflare.element.ComponentKt;
 import modern.reflare.meta.DefinedBy;
 import modern.reflare.meta.DefinedBy.Api;
 import java.awt.Component;
 import java.awt.Graphics;
 import javax.swing.JComponent;
-import javax.swing.JFormattedTextField;
+import javax.swing.JTextField;
 import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.basic.BasicFormattedTextFieldUI;
+import javax.swing.plaf.basic.BasicTextFieldUI;
 import org.jetbrains.annotations.NotNull;
 
-public class FormattedTextFieldUI extends BasicFormattedTextFieldUI implements FlareUI {
+@SuppressWarnings("unused")
+public class FlareTextFieldUI extends BasicTextFieldUI implements FlareUI {
 
     @DefinedBy(Api.LOOK_AND_FEEL)
     public static ComponentUI createUI(JComponent c) {
-        return new FormattedTextFieldUI();
+        return new FlareTextFieldUI();
     }
 
     private ComponentElement element;
@@ -25,14 +26,15 @@ public class FormattedTextFieldUI extends BasicFormattedTextFieldUI implements F
     @Override
     protected void installDefaults() {
         super.installDefaults();
-        final JFormattedTextField textField = (JFormattedTextField) getComponent();
+        final JTextField textField = (JTextField) getComponent();
 
         if (element == null) {
-            element = new FormattedTextFieldElement(textField);
+            element = new TextFieldElement(textField);
         }
 
         textField.setOpaque(false);
         textField.setBorder(new FlareBorder(this));
+        textField.addPropertyChangeListener("enabled", evt -> textField.repaint());
 
         ComponentKt.registerElement(textField, element);
     }

@@ -27,7 +27,7 @@ public class FlareComboBoxPopup extends BasicComboPopup {
 
     @Override
     protected void configureList() {
-        ComboBoxUI comboBoxUI = (ComboBoxUI) comboBox.getUI();
+        FlareComboBoxUI comboBoxUI = (FlareComboBoxUI) comboBox.getUI();
 
         list.setCellRenderer(comboBoxUI.getRendererWrapper());
         list.setFocusable(false);
@@ -55,7 +55,7 @@ public class FlareComboBoxPopup extends BasicComboPopup {
 
         return (evt) -> {
             if (evt.getPropertyName() == "renderer") {
-                ComboBoxUI comboBoxUI = (ComboBoxUI) comboBox.getUI();
+                FlareComboBoxUI comboBoxUI = (FlareComboBoxUI) comboBox.getUI();
 
                 list.setCellRenderer(comboBoxUI.getRendererWrapper());
                 if (isVisible()) {

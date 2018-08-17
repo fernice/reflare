@@ -12,6 +12,7 @@ import modern.reflare.meta.DefinedBy;
 import modern.reflare.meta.DefinedBy.Api;
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("unused")
 public class FlareCheckBoxUI extends FlareToggleButtonUI {
 
     @DefinedBy(Api.LOOK_AND_FEEL)

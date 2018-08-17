@@ -23,11 +23,11 @@ import modern.reflare.meta.DefinedBy;
 import modern.reflare.meta.DefinedBy.Api;
 import org.jetbrains.annotations.NotNull;
 
-public class ComboBoxUI extends BasicComboBoxUI implements FlareUI {
+public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
 
     @DefinedBy(Api.LOOK_AND_FEEL)
     public static ComponentUI createUI(JComponent c) {
-        return new ComboBoxUI();
+        return new FlareComboBoxUI();
     }
 
     private ComponentElement element;

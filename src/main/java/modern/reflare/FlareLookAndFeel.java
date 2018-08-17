@@ -74,30 +74,40 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
 
             final String basicPackageName = "modern.reflare.ui.";
 
-            defaults.put("RootPaneUI", basicPackageName + "RootPaneUI");
-            defaults.put("PanelUI", basicPackageName + "PanelUI");
+            defaults.put("ComponentUI", FlareLookAndFeel.class.getName());
+            defaults.put("RootPaneUI", basicPackageName + "FlareRootPaneUI");
+            defaults.put("ViewportUI", basicPackageName + "FlareViewportUI");
+            defaults.put("PanelUI", basicPackageName + "FlarePanelUI");
+            defaults.put("ScrollPaneUI", basicPackageName + "FlareScrollPaneUI");
             defaults.put("TabbedPaneUI", basicPackageName + "FlareTabbedPaneUI");
-            defaults.put("TextFieldUI", basicPackageName + "TextFieldUI");
-            defaults.put("FormattedTextFieldUI", basicPackageName + "FormattedTextFieldUI");
-            defaults.put("PasswordFieldUI", basicPackageName + "PasswordFieldUI");
-            defaults.put("TextAreaUI", basicPackageName + "TextAreaUI");
+
+            defaults.put("LabelUI", basicPackageName + "FlareLabelUI");
+
+            defaults.put("TextFieldUI", basicPackageName + "FlareTextFieldUI");
+            defaults.put("FormattedTextFieldUI", basicPackageName + "FlareFormattedTextFieldUI");
+            defaults.put("PasswordFieldUI", basicPackageName + "FlarePasswordFieldUI");
+            defaults.put("TextAreaUI", basicPackageName + "FlareTextAreaUI");
+
             defaults.put("ButtonUI", basicPackageName + "FlareButtonUI");
             defaults.put("ToggleButtonUI", basicPackageName + "FlareToggleButtonUI");
             defaults.put("RadioButtonUI", basicPackageName + "FlareRadioButtonUI");
             defaults.put("CheckBoxUI", basicPackageName + "FlareCheckBoxUI");
-            defaults.put("LabelUI", basicPackageName + "LabelUI");
-            defaults.put("ComboBoxUI", basicPackageName + "ComboBoxUI");
-            defaults.put("PopupMenuUI", basicPackageName + "PopupMenuUI");
+
+            defaults.put("ComboBoxUI", basicPackageName + "FlareComboBoxUI");
+            defaults.put("ComboBoxPopupUI", basicPackageName + "FlareComboBoxPopupUI");
             defaults.put("ListUI", basicPackageName + "FlareListUI");
-            defaults.put("ScrollPaneUI", basicPackageName + "ScrollPaneUI");
-            defaults.put("ViewportUI", basicPackageName + "ViewportUI");
-            defaults.put("ComboBoxPopupUI", basicPackageName + "ComboBoxPopupUI");
-            defaults.put("ComponentUI", FlareLookAndFeel.class.getName());
+
+            defaults.put("PopupMenuUI", basicPackageName + "FlarePopupMenuUI");
+
+            defaults.put("MenuBarUI", basicPackageName + "FlareMenuBarUI");
+            defaults.put("MenuItemUI", basicPackageName + "FlareMenuItemUI");
+            defaults.put("MenuUI", basicPackageName + "FlareMenuUI");
         }
 
         return defaults;
     }
 
+    @SuppressWarnings("unused")
     @DefinedBy(Api.LOOK_AND_FEEL)
     public static ComponentUI createUI(JComponent c) {
         throw new IllegalArgumentException();

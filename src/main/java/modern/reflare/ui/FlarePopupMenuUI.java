@@ -1,46 +1,46 @@
 package modern.reflare.ui;
 
 import modern.reflare.element.ComponentElement;
+import modern.reflare.element.PopupMenuElement;
 import modern.reflare.element.ComponentKt;
-import modern.reflare.element.RootPaneElement;
 import modern.reflare.meta.DefinedBy;
 import modern.reflare.meta.DefinedBy.Api;
 import java.awt.Component;
 import java.awt.Graphics;
 import javax.swing.JComponent;
-import javax.swing.JRootPane;
 import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.basic.BasicRootPaneUI;
+import javax.swing.plaf.basic.BasicPopupMenuUI;
 import org.jetbrains.annotations.NotNull;
 
-public class RootPaneUI extends BasicRootPaneUI implements FlareUI {
+@SuppressWarnings("unused")
+public class FlarePopupMenuUI extends BasicPopupMenuUI implements FlareUI {
 
     @DefinedBy(Api.LOOK_AND_FEEL)
     public static ComponentUI createUI(JComponent c) {
-        return new RootPaneUI();
+        return new FlarePopupMenuUI();
     }
 
     private ComponentElement element;
 
     @Override
-    protected void installDefaults(JRootPane rootPane) {
-        super.installDefaults(rootPane);
+    public void installDefaults() {
+        super.installDefaults();
 
         if (element == null) {
-            element = new RootPaneElement(rootPane);
+            element = new PopupMenuElement(popupMenu);
         }
 
-        rootPane.setOpaque(false);
-        rootPane.setBorder(new FlareBorder(this));
+        popupMenu.setOpaque(false);
+        popupMenu.setBorder(new FlareBorder(this));
 
-        ComponentKt.registerElement(rootPane, element);
+        ComponentKt.registerElement(popupMenu, element);
     }
 
     @Override
-    protected void uninstallDefaults(JRootPane rootPane) {
-        ComponentKt.deregisterElement(rootPane);
+    public void uninstallDefaults() {
+        ComponentKt.deregisterElement(popupMenu);
 
-        super.uninstallDefaults(rootPane);
+        super.uninstallDefaults();
     }
 
     @Override

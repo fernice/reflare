@@ -1,59 +1,51 @@
 package modern.reflare.ui;
 
+import modern.reflare.element.ComboBoxPopupElement;
 import modern.reflare.element.ComponentElement;
-import modern.reflare.element.PasswordFieldElement;
 import modern.reflare.element.ComponentKt;
 import modern.reflare.meta.DefinedBy;
 import modern.reflare.meta.DefinedBy.Api;
 import java.awt.Component;
 import java.awt.Graphics;
 import javax.swing.JComponent;
-import javax.swing.JPasswordField;
 import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.basic.BasicPasswordFieldUI;
+import javax.swing.plaf.basic.BasicPopupMenuUI;
 import org.jetbrains.annotations.NotNull;
 
-public class PasswordFieldUI extends BasicPasswordFieldUI implements FlareUI {
+@SuppressWarnings("unused")
+public class FlareComboBoxPopupUI extends BasicPopupMenuUI implements FlareUI {
 
     @DefinedBy(Api.LOOK_AND_FEEL)
     public static ComponentUI createUI(JComponent c) {
-        return new PasswordFieldUI();
+        return new FlareComboBoxPopupUI();
     }
 
     private ComponentElement element;
 
     @Override
-    protected void installDefaults() {
+    public void installDefaults() {
         super.installDefaults();
-        final JPasswordField textField = (JPasswordField) getComponent();
 
         if (element == null) {
-            element = new PasswordFieldElement(textField);
+            element = new ComboBoxPopupElement((FlareComboBoxPopup) popupMenu);
         }
 
-        textField.setOpaque(false);
-        textField.setBorder(new FlareBorder(this));
+        popupMenu.setOpaque(false);
+        popupMenu.setBorder(new FlareBorder(this));
 
-        ComponentKt.registerElement(textField, element);
+        ComponentKt.registerElement(popupMenu, element);
     }
 
     @Override
-    protected void uninstallDefaults() {
-        ComponentKt.deregisterElement(getComponent());
+    public void uninstallDefaults() {
+        ComponentKt.deregisterElement(popupMenu);
 
         super.uninstallDefaults();
     }
 
     @Override
-    protected void paintSafely(final Graphics graphics) {
-        element.paintBackground(getComponent(), graphics);
-
-        super.paintSafely(graphics);
-    }
-
-    @Override
-    protected void paintBackground(final Graphics g) {
-        // already done in paintSafely()
+    public void paint(final Graphics graphics, JComponent component) {
+        element.paintBackground(component, graphics);
     }
 
     @Override

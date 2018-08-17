@@ -1,50 +1,19 @@
 package modern.reflare.ui
 
 import de.krall.flare.std.Some
-import de.krall.flare.style.properties.stylestruct.Border
-import de.krall.flare.style.properties.stylestruct.Margin
-import de.krall.flare.style.properties.stylestruct.Padding
-import de.krall.flare.style.value.computed.Au
 import modern.reflare.element.AWTComponentElement
 import modern.reflare.geom.Insets
+import modern.reflare.geom.toInsets
 import java.awt.Component
 import java.awt.Graphics
-import java.awt.Insets as AWTInsets
-import java.awt.Rectangle
 import javax.swing.border.AbstractBorder
+import java.awt.Insets as AWTInsets
 
 interface FlareUI {
 
     val element: AWTComponentElement
 
     fun paintBorder(c: Component, g: Graphics, x: Int, y: Int, width: Int, height: Int)
-}
-
-private fun Margin.into(bounds: Rectangle): Insets {
-    return Insets(
-            this.top.toPixelLength(Au.fromPx(bounds.width)).px(),
-            this.right.toPixelLength(Au.fromPx(bounds.width)).px(),
-            this.bottom.toPixelLength(Au.fromPx(bounds.width)).px(),
-            this.left.toPixelLength(Au.fromPx(bounds.width)).px()
-    )
-}
-
-private fun Padding.into(bounds: Rectangle): Insets {
-    return Insets(
-            this.top.toPixelLength(Au.fromPx(bounds.width)).px(),
-            this.right.toPixelLength(Au.fromPx(bounds.width)).px(),
-            this.bottom.toPixelLength(Au.fromPx(bounds.width)).px(),
-            this.left.toPixelLength(Au.fromPx(bounds.width)).px()
-    )
-}
-
-private fun Border.toWidth(): Insets {
-    return Insets(
-            this.topWidth.length.px(),
-            this.rightWidth.length.px(),
-            this.bottomWidth.length.px(),
-            this.leftWidth.length.px()
-    )
 }
 
 class FlareBorder(private val ui: FlareUI) : AbstractBorder() {
@@ -70,7 +39,7 @@ class FlareBorder(private val ui: FlareUI) : AbstractBorder() {
             val values = style.value
             val bounds = c.bounds
 
-            insets = insets + values.margin.into(bounds) + values.padding.into(bounds) + values.border.toWidth()
+            insets = insets + values.margin.toInsets(bounds) + values.padding.toInsets(bounds) + values.border.toInsets()
         }
 
         return insets

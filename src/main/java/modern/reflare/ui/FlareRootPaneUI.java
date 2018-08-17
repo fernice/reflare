@@ -1,46 +1,47 @@
 package modern.reflare.ui;
 
 import modern.reflare.element.ComponentElement;
-import modern.reflare.element.ScrollPaneElement;
 import modern.reflare.element.ComponentKt;
+import modern.reflare.element.RootPaneElement;
 import modern.reflare.meta.DefinedBy;
 import modern.reflare.meta.DefinedBy.Api;
 import java.awt.Component;
 import java.awt.Graphics;
 import javax.swing.JComponent;
-import javax.swing.JScrollPane;
+import javax.swing.JRootPane;
 import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.basic.BasicScrollPaneUI;
+import javax.swing.plaf.basic.BasicRootPaneUI;
 import org.jetbrains.annotations.NotNull;
 
-public class ScrollPaneUI extends BasicScrollPaneUI implements FlareUI {
+@SuppressWarnings("unused")
+public class FlareRootPaneUI extends BasicRootPaneUI implements FlareUI {
 
     @DefinedBy(Api.LOOK_AND_FEEL)
     public static ComponentUI createUI(JComponent c) {
-        return new ScrollPaneUI();
+        return new FlareRootPaneUI();
     }
 
     private ComponentElement element;
 
     @Override
-    protected void installDefaults(JScrollPane scrollPane) {
-        super.installDefaults(scrollPane);
+    protected void installDefaults(JRootPane rootPane) {
+        super.installDefaults(rootPane);
 
         if (element == null) {
-            element = new ScrollPaneElement(scrollPane);
+            element = new RootPaneElement(rootPane);
         }
 
-        scrollPane.setOpaque(false);
-        scrollPane.setBorder(new FlareBorder(this));
+        rootPane.setOpaque(false);
+        rootPane.setBorder(new FlareBorder(this));
 
-        ComponentKt.registerElement(scrollPane, element);
+        ComponentKt.registerElement(rootPane, element);
     }
 
     @Override
-    protected void uninstallDefaults(JScrollPane scrollPane) {
-        ComponentKt.deregisterElement(scrollPane);
+    protected void uninstallDefaults(JRootPane rootPane) {
+        ComponentKt.deregisterElement(rootPane);
 
-        super.uninstallDefaults(scrollPane);
+        super.uninstallDefaults(rootPane);
     }
 
     @Override

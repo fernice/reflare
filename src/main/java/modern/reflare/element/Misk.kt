@@ -3,6 +3,7 @@ package modern.reflare.element
 import javax.swing.CellRendererPane
 import javax.swing.JComboBox
 import javax.swing.JList
+import javax.swing.JProgressBar
 import javax.swing.JScrollPane
 import javax.swing.JViewport
 import modern.reflare.render.CellRendererPane as ModernCellRenderPane
@@ -53,3 +54,5 @@ class ModernCellRendererPaneElement(cellRendererPane: ModernCellRenderPane) : AW
         return "-flr-renderer"
     }
 }
+
+class ProgressBarElement(progressBar: JProgressBar) : ComponentElement(progressBar)

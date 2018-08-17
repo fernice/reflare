@@ -1,44 +1,47 @@
 package modern.reflare.ui;
 
 import modern.reflare.element.ComponentElement;
-import modern.reflare.element.ViewportElement;
+import modern.reflare.element.ScrollPaneElement;
 import modern.reflare.element.ComponentKt;
 import modern.reflare.meta.DefinedBy;
 import modern.reflare.meta.DefinedBy.Api;
 import java.awt.Component;
 import java.awt.Graphics;
 import javax.swing.JComponent;
-import javax.swing.JViewport;
+import javax.swing.JScrollPane;
 import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.basic.BasicViewportUI;
+import javax.swing.plaf.basic.BasicScrollPaneUI;
 import org.jetbrains.annotations.NotNull;
 
-public class ViewportUI extends BasicViewportUI implements FlareUI {
+@SuppressWarnings("unused")
+public class FlareScrollPaneUI extends BasicScrollPaneUI implements FlareUI {
 
     @DefinedBy(Api.LOOK_AND_FEEL)
     public static ComponentUI createUI(JComponent c) {
-        return new ViewportUI();
+        return new FlareScrollPaneUI();
     }
 
     private ComponentElement element;
 
     @Override
-    protected void installDefaults(JComponent component) {
-        JViewport viewport = (JViewport) component;
+    protected void installDefaults(JScrollPane scrollPane) {
+        super.installDefaults(scrollPane);
 
         if (element == null) {
-            element = new ViewportElement(viewport);
+            element = new ScrollPaneElement(scrollPane);
         }
 
-        component.setOpaque(false);
-       // component.setBorder(new FlareBorder(this));
+        scrollPane.setOpaque(false);
+        scrollPane.setBorder(new FlareBorder(this));
 
-        ComponentKt.registerElement(component, element);
+        ComponentKt.registerElement(scrollPane, element);
     }
 
     @Override
-    protected void uninstallDefaults(JComponent component) {
-        ComponentKt.deregisterElement(component);
+    protected void uninstallDefaults(JScrollPane scrollPane) {
+        ComponentKt.deregisterElement(scrollPane);
+
+        super.uninstallDefaults(scrollPane);
     }
 
     @Override

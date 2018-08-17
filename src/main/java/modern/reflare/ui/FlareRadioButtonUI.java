@@ -9,6 +9,7 @@ import modern.reflare.element.RadioButtonElement;
 import modern.reflare.meta.DefinedBy;
 import modern.reflare.meta.DefinedBy.Api;
 
+@SuppressWarnings("unused")
 public class FlareRadioButtonUI extends FlareToggleButtonUI {
 
     @DefinedBy(Api.LOOK_AND_FEEL)

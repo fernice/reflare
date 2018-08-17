@@ -13,11 +13,12 @@ import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicTextAreaUI;
 import org.jetbrains.annotations.NotNull;
 
-public class TextAreaUI extends BasicTextAreaUI implements FlareUI {
+@SuppressWarnings("unused")
+public class FlareTextAreaUI extends BasicTextAreaUI implements FlareUI {
 
     @DefinedBy(Api.LOOK_AND_FEEL)
     public static ComponentUI createUI(JComponent c) {
-        return new TextAreaUI();
+        return new FlareTextAreaUI();
     }
 
     private ComponentElement element;

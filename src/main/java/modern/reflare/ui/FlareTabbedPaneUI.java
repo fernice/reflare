@@ -16,6 +16,7 @@ import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("unused")
 public class FlareTabbedPaneUI extends BasicTabbedPaneUI implements FlareUI {
 
     @DefinedBy(Api.LOOK_AND_FEEL)

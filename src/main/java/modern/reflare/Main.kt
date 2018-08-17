@@ -12,6 +12,9 @@ import javax.swing.JComboBox
 import javax.swing.JFormattedTextField
 import javax.swing.JFrame
 import javax.swing.JLabel
+import javax.swing.JMenu
+import javax.swing.JMenuBar
+import javax.swing.JMenuItem
 import javax.swing.JPanel
 import javax.swing.JTabbedPane
 import javax.swing.JTextArea
@@ -24,6 +27,17 @@ fun main(args: Array<String>) {
     frame.defaultCloseOperation = WindowConstants.EXIT_ON_CLOSE
     frame.title = "Mdrn Flr"
     frame.setSize(600, 400)
+
+    val menuBar = JMenuBar()
+
+    val menu = JMenu("Menu")
+
+    val menuItem = JMenuItem("Item1")
+    menu.add(menuItem)
+
+    menuBar.add(menu)
+
+    frame.jMenuBar = menuBar
 
     val panel = JPanel()
 

@@ -1,45 +1,45 @@
 package modern.reflare.ui;
 
-import modern.reflare.element.ComboBoxPopupElement;
 import modern.reflare.element.ComponentElement;
+import modern.reflare.element.ViewportElement;
 import modern.reflare.element.ComponentKt;
 import modern.reflare.meta.DefinedBy;
 import modern.reflare.meta.DefinedBy.Api;
 import java.awt.Component;
 import java.awt.Graphics;
 import javax.swing.JComponent;
+import javax.swing.JViewport;
 import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.basic.BasicPopupMenuUI;
+import javax.swing.plaf.basic.BasicViewportUI;
 import org.jetbrains.annotations.NotNull;
 
-public class ComboBoxPopupUI extends BasicPopupMenuUI implements FlareUI {
+@SuppressWarnings("unused")
+public class FlareViewportUI extends BasicViewportUI implements FlareUI {
 
     @DefinedBy(Api.LOOK_AND_FEEL)
     public static ComponentUI createUI(JComponent c) {
-        return new ComboBoxPopupUI();
+        return new FlareViewportUI();
     }
 
     private ComponentElement element;
 
     @Override
-    public void installDefaults() {
-        super.installDefaults();
+    protected void installDefaults(JComponent component) {
+        JViewport viewport = (JViewport) component;
 
         if (element == null) {
-            element = new ComboBoxPopupElement((FlareComboBoxPopup) popupMenu);
+            element = new ViewportElement(viewport);
         }
 
-        popupMenu.setOpaque(false);
-        popupMenu.setBorder(new FlareBorder(this));
+        component.setOpaque(false);
+       // component.setBorder(new FlareBorder(this));
 
-        ComponentKt.registerElement(popupMenu, element);
+        ComponentKt.registerElement(component, element);
     }
 
     @Override
-    public void uninstallDefaults() {
-        ComponentKt.deregisterElement(popupMenu);
-
-        super.uninstallDefaults();
+    protected void uninstallDefaults(JComponent component) {
+        ComponentKt.deregisterElement(component);
     }
 
     @Override

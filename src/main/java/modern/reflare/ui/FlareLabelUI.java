@@ -1,26 +1,25 @@
 package modern.reflare.ui;
 
-import java.awt.Color;
-import modern.reflare.FlareLookAndFeel;
-import modern.reflare.element.ComponentElement;
-import modern.reflare.element.LabelElement;
-import modern.reflare.element.ComponentKt;
-import modern.reflare.meta.DefinedBy;
-import modern.reflare.meta.DefinedBy.Api;
 import java.awt.Component;
 import java.awt.Graphics;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicLabelUI;
+import modern.reflare.FlareLookAndFeel;
+import modern.reflare.element.ComponentElement;
+import modern.reflare.element.ComponentKt;
+import modern.reflare.element.LabelElement;
+import modern.reflare.meta.DefinedBy;
+import modern.reflare.meta.DefinedBy.Api;
 import org.jetbrains.annotations.NotNull;
-import sun.swing.SwingUtilities2;
 
-public class LabelUI extends BasicLabelUI implements FlareUI {
+@SuppressWarnings("unused")
+public class FlareLabelUI extends BasicLabelUI implements FlareUI {
 
     @DefinedBy(Api.LOOK_AND_FEEL)
     public static ComponentUI createUI(JComponent c) {
-        return new LabelUI();
+        return new FlareLabelUI();
     }
 
     private ComponentElement element;

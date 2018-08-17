@@ -1,45 +1,44 @@
 package modern.reflare.ui;
 
-import modern.reflare.FlareLookAndFeel;
-import modern.reflare.element.ComponentElement;
-import modern.reflare.element.ComponentKt;
-import modern.reflare.element.PanelElement;
-import modern.reflare.meta.DefinedBy;
-import modern.reflare.meta.DefinedBy.Api;
 import java.awt.Component;
 import java.awt.Graphics;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.basic.BasicPanelUI;
+import javax.swing.plaf.basic.BasicProgressBarUI;
+import modern.reflare.FlareLookAndFeel;
+import modern.reflare.element.ComponentElement;
+import modern.reflare.element.ComponentKt;
+import modern.reflare.element.ProgressBarElement;
+import modern.reflare.meta.DefinedBy;
+import modern.reflare.meta.DefinedBy.Api;
 import org.jetbrains.annotations.NotNull;
 
-public class PanelUI extends BasicPanelUI implements FlareUI {
+@SuppressWarnings("unused")
+public class FlareProgressBarUI extends BasicProgressBarUI implements FlareUI {
 
     @DefinedBy(Api.LOOK_AND_FEEL)
     public static ComponentUI createUI(JComponent c) {
-        return new PanelUI();
+        return new FlareProgressBarUI();
     }
 
     private ComponentElement element;
 
     @Override
-    protected void installDefaults(JPanel panel) {
-        panel.setFont(FlareLookAndFeel.DEFAULT_FONT);
-
+    protected void installDefaults() {
         if (element == null) {
-            element = new PanelElement(panel);
+            element = new ProgressBarElement(progressBar);
         }
 
-        panel.setOpaque(false);
-        panel.setBorder(new FlareBorder(this));
+        progressBar.setOpaque(false);
+        progressBar.setBorder(new FlareBorder(this));
+        progressBar.setFont(FlareLookAndFeel.DEFAULT_FONT);
 
-        ComponentKt.registerElement(panel, element);
+        ComponentKt.registerElement(progressBar, element);
     }
 
     @Override
-    protected void uninstallDefaults(JPanel panel) {
-        ComponentKt.deregisterElement(panel);
+    protected void uninstallDefaults() {
+        ComponentKt.deregisterElement(progressBar);
     }
 
     @Override
