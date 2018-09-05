@@ -100,11 +100,6 @@ combo-box-popup {
   color: white;
 }
 
-checkbox:active {
-  background-color: transparent;
-  border: 1px dodgerblue;
-}
-
 menubar {
   background-color: #0e0e0e33;
 }

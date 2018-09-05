@@ -27,6 +27,19 @@
         <kotlin.version>1.2.60</kotlin.version>
     </properties>
 
+    <distributionManagement>
+        <repository>
+            <id>bewotec.jackplus.releases</id>
+            <name>Bewotec JackPlus Releases</name>
+            <url>http://nexus.webtravel.de/repository/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>bewotec.jackplus.snapshots</id>
+            <name>Bewotec JackPlus Snapshots</name>
+            <url>http://nexus.webtravel.de/repository/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <dependencies>
         <dependency>
             <groupId>modern</groupId>
@@ -42,7 +55,13 @@
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
-            <version>0.9.10</version>
+            <version>0.9.11</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

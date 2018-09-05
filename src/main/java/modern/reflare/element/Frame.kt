@@ -1,38 +1,21 @@
 package modern.reflare.element
 
-import de.krall.flare.Engine
 import de.krall.flare.dom.Device
-import de.krall.flare.font.FontMetricsProvider
-import de.krall.flare.font.FontMetricsQueryResult
 import de.krall.flare.std.None
 import de.krall.flare.std.Option
 import de.krall.flare.std.Some
-import de.krall.flare.style.properties.stylestruct.Font
-import de.krall.flare.style.stylesheet.Origin
-import de.krall.flare.style.stylesheet.Stylesheet
 import de.krall.flare.style.value.computed.Au
 import de.krall.flare.style.value.generic.Size2D
-import modern.reflare.FlareLookAndFeel
 import java.awt.Component
+import java.awt.Window
 import java.awt.event.ContainerEvent
 import java.awt.event.ContainerListener
-import java.io.File
-import java.io.InputStreamReader
-import java.nio.file.Files
 import java.util.WeakHashMap
-import javax.swing.JFrame
 import javax.swing.SwingUtilities
 
-class Frame(val frame: JFrame) : Device {
+class Frame(val frame: Window) : Device {
 
-    val cssEngine = Engine.from(
-            this,
-            object : FontMetricsProvider {
-                override fun query(font: Font, fontSize: Au, device: Device): FontMetricsQueryResult {
-                    return FontMetricsQueryResult.NotAvailable()
-                }
-            }
-    )
+    val cssEngine = CSSEngine.createEngine(this)
 
     private var root: Option<AWTComponentElement> = None()
 
@@ -60,7 +43,6 @@ class Frame(val frame: JFrame) : Device {
             System.err.println(" A SECOND CHILD WAS ADDED TO THE ")
             System.err.println(" FRAME. PLEASE REPORT THIS BUG.")
         }
-
 
         val childElement = child.into()
 
@@ -95,13 +77,17 @@ class Frame(val frame: JFrame) : Device {
         fontSize = size
     }
 
+    override fun invalidate() {
+        restyle()
+    }
+
     fun restyle() {
         val root = root
 
         if (root is Some) {
             markElementDirty(root.value)
         } else {
-            frame.contentPane.revalidate()
+            frame.revalidate()
             frame.repaint()
         }
     }
@@ -118,88 +104,26 @@ class Frame(val frame: JFrame) : Device {
         }
     }
 
-// ***************************** Stylesheet ***************************** //
+}
 
-    private val stylesheets: MutableMap<File, Stylesheet> = mutableMapOf()
+private val frames: MutableMap<Window, Frame> = WeakHashMap()
 
-    init {
-        addStylesheetResource("/default.css", Origin.USER_AGENT)
-    }
+fun Window.into(): Frame {
+    return frames[this] ?: Frame(this)
+}
 
-    fun addStylesheetResource(resource: String) {
-        addStylesheetResource(resource, Origin.AUTHOR)
-    }
-
-    private fun addStylesheetResource(resource: String, origin: Origin) {
-        val file = File(FlareLookAndFeel::class.java.getResource(resource).file)
-
-        val input = FlareLookAndFeel::class.java.getResourceAsStream(resource)
-
-        val text = input.use { input ->
-            val reader = InputStreamReader(input)
-
-            reader.readText()
-        }
-
-        addStylesheet(file, text, origin)
-    }
-
-    fun addStylesheet(file: File) {
-        val path = file.toPath()
-        val encoded = Files.readAllBytes(path)
-
-        val text = String(encoded)
-
-        addStylesheet(file, text, Origin.AUTHOR)
-    }
-
-    private fun addStylesheet(file: File, text: String, origin: Origin) {
-        if (stylesheets.containsKey(file)) {
-            removeStylesheet(file)
-        }
-
-        val stylesheet = Stylesheet.from(text, origin)
-
-        stylesheets[file] = stylesheet
-
-        invokeAndWait {
-            cssEngine.stylist.addStylesheet(stylesheet)
-
-            restyle()
-        }
-    }
-
-    fun removeStylesheet(file: File) {
-        val stylesheet = stylesheets.remove(file)
-
-        if (stylesheet != null) {
-            invokeAndWait {
-                cssEngine.stylist.removeStylesheet(stylesheet)
-
-                restyle()
-            }
-        }
-    }
-
-    private fun invokeLater(runnable: () -> Unit) {
-        if (SwingUtilities.isEventDispatchThread()) {
-            runnable()
-        } else {
-            SwingUtilities.invokeLater(runnable)
-        }
-    }
-
-    private fun invokeAndWait(runnable: () -> Unit) {
-        if (SwingUtilities.isEventDispatchThread()) {
-            runnable()
-        } else {
-            SwingUtilities.invokeAndWait(runnable)
-        }
+fun invokeLater(runnable: () -> Unit) {
+    if (SwingUtilities.isEventDispatchThread()) {
+        runnable()
+    } else {
+        SwingUtilities.invokeLater(runnable)
     }
 }
 
-private val frames: MutableMap<JFrame, Frame> = WeakHashMap()
-
-fun JFrame.into(): Frame {
-    return frames[this] ?: Frame(this)
+fun invokeAndWait(runnable: () -> Unit) {
+    if (SwingUtilities.isEventDispatchThread()) {
+        runnable()
+    } else {
+        SwingUtilities.invokeAndWait(runnable)
+    }
 }

@@ -1,20 +1,20 @@
 package modern.reflare.ui;
 
+import java.awt.Component;
 import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.awt.Rectangle;
+import javax.swing.AbstractButton;
 import javax.swing.ButtonModel;
+import javax.swing.JComponent;
+import javax.swing.plaf.ComponentUI;
+import javax.swing.plaf.basic.BasicButtonUI;
 import modern.reflare.FlareLookAndFeel;
 import modern.reflare.element.ButtonElement;
 import modern.reflare.element.ComponentElement;
 import modern.reflare.element.ComponentKt;
 import modern.reflare.meta.DefinedBy;
 import modern.reflare.meta.DefinedBy.Api;
-import java.awt.Component;
-import java.awt.Graphics;
-import javax.swing.AbstractButton;
-import javax.swing.JComponent;
-import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.basic.BasicButtonUI;
 import org.jetbrains.annotations.NotNull;
 import sun.swing.SwingUtilities2;
 

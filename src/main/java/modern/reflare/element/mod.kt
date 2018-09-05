@@ -20,14 +20,26 @@ fun <E> MutableList<E>.addAll(vararg values: E) {
     }
 }
 
+@Deprecated(
+        message = "Stylesheets are no longer bound to a Frame",
+        replaceWith = ReplaceWith("CSSEngine.addStylesheetResource(resource)", "modern.reflare.element.CSSEngine")
+)
 fun JFrame.addStylesheetResource(resource: String) {
-    this.into().addStylesheetResource(resource)
+    CSSEngine.addStylesheetResource(resource)
 }
 
+@Deprecated(
+        message = "Stylesheets are no longer bound to a Frame",
+        replaceWith = ReplaceWith("CSSEngine.addStylesheet(file)", "modern.reflare.element.CSSEngine")
+)
 fun JFrame.addStylesheet(file: File) {
-    this.into().addStylesheet(file)
+    CSSEngine.addStylesheet(file)
 }
 
+@Deprecated(
+        message = "Stylesheets are no longer bound to a Frame",
+        replaceWith = ReplaceWith("CSSEngine.removeStylesheet(file)", "modern.reflare.element.CSSEngine")
+)
 fun JFrame.removeStylesheet(file: File) {
-    this.into().removeStylesheet(file)
+    CSSEngine.removeStylesheet(file)
 }

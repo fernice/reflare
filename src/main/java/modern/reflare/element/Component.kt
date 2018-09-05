@@ -29,6 +29,7 @@ import java.awt.Container
 import java.awt.Font
 import java.awt.Graphics
 import java.awt.Toolkit
+import java.awt.Window
 import java.awt.event.AWTEventListener
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
@@ -40,7 +41,6 @@ import java.awt.event.MouseEvent
 import java.util.WeakHashMap
 import javax.swing.CellRendererPane
 import javax.swing.JComponent
-import javax.swing.JFrame
 import javax.swing.JLayeredPane
 import javax.swing.event.AncestorEvent
 import javax.swing.event.AncestorListener
@@ -113,7 +113,8 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
         when (frame) {
             is Some -> frame.value.markElementDirty(this)
-            else -> {}
+            else -> {
+            }
         }
     }
 
@@ -122,7 +123,8 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
         when (frame) {
             is Some -> frame.value.applyStyles(this)
-            else -> {}
+            else -> {
+            }
         }
     }
 
@@ -309,7 +311,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
             val fontSize = primaryStyle.font.fontSize
 
             if (oldStyle.primary.mapOr({ style -> style.font.fontSize != fontSize }, false)) {
-                context.stylist.device.setRootFontSize(fontSize.size())
+                context.device.setRootFontSize(fontSize.size())
             }
         }
 
@@ -524,8 +526,8 @@ abstract class ComponentElement(component: JComponent) : AWTContainerElement(com
     init {
         component.addAncestorListener(object : AncestorListener {
             override fun ancestorAdded(event: AncestorEvent) {
-                if (event.ancestor is JFrame) {
-                    val frame = event.ancestor as JFrame
+                if (event.ancestor is Window) {
+                    val frame = event.ancestor as Window
 
                     frame.into()
                 }
@@ -605,10 +607,6 @@ private fun ensureElement(component: Component): AWTComponentElement {
 }
 
 fun Component.into(): AWTComponentElement {
-    return ensureElement(this)
-}
-
-fun Component.css(): Element {
     return ensureElement(this)
 }
 

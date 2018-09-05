@@ -34,6 +34,7 @@ public class FlareTextAreaUI extends BasicTextAreaUI implements FlareUI {
 
         textField.setOpaque(false);
         textField.setBorder(new FlareBorder(this));
+        textField.setTabSize(4);
 
         ComponentKt.registerElement(textField, element);
     }

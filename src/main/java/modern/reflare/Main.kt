@@ -1,10 +1,9 @@
 package modern.reflare
 
 import de.krall.flare.std.Some
-import modern.reflare.element.addStylesheet
+import modern.reflare.element.CSSEngine
 import modern.reflare.element.classes
 import modern.reflare.element.id
-import modern.reflare.element.removeStylesheet
 import java.io.File
 import javax.swing.JButton
 import javax.swing.JCheckBox
@@ -16,6 +15,7 @@ import javax.swing.JMenu
 import javax.swing.JMenuBar
 import javax.swing.JMenuItem
 import javax.swing.JPanel
+import javax.swing.JRadioButton
 import javax.swing.JTabbedPane
 import javax.swing.JTextArea
 import javax.swing.WindowConstants
@@ -66,11 +66,11 @@ fun main(args: Array<String>) {
     val submit = JButton("Submit")
     submit.addActionListener {
         if (dark) {
-            frame.addStylesheet(lightMode)
-            frame.removeStylesheet(darkMode)
+            CSSEngine.addStylesheet(lightMode)
+            CSSEngine.removeStylesheet(darkMode)
         } else {
-            frame.addStylesheet(darkMode)
-            frame.removeStylesheet(lightMode)
+            CSSEngine.addStylesheet(darkMode)
+            CSSEngine.removeStylesheet(lightMode)
         }
         dark = !dark
     }
@@ -86,6 +86,9 @@ fun main(args: Array<String>) {
 
     val checkbox = JCheckBox("remember me")
     panel.add(checkbox)
+
+    val radioButton = JRadioButton("choose me")
+    panel.add(radioButton)
 
     val tabbedPane = JTabbedPane()
     tabbedPane.addTab("first", panel)
