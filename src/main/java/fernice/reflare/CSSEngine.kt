@@ -1,4 +1,4 @@
-package org.fernice.reflare.element
+package fernice.reflare
 
 import org.fernice.flare.Engine
 import org.fernice.flare.SharedEngine
@@ -9,7 +9,6 @@ import org.fernice.flare.style.properties.stylestruct.Font
 import org.fernice.flare.style.stylesheet.Origin
 import org.fernice.flare.style.stylesheet.Stylesheet
 import org.fernice.flare.style.value.computed.Au
-import fernice.FlareLookAndFeel
 import java.io.File
 import java.lang.ref.WeakReference
 import java.nio.charset.StandardCharsets

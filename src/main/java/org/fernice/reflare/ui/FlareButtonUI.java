@@ -9,7 +9,7 @@ import javax.swing.ButtonModel;
 import javax.swing.JComponent;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicButtonUI;
-import fernice.FlareLookAndFeel;
+import fernice.reflare.FlareLookAndFeel;
 import org.fernice.reflare.element.ButtonElement;
 import org.fernice.reflare.element.ComponentElement;
 import org.fernice.reflare.element.ComponentKt;

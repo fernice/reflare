@@ -1,6 +1,6 @@
 package org.fernice.reflare.ui;
 
-import fernice.FlareLookAndFeel;
+import fernice.reflare.FlareLookAndFeel;
 import java.awt.Component;
 import java.awt.Graphics;
 import javax.swing.JComponent;

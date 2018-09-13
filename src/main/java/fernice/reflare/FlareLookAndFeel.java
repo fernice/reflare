@@ -1,4 +1,4 @@
-package fernice;
+package fernice.reflare;
 
 import java.awt.Font;
 import javax.swing.JComponent;

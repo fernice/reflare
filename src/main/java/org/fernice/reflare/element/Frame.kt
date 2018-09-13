@@ -1,5 +1,6 @@
 package org.fernice.reflare.element
 
+import fernice.reflare.CSSEngine
 import org.fernice.flare.dom.Device
 import org.fernice.flare.style.value.computed.Au
 import org.fernice.flare.style.value.generic.Size2D
