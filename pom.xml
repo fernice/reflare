@@ -5,13 +5,14 @@
     <parent>
         <groupId>org.fernice</groupId>
         <artifactId>fernice-maven</artifactId>
-        <version>1.0</version>
+        <version>1.0.3</version>
     </parent>
     <artifactId>fernice-reflare</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.0.3-SNAPSHOT</version>
 
     <name>reflare</name>
     <description>CSS integration through fernice-flare in Java Swing as a LookAndFeel</description>
+    <url>https://github.com/fernice/reflare</url>
 
     <scm>
         <connection>scm:git:ssh://git@github.com:fernice/reflare.git</connection>
@@ -24,12 +25,12 @@
         <dependency>
             <groupId>org.fernice</groupId>
             <artifactId>fernice-flare</artifactId>
-            <version>1.0</version>
+            <version>1.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.fernice</groupId>
             <artifactId>fernice-reflare-access</artifactId>
-            <version>1.0</version>
+            <version>1.0.3</version>
         </dependency>
 
         <dependency>
