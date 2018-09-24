@@ -1,0 +1,44 @@
+
+.dbg-style-panel {
+  background-color: white;
+}
+
+.dbg-button {
+  background-color: #7b1fa2;
+  border-radius: 5px;
+  border: 0;
+  margin: 3px;
+}
+
+.dbg-button:hover {
+  background-color: #8824a4;
+}
+
+.dbg-button:focus {
+  background-color: #8924a5;
+}
+
+.dbg-button:active {
+  background-color: #8e24aa;
+}
+
+.dbg-button:disabled {
+  background-color: #73696c;
+}
+
+.dbg-styles {
+  border-top: 1px #b9aeb2;
+}
+
+.dbg-selector, .dbg-declaration {
+  color: #373334;
+  font-family: monospace;
+}
+
+.dbg-selector {
+  padding: 3px;
+}
+
+.dbg-declaration {
+  padding: 3px 3px 3px 20px;
+}

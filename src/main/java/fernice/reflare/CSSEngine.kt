@@ -3,12 +3,17 @@ package fernice.reflare
 import org.fernice.flare.Engine
 import org.fernice.flare.SharedEngine
 import org.fernice.flare.dom.Device
+import org.fernice.flare.dom.Element
 import org.fernice.flare.font.FontMetricsProvider
 import org.fernice.flare.font.FontMetricsQueryResult
+import org.fernice.flare.style.MatchingResult
 import org.fernice.flare.style.properties.stylestruct.Font
 import org.fernice.flare.style.stylesheet.Origin
 import org.fernice.flare.style.stylesheet.Stylesheet
 import org.fernice.flare.style.value.computed.Au
+import org.fernice.flare.style.value.generic.Size2D
+import org.fernice.reflare.element.AWTComponentElement
+import java.awt.Component
 import java.io.File
 import java.lang.ref.WeakReference
 import java.nio.charset.StandardCharsets
@@ -17,24 +22,36 @@ import java.nio.file.Files
 object CSSEngine {
 
     val shared = SharedEngine.new(
-            object : FontMetricsProvider {
-                override fun query(font: Font, fontSize: Au, device: Device): FontMetricsQueryResult {
-                    return FontMetricsQueryResult.NotAvailable()
-                }
+        object : FontMetricsProvider {
+            override fun query(font: Font, fontSize: Au, device: Device): FontMetricsQueryResult {
+                return FontMetricsQueryResult.NotAvailable()
             }
+        }
     )
 
     private val engines: MutableList<WeakReference<Engine>> = mutableListOf()
 
     fun createEngine(device: Device): Engine {
         val engine = Engine(
-                device,
-                shared
+            device,
+            shared
         )
 
         engines.add(WeakReference(engine))
 
         return engine
+    }
+
+    fun styleWithLocalContext(element: Element) {
+        val localDevice = LocalDevice((element as AWTComponentElement).component)
+
+        shared.style(localDevice, element)
+    }
+
+    fun matchStyleWithLocalContext(element: Element): MatchingResult {
+        val localDevice = LocalDevice((element as AWTComponentElement).component)
+
+        return shared.matchStyle(localDevice, element)
     }
 
     private val stylesheets: MutableMap<File, Stylesheet> = mutableMapOf()
@@ -92,6 +109,23 @@ object CSSEngine {
                 engine.device.invalidate()
             }
         }
+    }
+}
+
+private class LocalDevice(val component: Component) : Device {
+    override fun viewportSize(): Size2D<Au> {
+        return Size2D(Au.fromPx(component.width), Au.fromPx(component.height))
+    }
+
+    override fun rootFontSize(): Au {
+        return Au.fromPx(component.font.size)
+    }
+
+    override fun setRootFontSize(size: Au) {
+        component.font = component.font.deriveFont(size.toFloat())
+    }
+
+    override fun invalidate() {
     }
 }
 

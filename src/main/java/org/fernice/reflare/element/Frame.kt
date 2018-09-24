@@ -1,18 +1,24 @@
 package org.fernice.reflare.element
 
 import fernice.reflare.CSSEngine
-import org.fernice.flare.dom.Device
-import org.fernice.flare.style.value.computed.Au
-import org.fernice.flare.style.value.generic.Size2D
 import fernice.std.None
 import fernice.std.Option
 import fernice.std.Some
+import org.fernice.flare.dom.Device
+import org.fernice.flare.style.MatchingResult
+import org.fernice.flare.style.value.computed.Au
+import org.fernice.flare.style.value.generic.Size2D
 import java.awt.Component
 import java.awt.Window
 import java.awt.event.ContainerEvent
 import java.awt.event.ContainerListener
 import java.util.WeakHashMap
-import javax.swing.SwingUtilities
+
+private val frames: MutableMap<Window, Frame> = WeakHashMap()
+
+fun Window.into(): Frame {
+    return frames[this] ?: Frame(this)
+}
 
 class Frame(private val frame: Window) : Device {
 
@@ -95,36 +101,17 @@ class Frame(private val frame: Window) : Device {
 
     fun markElementDirty(element: AWTComponentElement) {
         invokeLater {
-            cssEngine.applyStyles(element)
+            cssEngine.style(element)
         }
     }
 
     fun applyStyles(element: AWTComponentElement) {
         invokeAndWait {
-            cssEngine.applyStyles(element)
+            cssEngine.style(element)
         }
     }
 
-}
-
-private val frames: MutableMap<Window, Frame> = WeakHashMap()
-
-fun Window.into(): Frame {
-    return frames[this] ?: Frame(this)
-}
-
-fun invokeLater(runnable: () -> Unit) {
-    if (SwingUtilities.isEventDispatchThread()) {
-        runnable()
-    } else {
-        SwingUtilities.invokeLater(runnable)
-    }
-}
-
-fun invokeAndWait(runnable: () -> Unit) {
-    if (SwingUtilities.isEventDispatchThread()) {
-        runnable()
-    } else {
-        SwingUtilities.invokeAndWait(runnable)
+    fun matchStyle(element: AWTComponentElement): MatchingResult {
+        return cssEngine.matchStyles(element)
     }
 }

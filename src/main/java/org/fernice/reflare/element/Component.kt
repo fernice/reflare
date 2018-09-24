@@ -1,5 +1,6 @@
 package org.fernice.reflare.element
 
+import fernice.reflare.CSSEngine
 import org.fernice.flare.dom.Element
 import org.fernice.flare.dom.ElementData
 import org.fernice.flare.dom.ElementStyles
@@ -23,6 +24,7 @@ import fernice.std.Option
 import fernice.std.Some
 import fernice.std.mapOr
 import fernice.std.unwrap
+import org.fernice.flare.style.MatchingResult
 import java.awt.AWTEvent
 import java.awt.Component
 import java.awt.Container
@@ -84,8 +86,8 @@ abstract class AWTComponentElement(val component: Component) : Element {
         }
 
         Toolkit.getDefaultToolkit().addAWTEventListener(
-                mouseListener,
-                AWTEvent.MOUSE_MOTION_EVENT_MASK
+            mouseListener,
+            AWTEvent.MOUSE_MOTION_EVENT_MASK
         )
     }
 
@@ -102,9 +104,6 @@ abstract class AWTComponentElement(val component: Component) : Element {
     }
 
     fun invalidateStyle() {
-        //ca.invalidate()
-
-
         restyle()
     }
 
@@ -113,7 +112,8 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
         when (frame) {
             is Some -> frame.value.markElementDirty(this)
-            else -> {
+            else -> invokeLater {
+                CSSEngine.styleWithLocalContext(this)
             }
         }
     }
@@ -123,8 +123,16 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
         when (frame) {
             is Some -> frame.value.applyStyles(this)
-            else -> {
-            }
+            else -> CSSEngine.styleWithLocalContext(this)
+        }
+    }
+
+    fun getMatchingStyles(): MatchingResult {
+        val frame = frame
+
+        return when (frame) {
+            is Some -> frame.value.matchStyle(this)
+            else -> CSSEngine.matchStyleWithLocalContext(this)
         }
     }
 
@@ -270,10 +278,12 @@ abstract class AWTComponentElement(val component: Component) : Element {
         return when (data) {
             is Some -> data.unwrap()
             is None -> {
-                val new = ElementData(ElementStyles(
+                val new = ElementData(
+                    ElementStyles(
                         None,
                         PerPseudoElementMap()
-                ))
+                    )
+                )
                 data = Some(new)
 
                 new
