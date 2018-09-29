@@ -6,14 +6,17 @@
 package org.fernice.reflare.debug.style
 
 import fernice.reflare.CSSEngine
+import fernice.reflare.addAll
 import fernice.reflare.classes
 import fernice.std.None
 import fernice.std.Option
 import fernice.std.Some
 import org.fernice.flare.std.First
 import org.fernice.flare.std.Second
+import org.fernice.flare.style.ruletree.CascadeLevel
 import org.fernice.flare.style.ruletree.StyleSource
 import org.fernice.reflare.element.AWTComponentElement
+import org.fernice.reflare.element.RestyleListener
 import org.fernice.reflare.element.into
 import org.fernice.reflare.layout.VerticalLayout
 import java.awt.AWTEvent
@@ -28,6 +31,7 @@ import javax.swing.JButton
 import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.JPanel
+import javax.swing.JScrollPane
 import javax.swing.WindowConstants
 
 object DebugHelper : JPanel() {
@@ -68,17 +72,32 @@ class DebugStylePanel : JPanel() {
         layout = BorderLayout()
         classes.add("dbg-style-panel")
 
+        val actionPanel = JPanel(BorderLayout())
+        actionPanel.classes.add("dbg-style-actions")
+        add(actionPanel, BorderLayout.NORTH)
+
         pickButton = JButton("Pick Component")
-        pickButton.classes.add("dbg-button")
+        pickButton.classes.addAll("dbg-button", "dbg-button-imp")
         pickButton.addActionListener {
             picking = true
             pickButton.isEnabled = false
             pickButton.text = "Picking..."
         }
-        add(pickButton, BorderLayout.NORTH)
+        actionPanel.add(pickButton, BorderLayout.WEST)
+
+        val reloadButton = JButton("Reload Stylesheets")
+        reloadButton.classes.add("dbg-button")
+        reloadButton.addActionListener {
+            CSSEngine.reloadStylesheets()
+        }
+        actionPanel.add(reloadButton, BorderLayout.EAST)
 
         matchingStylesPanel = MatchingStylesPanel()
-        add(matchingStylesPanel, BorderLayout.CENTER)
+
+        val scrollPane = JScrollPane(matchingStylesPanel)
+        scrollPane.horizontalScrollBarPolicy = JScrollPane.HORIZONTAL_SCROLLBAR_NEVER
+        scrollPane.verticalScrollBar.unitIncrement = 16
+        add(scrollPane, BorderLayout.CENTER)
     }
 
     private val mouseEventListener = AWTEventListener { event ->
@@ -116,11 +135,31 @@ private class MatchingStylesPanel : JPanel() {
         classes.add("dbg-matching")
     }
 
+    val restyleListener: RestyleListener by lazy {
+        object : RestyleListener {
+            override fun restyleFinished(element: AWTComponentElement) {
+                update()
+            }
+        }
+    }
+
     var element: Option<AWTComponentElement> = None
         set(value) {
+            val previous = field
+
+            if (previous is Some) {
+                previous.value.removeRestyleListener(restyleListener)
+            }
+
             field = value
+
+            if (value is Some) {
+                value.value.addRestyleListener(restyleListener)
+            }
+
             update()
         }
+
 
     private fun update() {
         removeAll()
@@ -134,14 +173,17 @@ private class MatchingStylesPanel : JPanel() {
             for (node in result.ruleNode.selfAndAncestors()) {
                 val source = node.source
                 if (source is Some) {
-                    add(StylesPanel(source.value))
+                    add(StylesPanel(source.value, node.level))
                 }
             }
         }
+
+        revalidate()
+        repaint()
     }
 }
 
-private class StylesPanel(source: StyleSource) : JPanel() {
+private class StylesPanel(source: StyleSource, level: CascadeLevel) : JPanel() {
 
     init {
         layout = VerticalLayout()
@@ -153,12 +195,20 @@ private class StylesPanel(source: StyleSource) : JPanel() {
             is Second -> None to either.value
         }
 
+        val headerPanel = JPanel(BorderLayout())
+        add(headerPanel)
+
         val selectorLabel = JLabel()
         selectorLabel.classes.add("dbg-selector")
-        add(selectorLabel)
+        headerPanel.add(selectorLabel, BorderLayout.CENTER)
+
+        val levelLabel = JLabel()
+        levelLabel.text = level.name
+        levelLabel.classes.add("dbg-cascade-level")
+        headerPanel.add(levelLabel, BorderLayout.EAST)
 
         if (selectors is Some) {
-            selectorLabel.text = (selectors.value.toCssString() + " {") .wrappable()
+            selectorLabel.text = (selectors.value.toCssString() + " {").wrappable()
         } else {
             selectorLabel.classes.add("dbg-selector-none")
             selectorLabel.text = "element.style"

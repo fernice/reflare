@@ -3,36 +3,61 @@
   background-color: white;
 }
 
+.dbg-style-actions {
+  border-bottom: 1px #bbacaf;
+  padding: 5px;
+}
+
 .dbg-button {
-  background-color: #7b1fa2;
-  border-radius: 5px;
+  background-color: transparent;
+  border-radius: 0;
   border: 0;
-  margin: 3px;
+  margin: 2px;
+  color: #008dce;
+  padding: 6px 10px;
 }
 
 .dbg-button:hover {
-  background-color: #8824a4;
+  background-color: #008dce22;
 }
 
 .dbg-button:focus {
-  background-color: #8924a5;
+  background-color: #008dce33;
 }
 
 .dbg-button:active {
-  background-color: #8e24aa;
+  background-color: #008dce44;
 }
 
 .dbg-button:disabled {
-  background-color: #73696c;
+  color: #73696c;
+  background-color: transparent;
+}
+
+.dbg-button-imp {
+  border: 1px #008dce;
+}
+
+.dbg-button-imp:disabled {
+  border: 1px #73696c;
 }
 
 .dbg-styles {
-  border-top: 1px #b9aeb2;
+  border-bottom: 1px #b9aeb2;
+  padding: 5px 0;
 }
 
 .dbg-selector, .dbg-declaration {
+  background-color: transparent;
   color: #373334;
   font-family: monospace;
+}
+
+.dbg-cascade-level {
+  background-color: transparent;
+  color: #929292;
+  padding: 3px;
+  font-size: 10px;
 }
 
 .dbg-selector {

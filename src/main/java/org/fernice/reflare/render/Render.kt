@@ -32,7 +32,7 @@ fun renderBackground(g: Graphics, component: Component, element: AWTComponentEle
     } else {
         val bounds = component.bounds
 
-        g.color = AWTColor.RED
+        g.color = AWTColor.WHITE
         g.fillRect(0, 0, bounds.width, bounds.height)
     }
 }
@@ -43,7 +43,7 @@ fun renderBorder(g: Graphics, component: Component, element: AWTComponentElement
     } else {
         val bounds = component.bounds
 
-        g.color = AWTColor.BLACK
+        g.color = AWTColor.LIGHT_GRAY
         g.drawRect(0, 0, bounds.width, bounds.height)
     }
 }
@@ -58,11 +58,13 @@ fun getGraphics(g: Graphics): Graphics2D {
 }
 
 
-fun paintBackground(g: Graphics,
-                    component: Component,
-                    element: AWTComponentElement,
-                    computedValues: ComputedValues,
-                    renderCache: Cache) {
+fun paintBackground(
+    g: Graphics,
+    component: Component,
+    element: AWTComponentElement,
+    computedValues: ComputedValues,
+    renderCache: Cache
+) {
     val g2 = getGraphics(g)
 
     val background = computedValues.background
@@ -84,12 +86,12 @@ fun paintBackground(g: Graphics,
 
                 if (future.isDone || future.isCompletedExceptionally) {
                     paintBackgroundImage(
-                            g2,
-                            component,
-                            future.get(),
-                            layer,
-                            element.padding,
-                            element.margin
+                        g2,
+                        component,
+                        future.get(),
+                        layer,
+                        element.padding,
+                        element.margin
                     )
                 }
             }
@@ -100,12 +102,14 @@ fun paintBackground(g: Graphics,
     }
 }
 
-fun paintBackgroundImage(g2: Graphics2D,
-                         component: Component,
-                         image: BufferedImage,
-                         layer: ImageLayer,
-                         padding: Insets,
-                         margin: Insets) {
+fun paintBackgroundImage(
+    g2: Graphics2D,
+    component: Component,
+    image: BufferedImage,
+    layer: ImageLayer,
+    padding: Insets,
+    margin: Insets
+) {
 
     val componentBounds = when (layer.attachment) {
         is Attachment.Scroll,
@@ -125,13 +129,13 @@ fun paintBackgroundImage(g2: Graphics2D,
 
             if (image.height < image.width) {
                 Pair(
-                        (image.width * (max / image.height)).toFloat(),
-                        max.toFloat()
+                    (image.width * (max / image.height)).toFloat(),
+                    max.toFloat()
                 )
             } else {
                 Pair(
-                        max.toFloat(),
-                        (image.height * (max / image.width)).toFloat()
+                    max.toFloat(),
+                    (image.height * (max / image.width)).toFloat()
                 )
             }
         }
@@ -140,24 +144,23 @@ fun paintBackgroundImage(g2: Graphics2D,
 
             if (image.height < image.width) {
                 Pair(
-                        min.toFloat(),
-                        (image.width * (min / image.height)).toFloat()
+                    min.toFloat(),
+                    (image.width * (min / image.height)).toFloat()
                 )
             } else {
                 Pair(
-                        (image.height * (min / image.width)).toFloat(),
-                        min.toFloat()
+                    (image.height * (min / image.width)).toFloat(),
+                    min.toFloat()
                 )
             }
         }
         is BackgroundSize.Explicit -> {
             Pair(
-                    backgroundSize.width.toPixelLength(Au.fromPx(componentBounds.width)).px(),
-                    backgroundSize.height.toPixelLength(Au.fromPx(componentBounds.height)).px()
+                backgroundSize.width.toPixelLength(Au.fromPx(componentBounds.width)).px(),
+                backgroundSize.height.toPixelLength(Au.fromPx(componentBounds.height)).px()
             )
         }
     }
-
 }
 
 fun paintBackgroundGradient(g2: Graphics2D, imageGradient: Gradient) {

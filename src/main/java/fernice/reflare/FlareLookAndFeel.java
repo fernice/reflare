@@ -6,6 +6,14 @@ import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicLookAndFeel;
+import org.fernice.flare.style.properties.PropertiesKt;
+import org.fernice.flare.style.properties.module.BackgroundImagePropertyModule;
+import org.fernice.flare.style.properties.module.BackgroundPropertyModule;
+import org.fernice.flare.style.properties.module.BorderPropertyModule;
+import org.fernice.flare.style.properties.module.ColorPropertyModule;
+import org.fernice.flare.style.properties.module.FontPropertyModule;
+import org.fernice.flare.style.properties.module.MarginPropertyModule;
+import org.fernice.flare.style.properties.module.PaddingPropertyModule;
 import org.fernice.reflare.FlareDefaultLookup;
 import org.fernice.reflare.internal.AATextInfoHelper;
 import org.fernice.reflare.internal.DefaultLookupHelper;
@@ -17,6 +25,17 @@ import org.fernice.reflare.platform.WindowsKeybindings;
 public class FlareLookAndFeel extends BasicLookAndFeel {
 
     public static void init() {
+        PropertiesKt.register( //
+                FontPropertyModule.INSTANCE, //
+                ColorPropertyModule.INSTANCE, //
+                BackgroundPropertyModule.INSTANCE, //
+                BorderPropertyModule.INSTANCE, //
+                MarginPropertyModule.INSTANCE, //
+                PaddingPropertyModule.INSTANCE, //
+                //
+                BackgroundImagePropertyModule.INSTANCE //
+        );
+
         try {
             UIManager.setLookAndFeel(FlareLookAndFeel.class.getName());
         } catch (Exception e) {

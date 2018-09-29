@@ -15,9 +15,9 @@ import org.fernice.flare.style.value.generic.Size2D
 import org.fernice.reflare.element.AWTComponentElement
 import java.awt.Component
 import java.io.File
+import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
 
 object CSSEngine {
 
@@ -54,43 +54,32 @@ object CSSEngine {
         return shared.matchStyle(localDevice, element)
     }
 
-    private val stylesheets: MutableMap<File, Stylesheet> = mutableMapOf()
+    private val stylesheets: MutableMap<Source, Stylesheet> = mutableMapOf()
 
     init {
-        addStylesheetResource("/default.css", Origin.USER_AGENT)
+        addStylesheet(Source.Resource("/default.css"), Origin.USER_AGENT)
     }
 
     fun addStylesheetResource(resource: String) {
-        addStylesheetResource(resource, Origin.AUTHOR)
-    }
-
-    private fun addStylesheetResource(resource: String, origin: Origin) {
-        val file = File(FlareLookAndFeel::class.java.getResource(resource).file)
-
-        val input = FlareLookAndFeel::class.java.getResourceAsStream(resource)
-
-        val text = input.bufferedReader(StandardCharsets.UTF_8).use { reader -> reader.readText() }
-
-        addStylesheet(file, text, origin)
+        addStylesheet(Source.Resource(resource), Origin.AUTHOR)
     }
 
     fun addStylesheet(file: File) {
-        val path = file.toPath()
-        val encoded = Files.readAllBytes(path)
-
-        val text = String(encoded)
-
-        addStylesheet(file, text, Origin.AUTHOR)
+        addStylesheet(Source.File(file), Origin.AUTHOR)
     }
 
-    private fun addStylesheet(file: File, text: String, origin: Origin) {
-        if (stylesheets.containsKey(file)) {
-            removeStylesheet(file)
+    private fun addStylesheet(source: Source, origin: Origin) {
+        if (stylesheets.containsKey(source)) {
+            removeStylesheet(source)
         }
+
+        val text = source.inputStream()
+            .bufferedReader(StandardCharsets.UTF_8)
+            .use { reader -> reader.readText() }
 
         val stylesheet = Stylesheet.from(text, origin)
 
-        stylesheets[file] = stylesheet
+        stylesheets[source] = stylesheet
 
         shared.stylist.addStylesheet(stylesheet)
 
@@ -100,7 +89,11 @@ object CSSEngine {
     }
 
     fun removeStylesheet(file: File) {
-        val stylesheet = stylesheets.remove(file)
+        removeStylesheet(Source.File(file))
+    }
+
+    fun removeStylesheet(source: Source) {
+        val stylesheet = stylesheets.remove(source)
 
         if (stylesheet != null) {
             shared.stylist.removeStylesheet(stylesheet)
@@ -108,6 +101,36 @@ object CSSEngine {
             for (engine in engines.toStrongList()) {
                 engine.device.invalidate()
             }
+        }
+    }
+
+    fun reloadStylesheets() {
+        val stylesheets = stylesheets.toMap()
+
+        for ((source, _) in stylesheets) {
+            removeStylesheet(source)
+        }
+
+        for ((source, stylesheet) in stylesheets) {
+            addStylesheet(source, stylesheet.origin)
+        }
+    }
+
+    fun stylesheets(): List<Stylesheet> {
+        return stylesheets.values.toList()
+    }
+}
+
+sealed class Source {
+
+    data class Resource(val path: String) : Source()
+
+    data class File(val path: java.io.File) : Source()
+
+    fun inputStream(): InputStream {
+        return when (this) {
+            is Source.Resource -> FlareLookAndFeel::class.java.getResourceAsStream(path)
+            is Source.File -> path.inputStream()
         }
     }
 }

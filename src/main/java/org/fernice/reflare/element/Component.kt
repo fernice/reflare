@@ -41,6 +41,7 @@ import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
 import java.awt.event.MouseEvent
 import java.util.WeakHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 import javax.swing.CellRendererPane
 import javax.swing.JComponent
 import javax.swing.JLayeredPane
@@ -332,6 +333,8 @@ abstract class AWTComponentElement(val component: Component) : Element {
                 updatePseudoElement(PseudoElement.fromEagerOrdinal(i), style.value)
             }
         }
+
+        restyleListener.forEach { listener -> listener.restyleFinished(this) }
     }
 
     protected open fun updateStyle(style: ComputedValues) {
@@ -341,6 +344,16 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
     protected open fun updatePseudoElement(pseudoElement: PseudoElement, style: ComputedValues) {
 
+    }
+
+    private val restyleListener: MutableList<RestyleListener> = mutableListOf()
+
+    fun addRestyleListener(listener: RestyleListener) {
+        restyleListener.add(listener)
+    }
+
+    fun removeRestyleListener(listener: RestyleListener) {
+        restyleListener.remove(listener)
     }
 
     // ***************************** Render ***************************** //
@@ -394,30 +407,28 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
     // ***************************** Style Properties ***************************** //
 
-    private val marginDelegate = cssProperty {
-        val style = getStyle()
-        when (style) {
-            is Some -> style.value.margin.toInsets(component.bounds)
-            is None -> Insets.empty()
-        }
+    private val marginDelegate = cssProperty(Insets.empty()) { styles ->
+        styles.margin.toInsets(component.bounds)
     }
 
     val margin: Insets by marginDelegate
 
-    private val paddingDelegate = cssProperty {
-        val style = getStyle()
-        when (style) {
-            is Some -> style.value.padding.toInsets(component.bounds)
-            is None -> Insets.empty()
-        }
+    private val paddingDelegate = cssProperty(Insets.empty()) { styles ->
+        styles.padding.toInsets(component.bounds)
     }
 
     val padding: Insets by paddingDelegate
+
+    private val fontSizeDelegate = cssProperty(16) { styles ->
+        styles.font.fontSize.size().toPx().toInt()
+    }
+
+    val fontSize by fontSizeDelegate
 }
 
 open class AWTContainerElement(container: Container) : AWTComponentElement(container) {
 
-    private val children: MutableList<AWTComponentElement> = mutableListOf()
+    private val children: MutableList<AWTComponentElement> = CopyOnWriteArrayList()
 
     init {
         container.addContainerListener(object : ContainerListener {
@@ -629,4 +640,9 @@ enum class StyleState {
     REAPPLY,
 
     DIRTY_BRANCH
+}
+
+interface RestyleListener {
+
+    fun restyleFinished(element: AWTComponentElement)
 }

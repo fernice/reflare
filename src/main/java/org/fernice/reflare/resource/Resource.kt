@@ -5,6 +5,7 @@ import java.io.FileInputStream
 import java.io.InputStream
 import java.nio.file.Path
 
+@Deprecated(message = "Never used")
 interface Resource {
 
     fun openInputStream(): InputStream
