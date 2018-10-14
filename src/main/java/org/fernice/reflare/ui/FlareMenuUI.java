@@ -45,9 +45,6 @@ public class FlareMenuUI extends BasicMenuUI implements FlareUI {
 
         acceleratorFont = FlareLookAndFeel.DEFAULT_FONT;
 
-        // todo  these could either be non standard property or pseudo classes
-        // todo  for the icon making it possible for them to have both a paddin
-        // todo  g and a margin ultimately rendering the gap unnecessary
         defaultTextIconGap = 4;
         acceleratorDelimiter = "+";
         menu.setDelay(200);

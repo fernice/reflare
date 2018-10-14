@@ -26,7 +26,7 @@ object ImageCache {
 
     private val images: MutableMap<Url, CompletableFuture<BufferedImage>> = mutableMapOf()
 
-    fun image(url: Url): CompletableFuture<BufferedImage> {
+    fun image(url: Url, invoker: () -> Unit): CompletableFuture<BufferedImage> {
         val cachedRequest = images[url]
 
         if (cachedRequest != null) {
@@ -36,6 +36,8 @@ object ImageCache {
         val future = CompletableFuture.supplyAsync(Supplier {
             ImageIO.read(URL(url.value))
         }, executor)
+
+        future.thenRun(invoker)
 
         images[url] = future
         return future

@@ -1,5 +1,7 @@
 package org.fernice.reflare.render
 
+import fernice.std.Option
+import fernice.std.Some
 import org.fernice.flare.style.ComputedValues
 import org.fernice.flare.style.properties.longhand.Attachment
 import org.fernice.flare.style.properties.stylestruct.ImageLayer
@@ -11,12 +13,11 @@ import org.fernice.flare.style.value.computed.Image
 import org.fernice.reflare.cache.ImageCache
 import org.fernice.reflare.element.AWTComponentElement
 import org.fernice.reflare.geom.Insets
+import org.fernice.reflare.geom.Point
 import org.fernice.reflare.geom.toColors
 import org.fernice.reflare.geom.toInsets
 import org.fernice.reflare.shape.BorderShape
 import org.fernice.reflare.toAWTColor
-import fernice.std.Option
-import fernice.std.Some
 import java.awt.Component
 import java.awt.Graphics
 import java.awt.Graphics2D
@@ -28,7 +29,9 @@ import java.awt.Insets as AWTInsets
 
 fun renderBackground(g: Graphics, component: Component, element: AWTComponentElement, style: Option<ComputedValues>) {
     if (style is Some) {
-        paintBackground(g, component, element, style.value, element.cache)
+        g.use { g2 ->
+            paintBackground(g2, component, element, style.value, element.cache)
+        }
     } else {
         val bounds = component.bounds
 
@@ -39,7 +42,9 @@ fun renderBackground(g: Graphics, component: Component, element: AWTComponentEle
 
 fun renderBorder(g: Graphics, component: Component, element: AWTComponentElement, style: Option<ComputedValues>) {
     if (style is Some) {
-        paintBorder(g, component, style.value, element.cache)
+        g.use { g2 ->
+            paintBorder(g2, component, style.value, element.cache)
+        }
     } else {
         val bounds = component.bounds
 
@@ -48,25 +53,26 @@ fun renderBorder(g: Graphics, component: Component, element: AWTComponentElement
     }
 }
 
-fun getGraphics(g: Graphics): Graphics2D {
-    val g2 = g as Graphics2D
+fun Graphics.use(renderer: (Graphics2D) -> Unit) {
+    val g2 = this.create() as Graphics2D
     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
     g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
     g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
 
-    return g2
+    try {
+        renderer(g2)
+    } finally {
+        g2.dispose()
+    }
 }
 
-
 fun paintBackground(
-    g: Graphics,
+    g2: Graphics2D,
     component: Component,
     element: AWTComponentElement,
     computedValues: ComputedValues,
     renderCache: Cache
 ) {
-    val g2 = getGraphics(g)
-
     val background = computedValues.background
 
     g2.color = background.color.toAWTColor()
@@ -82,7 +88,9 @@ fun paintBackground(
                     is ComputedUrl.Invalid -> continue@loop
                 }
 
-                val future = ImageCache.image(url)
+                val future = ImageCache.image(url) {
+                    component.repaint()
+                }
 
                 if (future.isDone || future.isCompletedExceptionally) {
                     paintBackgroundImage(
@@ -111,13 +119,18 @@ fun paintBackgroundImage(
     margin: Insets
 ) {
 
-    val componentBounds = when (layer.attachment) {
+    val (componentBounds, correction) = when (layer.attachment) {
         is Attachment.Scroll,
         is Attachment.Local -> {
-            component.size
+            component.size to Point.zero()
         }
         is Attachment.Fixed -> {
-            SwingUtilities.getRoot(component).size
+            val root = SwingUtilities.getRoot(component)
+
+            val rootLocation = root.locationOnScreen
+            val componentLocation = component.locationOnScreen
+
+            root.size to Point((rootLocation.x - componentLocation.x).toFloat(), (rootLocation.y - componentLocation.y).toFloat())
         }
     }
 
@@ -125,49 +138,56 @@ fun paintBackgroundImage(
 
     val (width, height) = when (backgroundSize) {
         is BackgroundSize.Cover -> {
-            val max = Math.max(componentBounds.width, componentBounds.height).toDouble()
+            val componentRatio = componentBounds.height.toFloat() / componentBounds.width.toFloat()
+            val imageRatio = image.height.toFloat() / image.width.toFloat()
 
-            if (image.height < image.width) {
+            if (componentRatio < imageRatio) {
                 Pair(
-                    (image.width * (max / image.height)).toFloat(),
-                    max.toFloat()
+                    componentBounds.width.toFloat(),
+                    (image.height * (componentBounds.width.toFloat() / image.width))
                 )
             } else {
                 Pair(
-                    max.toFloat(),
-                    (image.height * (max / image.width)).toFloat()
+                    (image.width * (componentBounds.height.toFloat() / image.height)),
+                    componentBounds.height.toFloat()
                 )
             }
         }
         is BackgroundSize.Contain -> {
-            val min = Math.min(componentBounds.width, componentBounds.height).toDouble()
+            val componentRatio = componentBounds.height.toFloat() / componentBounds.width.toFloat()
+            val imageRatio = image.height.toFloat() / image.width.toFloat()
 
-            if (image.height < image.width) {
+            if (componentRatio < imageRatio) {
                 Pair(
-                    min.toFloat(),
-                    (image.width * (min / image.height)).toFloat()
+                    (image.width * (componentBounds.height.toFloat() / image.height)),
+                    componentBounds.height.toFloat()
                 )
             } else {
                 Pair(
-                    (image.height * (min / image.width)).toFloat(),
-                    min.toFloat()
+                    componentBounds.width.toFloat(),
+                    (image.height * (componentBounds.width.toFloat() / image.width))
                 )
             }
         }
         is BackgroundSize.Explicit -> {
             Pair(
-                backgroundSize.width.toPixelLength(Au.fromPx(componentBounds.width)).px(),
-                backgroundSize.height.toPixelLength(Au.fromPx(componentBounds.height)).px()
+                backgroundSize.width.toPixelLength(Au.fromPx(componentBounds.width), Au.fromPx(image.width)).px(),
+                backgroundSize.height.toPixelLength(Au.fromPx(componentBounds.height), Au.fromPx(image.height)).px()
             )
         }
     }
+
+    val positionX = layer.positionX.toPixelLength(Au.fromPx(componentBounds.width - width)).px()
+    val positionY = layer.positionX.toPixelLength(Au.fromPx(componentBounds.height - height)).px()
+
+    g2.drawImage(image, correction.x.toInt() + positionX.toInt(), correction.y.toInt() + positionY.toInt(), width.toInt(), height.toInt(), null)
 }
 
 fun paintBackgroundGradient(g2: Graphics2D, imageGradient: Gradient) {
     throw UnsupportedOperationException()
 }
 
-fun paintBorder(g: Graphics, component: Component, computedValues: ComputedValues, renderCache: Cache) {
+fun paintBorder(g2: Graphics2D, component: Component, computedValues: ComputedValues, renderCache: Cache) {
     val border = computedValues.border
 
     val borderWidth = border.toInsets()
@@ -176,7 +196,6 @@ fun paintBorder(g: Graphics, component: Component, computedValues: ComputedValue
         return
     }
 
-    val g2 = getGraphics(g)
     val borderColor = border.toColors(computedValues.color.color)
 
     val borderShape = renderCache.borderShape
