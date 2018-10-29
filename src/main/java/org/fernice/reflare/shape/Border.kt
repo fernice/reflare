@@ -28,8 +28,8 @@ sealed class BorderShape {
                 borderRadius: Radii,
                 margin: Insets,
                 padding: Insets): BorderShape {
-            val borderClip = computeBackgroundClip(Clip.BORDER_BOX, size, borderWidth, borderRadius, margin, padding)
-            val paddingClip = computeBackgroundClip(Clip.PADDING_BOX, size, borderWidth, borderRadius, margin, padding)
+            val borderClip = computeBackgroundClip(Clip.BorderBox, size, borderWidth, borderRadius, margin, padding)
+            val paddingClip = computeBackgroundClip(Clip.PaddingBox, size, borderWidth, borderRadius, margin, padding)
 
             val clip = Area(borderClip)
             clip.subtract(Area(paddingClip))

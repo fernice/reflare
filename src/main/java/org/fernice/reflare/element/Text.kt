@@ -1,5 +1,6 @@
 package org.fernice.reflare.element
 
+import org.fernice.flare.selector.NonTSPseudoClass
 import org.fernice.flare.selector.PseudoElement
 import org.fernice.flare.style.ComputedValues
 import org.fernice.reflare.toAWTColor
@@ -18,6 +19,14 @@ class LabelElement(label: JLabel) : ComponentElement(label) {
 }
 
 abstract class TextElement(textComponent: JTextComponent) : ComponentElement(textComponent) {
+
+    override fun matchNonTSPseudoClass(pseudoClass: NonTSPseudoClass): Boolean {
+        return when (pseudoClass) {
+            is NonTSPseudoClass.ReadWrite -> (component as JTextComponent).isEditable
+            is NonTSPseudoClass.ReadOnly -> !(component as JTextComponent).isEditable
+            else -> super.matchNonTSPseudoClass(pseudoClass)
+        }
+    }
 
     override fun matchPseudoElement(pseudoElement: PseudoElement): Boolean {
         return when (pseudoElement) {

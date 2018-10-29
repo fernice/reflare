@@ -33,19 +33,19 @@ internal fun computeBackgroundClip(clip: Clip,
                                    padding: Insets): Shape {
 
     val (width, bounds) = when (clip) {
-        Clip.CONTENT_BOX -> {
+        Clip.ContentBox -> {
             Pair(
                     padding + borderWidth,
                     Bounds.fromDimension(size) - padding - borderWidth - margin
             )
         }
-        Clip.PADDING_BOX -> {
+        Clip.PaddingBox -> {
             Pair(
                     borderWidth,
                     Bounds.fromDimension(size) - borderWidth - margin
             )
         }
-        Clip.BORDER_BOX -> {
+        Clip.BorderBox -> {
             Pair(
                     Insets.empty(),
                     Bounds.fromDimension(size) - margin

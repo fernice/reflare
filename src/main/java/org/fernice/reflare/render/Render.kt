@@ -4,6 +4,7 @@ import fernice.std.Option
 import fernice.std.Some
 import org.fernice.flare.style.ComputedValues
 import org.fernice.flare.style.properties.longhand.Attachment
+import org.fernice.flare.style.properties.longhand.Clip
 import org.fernice.flare.style.properties.stylestruct.ImageLayer
 import org.fernice.flare.style.value.computed.Au
 import org.fernice.flare.style.value.computed.BackgroundSize
@@ -21,6 +22,7 @@ import org.fernice.reflare.toAWTColor
 import java.awt.Component
 import java.awt.Graphics
 import java.awt.Graphics2D
+import java.awt.Rectangle
 import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 import javax.swing.SwingUtilities
@@ -78,6 +80,10 @@ fun paintBackground(
     g2.color = background.color.toAWTColor()
     g2.fill(renderCache.backgroundShape.shape)
 
+    val borderInsets = computedValues.border.toInsets()
+
+    val clip = background.clip
+
     loop@
     for (layer in background.reversedImageLayerIterator()) {
         val image = layer.image
@@ -98,7 +104,9 @@ fun paintBackground(
                         component,
                         future.get(),
                         layer,
+                        clip,
                         element.padding,
+                        borderInsets,
                         element.margin
                     )
                 }
@@ -115,7 +123,9 @@ fun paintBackgroundImage(
     component: Component,
     image: BufferedImage,
     layer: ImageLayer,
+    backgroundClip: Clip,
     padding: Insets,
+    borderInsets: Insets,
     margin: Insets
 ) {
 
@@ -180,11 +190,54 @@ fun paintBackgroundImage(
     val positionX = layer.positionX.toPixelLength(Au.fromPx(componentBounds.width - width)).px()
     val positionY = layer.positionX.toPixelLength(Au.fromPx(componentBounds.height - height)).px()
 
+    val root = SwingUtilities.getRoot(component)
+
+    val rootLocation = root.locationOnScreen
+    val componentLocation = component.locationOnScreen
+
+    val location = java.awt.Point(componentLocation.x - rootLocation.x, componentLocation.y - componentLocation.y)
+
+    val clip = g2.clipBounds
+    val bounds = component.bounds
+    bounds.location = location
+
+    g2.clip = bounds.reduce(backgroundClip, padding, borderInsets, margin)
+
     g2.drawImage(image, correction.x.toInt() + positionX.toInt(), correction.y.toInt() + positionY.toInt(), width.toInt(), height.toInt(), null)
+
+    g2.clip = clip
+}
+
+fun Rectangle.reduce(clip: Clip, padding: Insets, borderInsets: Insets, margin: Insets): Rectangle {
+    val rectangle = Rectangle(this)
+
+    when (clip) {
+        is Clip.BorderBox -> {
+            rectangle -= margin
+        }
+        is Clip.PaddingBox -> {
+            rectangle -= margin
+            rectangle -= borderInsets
+        }
+        is Clip.ContentBox -> {
+            rectangle -= margin
+            rectangle -= borderInsets
+            rectangle -= padding
+        }
+    }
+
+    return rectangle
+}
+
+operator fun Rectangle.minusAssign(insets: Insets) {
+    this.x += insets.left.toInt()
+    this.y += insets.top.toInt()
+    this.width -= (insets.left + insets.right).toInt()
+    this.height -= (insets.top + insets.bottom).toInt()
 }
 
 fun paintBackgroundGradient(g2: Graphics2D, imageGradient: Gradient) {
-    throw UnsupportedOperationException()
+    TODO()
 }
 
 fun paintBorder(g2: Graphics2D, component: Component, computedValues: ComputedValues, renderCache: Cache) {

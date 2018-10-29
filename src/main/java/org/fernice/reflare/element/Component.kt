@@ -1,13 +1,20 @@
 package org.fernice.reflare.element
 
 import fernice.reflare.CSSEngine
+import fernice.std.None
+import fernice.std.Option
+import fernice.std.Some
+import fernice.std.mapOr
+import fernice.std.unwrap
 import org.fernice.flare.dom.Element
 import org.fernice.flare.dom.ElementData
 import org.fernice.flare.dom.ElementStyles
 import org.fernice.flare.selector.NamespaceUrl
 import org.fernice.flare.selector.NonTSPseudoClass
 import org.fernice.flare.selector.PseudoElement
+import org.fernice.flare.std.min
 import org.fernice.flare.style.ComputedValues
+import org.fernice.flare.style.MatchingResult
 import org.fernice.flare.style.PerPseudoElementMap
 import org.fernice.flare.style.ResolvedElementStyles
 import org.fernice.flare.style.context.StyleContext
@@ -19,12 +26,6 @@ import org.fernice.reflare.render.Cache
 import org.fernice.reflare.render.renderBackground
 import org.fernice.reflare.render.renderBorder
 import org.fernice.reflare.toAWTColor
-import fernice.std.None
-import fernice.std.Option
-import fernice.std.Some
-import fernice.std.mapOr
-import fernice.std.unwrap
-import org.fernice.flare.style.MatchingResult
 import java.awt.AWTEvent
 import java.awt.Component
 import java.awt.Container
@@ -74,22 +75,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
             }
         })
 
-        val mouseListener = object : ComponentHoverHandler(component) {
-            override fun entered() {
-                hover = true
-                invalidateStyle()
-            }
-
-            override fun exited() {
-                hover = false
-                invalidateStyle()
-            }
-        }
-
-        Toolkit.getDefaultToolkit().addAWTEventListener(
-            mouseListener,
-            AWTEvent.MOUSE_MOTION_EVENT_MASK
-        )
+        SharedHoverHandler
     }
 
     // ***************************** Dirty ***************************** //
@@ -447,7 +433,7 @@ open class AWTContainerElement(container: Container) : AWTComponentElement(conta
     }
 
     private fun childAdded(child: Component) {
-        val childElement = child.into()
+        val childElement = child.element
 
         val container = component as Container
         val index = container.getComponentZOrder(child)
@@ -460,7 +446,7 @@ open class AWTContainerElement(container: Container) : AWTComponentElement(conta
     }
 
     private fun childRemoved(child: Component) {
-        val childElement = child.into()
+        val childElement = child.element
 
         childElement.frame = None
         childElement.parent = None
@@ -563,38 +549,95 @@ abstract class ComponentElement(component: JComponent) : AWTContainerElement(com
     }
 }
 
-private abstract class ComponentHoverHandler(private val component: Component) : AWTEventListener {
+object SharedHoverHandler : AWTEventListener {
 
-    private var hover = false
+    init {
+        Toolkit.getDefaultToolkit().addAWTEventListener(
+            this,
+            AWTEvent.MOUSE_MOTION_EVENT_MASK
+        )
+    }
+
+    private var component: Component? = null
 
     override fun eventDispatched(event: AWTEvent) {
-        if (event !is MouseEvent) {
+        fun <E> MutableList<E>.removeFirst(): E {
+            return this.removeAt(0)
+        }
+
+        if (event !is MouseEvent || event.id != MouseEvent.MOUSE_MOVED) {
             return
         }
 
-        if (event.id == MouseEvent.MOUSE_MOVED) {
-            if (component.isShowing) {
-                val ls = component.locationOnScreen
-                val bounds = component.bounds
-                bounds.location = ls
+        val pick = event.source as Component
 
-                val inside = bounds.contains(event.locationOnScreen)
+        if (pick == component) {
+            return
+        }
 
-                if (inside != hover) {
-                    hover = inside
-                    if (inside) {
-                        entered()
-                    } else {
-                        exited()
-                    }
-                }
+        val component = component
+        this.component = pick
+
+        val componentStack = component.selfAndAncestorsList()
+        val pickStack = pick.selfAndAncestorsList()
+
+        val maxCommon = componentStack.size.min(pickStack.size)
+
+        for (i in maxCommon until componentStack.size) {
+            val exitedComponent = componentStack.removeFirst()
+
+            exitedComponent.element.hoverHint(false)
+        }
+
+        for (i in maxCommon until pickStack.size) {
+            val enteredComponent = pickStack.removeFirst()
+
+            enteredComponent.element.hoverHint(true)
+        }
+
+        for (i in 0 until maxCommon) {
+            val exitedComponent = componentStack.removeFirst()
+            val enteredComponent = pickStack.removeFirst()
+
+            if (exitedComponent == enteredComponent) {
+                return
+            } else {
+                exitedComponent.element.hoverHint(false)
+                enteredComponent.element.hoverHint(true)
             }
         }
     }
+}
 
-    abstract fun entered()
+private fun Component?.selfAndAncestorsList(): MutableList<Component> {
+    val stack: MutableList<Component> = mutableListOf()
 
-    abstract fun exited()
+    if (this == null) {
+        return stack
+    }
+
+    for (component in this.selfAndAncestorsIterator()) {
+        stack.add(component)
+    }
+
+    return stack
+}
+
+private fun Component.selfAndAncestorsIterator(): Iterator<Component> {
+    return SelfAndAncestorIterator(this)
+}
+
+private class SelfAndAncestorIterator(private var component: Component) : Iterator<Component> {
+
+    override fun hasNext(): Boolean {
+        return component.parent != null
+    }
+
+    override fun next(): Component {
+        val current = component
+        component = component.parent
+        return current
+    }
 }
 
 private val elements: MutableMap<Component, AWTComponentElement> = WeakHashMap()
@@ -627,9 +670,13 @@ private fun ensureElement(component: Component): AWTComponentElement {
     }
 }
 
+@Deprecated(message = "Element is now a extension attribute")
 fun Component.into(): AWTComponentElement {
     return ensureElement(this)
 }
+
+val Component.element: AWTComponentElement
+    get() = ensureElement(this)
 
 enum class StyleState {
 

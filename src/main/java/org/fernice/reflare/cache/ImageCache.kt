@@ -33,8 +33,16 @@ object ImageCache {
             return cachedRequest
         }
 
+        val resource = URL(url.value)
+
+        val file = resource.file
+
+        if(file.isBlank()) {
+
+        }
+
         val future = CompletableFuture.supplyAsync(Supplier {
-            ImageIO.read(URL(url.value))
+            ImageIO.read(resource)
         }, executor)
 
         future.thenRun(invoker)
