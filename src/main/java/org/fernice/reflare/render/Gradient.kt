@@ -11,6 +11,7 @@ import fernice.std.Some
 import fernice.std.unwrap
 import fernice.std.unwrapOr
 import org.fernice.flare.panic
+import org.fernice.flare.style.value.computed.Angle
 import org.fernice.flare.style.value.computed.Au
 import org.fernice.flare.style.value.computed.ColorStop
 import org.fernice.flare.style.value.computed.Gradient
@@ -45,13 +46,24 @@ fun BackgroundLayer.Gradient.Companion.computeGradient(gradient: Gradient, size:
                     size.pointAt(null, direction.y.opposite()) to size.pointAt(null, direction.y)
                 }
                 is LineDirection.Angle -> {
+                    val angle = Angle(direction.angle.degrees() + 90)
+
+                    val degrees = abs(angle.degrees()) % 360
+                    val (startCorner, endCorner) = when {
+                        degrees > 0.0 && degrees <= 90.0 -> Point(size.width.toDouble(), size.height.toDouble()) to Point(0.0, 0.0)
+                        degrees > 90.0 && degrees <= 180.0 -> Point(0.0, size.height.toDouble()) to Point(size.width.toDouble(), 0.0)
+                        degrees > 180.0 && degrees <= 270.0 -> Point(0.0, 0.0) to Point(size.width.toDouble(), size.height.toDouble())
+                        degrees > 270.0 && degrees < 360.0 || degrees == 0f -> Point(size.width.toDouble(), 0.0) to Point(0.0, size.height.toDouble())
+                        else -> panic("$degrees degrees")
+                    }
+
                     val midpoint = Point(size.width / 2.0, size.height / 2.0)
 
-                    val line = midpoint.toLine(direction.angle.radians64())
+                    val line = midpoint.toLine(angle.radians64())
                     val normal = line.normal
 
-                    val startLine = Point(0.0, 0.0).toLine(normal)
-                    val endLine = Point(size.width.toDouble(), size.height.toDouble()).toLine(normal)
+                    val startLine = startCorner.toLine(normal)
+                    val endLine = endCorner.toLine(normal)
 
                     val start = startLine.intersection(line)
                     val end = endLine.intersection(line)
@@ -68,7 +80,13 @@ fun BackgroundLayer.Gradient.Companion.computeGradient(gradient: Gradient, size:
     val cycleMethod = if (gradient.repeating) MultipleGradientPaint.CycleMethod.REPEAT else MultipleGradientPaint.CycleMethod.NO_CYCLE
 
     val gradientPaint = when (gradient.kind) {
-        is GradientKind.Linear -> LinearGradientPaint(start.toAWTPoint(), end.toAWTPoint(), fractions, colors, cycleMethod)
+        is GradientKind.Linear -> LinearGradientPaint(
+            start.toAWTPoint(),
+            end.toAWTPoint(),
+            fractions,
+            colors,
+            cycleMethod
+        )
         is GradientKind.Radial -> TODO()
     }
 
@@ -121,12 +139,14 @@ private fun computeColorFractions(gradientItems: List<GradientItem>, containingL
             blankStops.isNotEmpty() -> blankStops.removeAt(blankStops.lastIndex)
             else -> break@loop
         }
-        val endPosition = intervalEnd.position
+        var endPosition = intervalEnd.position
             .unwrapOr(LengthOrPercentage.Hundred)
             .toPercentage(containingLength)
 
         if (endPosition < lastPosition) {
-            return emptyArray<Color>() to floatArrayOf()
+            endPosition = lastPosition + 0.00001f
+        } else if (lastPosition == endPosition) {
+            endPosition += 0.00001f
         }
 
         if (blankStops.isNotEmpty()) {
@@ -140,11 +160,11 @@ private fun computeColorFractions(gradientItems: List<GradientItem>, containingL
 
         gradientStops.add(GradientStop(intervalEnd.color, endPosition))
 
+        lastPosition = endPosition
         intervalStart = intervalEnd
         startPosition = intervalStart.position
             .unwrapOr(LengthOrPercentage.zero)
             .toPercentage(containingLength)
-        lastPosition = startPosition
 
         if (!iterator.hasNext()) {
             break

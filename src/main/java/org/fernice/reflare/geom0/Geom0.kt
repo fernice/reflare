@@ -53,13 +53,13 @@ data class Point(val x: Double, val y: Double) : Comparable<Point> {
     fun toLine(angle: Double): Line {
         val vec = Vec.normalized(cos(angle), sin(angle))
 
-        val second = this * vec
+        val second = this + vec
 
         return Line(this, second)
     }
 
     fun toLine(direction: Vec): Line {
-        return Line(this, this * direction)
+        return Line(this, this + direction)
     }
 
     override fun compareTo(other: Point): Int {
