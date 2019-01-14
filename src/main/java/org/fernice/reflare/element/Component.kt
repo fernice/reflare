@@ -6,6 +6,8 @@ import fernice.std.Option
 import fernice.std.Some
 import fernice.std.mapOr
 import fernice.std.unwrap
+import org.fernice.flare.cssparser.Parser
+import org.fernice.flare.cssparser.ParserInput
 import org.fernice.flare.dom.Element
 import org.fernice.flare.dom.ElementData
 import org.fernice.flare.dom.ElementStyles
@@ -18,19 +20,33 @@ import org.fernice.flare.style.MatchingResult
 import org.fernice.flare.style.PerPseudoElementMap
 import org.fernice.flare.style.ResolvedElementStyles
 import org.fernice.flare.style.context.StyleContext
+import org.fernice.flare.style.parser.ParseMode
+import org.fernice.flare.style.parser.ParserContext
+import org.fernice.flare.style.parser.QuirksMode
 import org.fernice.flare.style.properties.PropertyDeclarationBlock
+import org.fernice.flare.style.properties.parsePropertyDeclarationList
 import org.fernice.flare.style.value.computed.SingleFontFamily
+import org.fernice.flare.url.Url
 import org.fernice.reflare.geom.Insets
 import org.fernice.reflare.geom.toInsets
-import org.fernice.reflare.render.Cache
+import org.fernice.reflare.render.BackgroundLayers
+import org.fernice.reflare.render.RenderCache
+import org.fernice.reflare.render.computeBackgroundLayers
 import org.fernice.reflare.render.renderBackground
 import org.fernice.reflare.render.renderBorder
+import org.fernice.reflare.shape.BackgroundShape
+import org.fernice.reflare.shape.BorderShape
+import org.fernice.reflare.shape.computeBackgroundShape
+import org.fernice.reflare.shape.computeBorderShape
 import org.fernice.reflare.toAWTColor
+import org.fernice.reflare.util.Broadcast
+import org.fernice.reflare.util.broadcast
 import java.awt.AWTEvent
 import java.awt.Component
 import java.awt.Container
 import java.awt.Font
 import java.awt.Graphics
+import java.awt.Rectangle
 import java.awt.Toolkit
 import java.awt.Window
 import java.awt.event.AWTEventListener
@@ -70,8 +86,8 @@ abstract class AWTComponentElement(val component: Component) : Element {
         })
 
         component.addComponentListener(object : ComponentAdapter() {
-            override fun componentResized(e: ComponentEvent?) {
-                invalidateBounds()
+            override fun componentResized(e: ComponentEvent) {
+                boundsChange.fire(component.bounds)
             }
         })
 
@@ -83,10 +99,8 @@ abstract class AWTComponentElement(val component: Component) : Element {
     private var state: StyleState = StyleState.CLEAN
 
     fun invalidateBounds() {
-        paddingDelegate.invalidate()
-        marginDelegate.invalidate()
 
-        cache.invalidateBounds()
+        // cache.invalidateBounds()
         component.repaint()
     }
 
@@ -251,11 +265,28 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
     // ***************************** Inline ***************************** //
 
-    var styleAttribute: Option<PropertyDeclarationBlock> = None
+    private var styleAttributeInternal: Option<PropertyDeclarationBlock> = None
 
     override fun styleAttribute(): Option<PropertyDeclarationBlock> {
-        return styleAttribute
+        return styleAttributeInternal
     }
+
+    var styleAttribute: String = ""
+        set(value) {
+            field = value
+
+            styleAttributeInternal = if (value.isNotBlank()) {
+                val input = Parser.new(ParserInput(value))
+                val context = ParserContext(ParseMode.Default, QuirksMode.NO_QUIRKS, Url(""))
+
+                Some(parsePropertyDeclarationList(context, input))
+            } else {
+                None
+            }
+
+            restyle()
+        }
+
 
     // ***************************** Data ***************************** //
 
@@ -320,31 +351,20 @@ abstract class AWTComponentElement(val component: Component) : Element {
             }
         }
 
-        restyleListener.forEach { listener -> listener.restyleFinished(this) }
+        restyle.fire(primaryStyle)
     }
 
     protected open fun updateStyle(style: ComputedValues) {
-        paddingDelegate.invalidate()
-        marginDelegate.invalidate()
+
     }
 
     protected open fun updatePseudoElement(pseudoElement: PseudoElement, style: ComputedValues) {
 
     }
 
-    private val restyleListener: MutableList<RestyleListener> = mutableListOf()
-
-    fun addRestyleListener(listener: RestyleListener) {
-        restyleListener.add(listener)
-    }
-
-    fun removeRestyleListener(listener: RestyleListener) {
-        restyleListener.remove(listener)
-    }
-
     // ***************************** Render ***************************** //
 
-    val cache: Cache by lazy { Cache(this) }
+    val cache: RenderCache by lazy { RenderCache() }
 
     fun paintBackground(component: Component, g: Graphics) {
         renderBackground(g, component, this, getStyle())
@@ -391,25 +411,54 @@ abstract class AWTComponentElement(val component: Component) : Element {
         return old
     }
 
+    private val boundsChange: Broadcast<Rectangle> = broadcast()
+    val restyle: Broadcast<ComputedValues> = broadcast()
+
     // ***************************** Style Properties ***************************** //
 
-    private val marginDelegate = cssProperty(Insets.empty()) { styles ->
-        styles.margin.toInsets(component.bounds)
+    val margin: Insets by property(Insets.empty()) {
+        dependsOn(boundsChange) { component.bounds }
+        dependsOn(restyle) { style -> style.margin }
+
+        computeStyle { styles -> styles.margin.toInsets(component.bounds) }
     }
 
-    val margin: Insets by marginDelegate
+    val padding: Insets by property(Insets.empty()) {
+        dependsOn(boundsChange) { component.bounds }
+        dependsOn(restyle) { style -> style.padding }
 
-    private val paddingDelegate = cssProperty(Insets.empty()) { styles ->
-        styles.padding.toInsets(component.bounds)
+        computeStyle { styles -> styles.padding.toInsets(component.bounds) }
     }
 
-    val padding: Insets by paddingDelegate
+    val fontSize by property(16) {
+        dependsOn(restyle) { style -> style.font.fontSize }
 
-    private val fontSizeDelegate = cssProperty(16) { styles ->
-        styles.font.fontSize.size().toPx().toInt()
+        computeStyle { styles -> styles.font.fontSize.size().toPx().toInt() }
     }
 
-    val fontSize by fontSizeDelegate
+    val backgroundShape: BackgroundShape by property {
+        dependsOn(boundsChange) { component.bounds }
+        dependsOn(restyle)
+
+        computeStyle { element, style -> BackgroundShape.computeBackgroundShape(style, element) }
+    }
+
+    val borderShape: BorderShape by property {
+        dependsOn(boundsChange) { component.bounds }
+        dependsOn(restyle)
+
+        computeStyle { element, style -> BorderShape.computeBorderShape(style, element) }
+    }
+
+    val backgroundLayers: BackgroundLayers by property {
+        dependsOn(boundsChange)
+        dependsOn(restyle) { style -> style.margin }
+        dependsOn(restyle) { style -> style.padding }
+        dependsOn(restyle) { style -> style.border }
+        dependsOn(restyle) { style -> style.background }
+
+        computeStyle { style -> BackgroundLayers.computeBackgroundLayers(component, style) }
+    }
 }
 
 open class AWTContainerElement(container: Container) : AWTComponentElement(container) {
@@ -569,7 +618,13 @@ object SharedHoverHandler : AWTEventListener {
             return
         }
 
-        val pick = event.source as Component
+        val pick = if (event.source is Container) {
+            val container = event.source as Container
+
+            container.findComponentAt(event.point)
+        } else {
+            event.source as Component
+        }
 
         if (pick == component) {
             return
@@ -687,9 +742,4 @@ enum class StyleState {
     REAPPLY,
 
     DIRTY_BRANCH
-}
-
-interface RestyleListener {
-
-    fun restyleFinished(element: AWTComponentElement)
 }

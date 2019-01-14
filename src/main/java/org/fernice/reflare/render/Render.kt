@@ -5,26 +5,19 @@ import fernice.std.Some
 import org.fernice.flare.style.ComputedValues
 import org.fernice.flare.style.properties.longhand.Attachment
 import org.fernice.flare.style.properties.longhand.Clip
-import org.fernice.flare.style.properties.stylestruct.ImageLayer
 import org.fernice.flare.style.value.computed.Au
 import org.fernice.flare.style.value.computed.BackgroundSize
-import org.fernice.flare.style.value.computed.ComputedUrl
-import org.fernice.flare.style.value.computed.Gradient
-import org.fernice.flare.style.value.computed.Image
-import org.fernice.reflare.cache.ImageCache
 import org.fernice.reflare.element.AWTComponentElement
 import org.fernice.reflare.geom.Insets
 import org.fernice.reflare.geom.Point
 import org.fernice.reflare.geom.toColors
 import org.fernice.reflare.geom.toInsets
 import org.fernice.reflare.shape.BorderShape
-import org.fernice.reflare.toAWTColor
 import java.awt.Component
 import java.awt.Graphics
 import java.awt.Graphics2D
 import java.awt.Rectangle
 import java.awt.RenderingHints
-import java.awt.image.BufferedImage
 import javax.swing.SwingUtilities
 import java.awt.Color as AWTColor
 import java.awt.Insets as AWTInsets
@@ -32,7 +25,7 @@ import java.awt.Insets as AWTInsets
 fun renderBackground(g: Graphics, component: Component, element: AWTComponentElement, style: Option<ComputedValues>) {
     if (style is Some) {
         g.use { g2 ->
-            paintBackground(g2, component, element, style.value, element.cache)
+            paintBackground(g2, component, element, style.value)
         }
     } else {
         val bounds = component.bounds
@@ -45,7 +38,7 @@ fun renderBackground(g: Graphics, component: Component, element: AWTComponentEle
 fun renderBorder(g: Graphics, component: Component, element: AWTComponentElement, style: Option<ComputedValues>) {
     if (style is Some) {
         g.use { g2 ->
-            paintBorder(g2, component, style.value, element.cache)
+            paintBorder(g2, component, element, style.value)
         }
     } else {
         val bounds = component.bounds
@@ -72,57 +65,32 @@ fun paintBackground(
     g2: Graphics2D,
     component: Component,
     element: AWTComponentElement,
-    computedValues: ComputedValues,
-    renderCache: Cache
+    computedValues: ComputedValues
 ) {
-    val background = computedValues.background
-
-    g2.color = background.color.toAWTColor()
-    g2.fill(renderCache.backgroundShape.shape)
-
     val borderInsets = computedValues.border.toInsets()
+    val backgroundShape = element.backgroundShape
+    val backgroundLayers = element.backgroundLayers
 
-    val clip = background.clip
+    g2.color = backgroundLayers.color
+    g2.fill(backgroundShape.shape)
 
-    loop@
-    for (layer in background.reversedImageLayerIterator()) {
-        val image = layer.image
-        when (image) {
-            is Image.Url -> {
-                val url = when (image.url) {
-                    is ComputedUrl.Valid -> (image.url as ComputedUrl.Valid).url
-                    is ComputedUrl.Invalid -> continue@loop
-                }
-
-                val future = ImageCache.image(url) {
-                    component.repaint()
-                }
-
-                if (future.isDone || future.isCompletedExceptionally) {
-                    paintBackgroundImage(
-                        g2,
-                        component,
-                        future.get(),
-                        layer,
-                        clip,
-                        element.padding,
-                        borderInsets,
-                        element.margin
-                    )
-                }
+    for (layer in backgroundLayers.layers) {
+        when (layer) {
+            is BackgroundLayer.Image -> {
+                paintBackgroundImage(g2, component, layer, backgroundLayers.clip, element.padding, borderInsets, element.margin)
             }
-            is Image.Gradient -> {
-                paintBackgroundGradient(g2, image.gradient)
+            is BackgroundLayer.Gradient -> {
+                g2.paint = layer.gradient
+                g2.fill(backgroundShape.shape)
             }
         }
     }
 }
 
-fun paintBackgroundImage(
+private fun paintBackgroundImage(
     g2: Graphics2D,
     component: Component,
-    image: BufferedImage,
-    layer: ImageLayer,
+    layer: BackgroundLayer.Image,
     backgroundClip: Clip,
     padding: Insets,
     borderInsets: Insets,
@@ -145,6 +113,7 @@ fun paintBackgroundImage(
     }
 
     val backgroundSize = layer.size
+    val image = layer.image
 
     val (width, height) = when (backgroundSize) {
         is BackgroundSize.Cover -> {
@@ -188,24 +157,51 @@ fun paintBackgroundImage(
     }
 
     val positionX = layer.positionX.toPixelLength(Au.fromPx(componentBounds.width - width)).px()
-    val positionY = layer.positionX.toPixelLength(Au.fromPx(componentBounds.height - height)).px()
+    val positionY = layer.positionY.toPixelLength(Au.fromPx(componentBounds.height - height)).px()
 
-    val root = SwingUtilities.getRoot(component)
-
-    val rootLocation = root.locationOnScreen
-    val componentLocation = component.locationOnScreen
-
-    val location = java.awt.Point(componentLocation.x - rootLocation.x, componentLocation.y - componentLocation.y)
-
-    val clip = g2.clipBounds
+    val clip = g2.clip
     val bounds = component.bounds
-    bounds.location = location
+    bounds.location = java.awt.Point(0, 0)
 
-    g2.clip = bounds.reduce(backgroundClip, padding, borderInsets, margin)
+    g2.clip(bounds.reduce(backgroundClip, padding, borderInsets, margin))
 
-    g2.drawImage(image, correction.x.toInt() + positionX.toInt(), correction.y.toInt() + positionY.toInt(), width.toInt(), height.toInt(), null)
+    g2.drawImage(layer.image, correction.x.toInt() + positionX.toInt(), correction.y.toInt() + positionY.toInt(), width.toInt(), height.toInt(), null)
 
     g2.clip = clip
+}
+
+fun paintBorder(g2: Graphics2D, component: Component, element: AWTComponentElement, computedValues: ComputedValues) {
+    val border = computedValues.border
+
+    val borderWidth = border.toInsets()
+
+    if (borderWidth.isZero()) {
+        return
+    }
+
+    val borderColor = border.toColors(computedValues.color.color)
+
+    val borderShape = element.borderShape
+
+    when (borderShape) {
+        is BorderShape.Simple -> {
+            g2.color = borderColor.top
+            g2.fill(borderShape.shape)
+        }
+        is BorderShape.Complex -> {
+            g2.color = borderColor.top
+            g2.fill(borderShape.top)
+
+            g2.color = borderColor.right
+            g2.fill(borderShape.right)
+
+            g2.color = borderColor.bottom
+            g2.fill(borderShape.bottom)
+
+            g2.color = borderColor.left
+            g2.fill(borderShape.left)
+        }
+    }
 }
 
 fun Rectangle.reduce(clip: Clip, padding: Insets, borderInsets: Insets, margin: Insets): Rectangle {
@@ -234,42 +230,4 @@ operator fun Rectangle.minusAssign(insets: Insets) {
     this.y += insets.top.toInt()
     this.width -= (insets.left + insets.right).toInt()
     this.height -= (insets.top + insets.bottom).toInt()
-}
-
-fun paintBackgroundGradient(g2: Graphics2D, imageGradient: Gradient) {
-    TODO()
-}
-
-fun paintBorder(g2: Graphics2D, component: Component, computedValues: ComputedValues, renderCache: Cache) {
-    val border = computedValues.border
-
-    val borderWidth = border.toInsets()
-
-    if (borderWidth.isZero()) {
-        return
-    }
-
-    val borderColor = border.toColors(computedValues.color.color)
-
-    val borderShape = renderCache.borderShape
-
-    when (borderShape) {
-        is BorderShape.Simple -> {
-            g2.color = borderColor.top
-            g2.fill(borderShape.shape)
-        }
-        is BorderShape.Complex -> {
-            g2.color = borderColor.top
-            g2.fill(borderShape.top)
-
-            g2.color = borderColor.right
-            g2.fill(borderShape.right)
-
-            g2.color = borderColor.bottom
-            g2.fill(borderShape.bottom)
-
-            g2.color = borderColor.left
-            g2.fill(borderShape.left)
-        }
-    }
 }

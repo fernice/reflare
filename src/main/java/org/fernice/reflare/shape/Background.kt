@@ -1,54 +1,82 @@
 package org.fernice.reflare.shape
 
+import org.fernice.flare.style.ComputedValues
 import org.fernice.flare.style.properties.longhand.Clip
+import org.fernice.reflare.element.AWTComponentElement
 import org.fernice.reflare.geom.Bounds
 import org.fernice.reflare.geom.Insets
 import org.fernice.reflare.geom.Radii
+import org.fernice.reflare.geom.toInsets
+import org.fernice.reflare.geom.toRadii
 import java.awt.Dimension
 import java.awt.Shape
 import java.awt.geom.Path2D
 
-class BackgroundShape( val shape: Shape) {
+fun BackgroundShape.Companion.computeBackgroundShape(computedValues: ComputedValues, element: AWTComponentElement): BackgroundShape {
+    val background = computedValues.background
+    val border = computedValues.border
+
+    val component = element.component
+
+    val bounds = component.bounds
+    val size = component.size
+
+    val borderWidth = border.toInsets()
+    val borderRadius = border.toRadii(bounds)
+
+    val margin = element.margin
+    val padding = element.padding
+
+    val backgroundClip = background.clip
+
+    return BackgroundShape.from(backgroundClip, size, borderWidth, borderRadius, margin, padding)
+}
+
+class BackgroundShape(val shape: Shape) {
 
     companion object {
 
-        fun from(clip: Clip,
-                 size: Dimension,
-                 borderWidth: Insets,
-                 borderRadius: Radii,
-                 margin: Insets,
-                 padding: Insets): BackgroundShape {
+        fun from(
+            clip: Clip,
+            size: Dimension,
+            borderWidth: Insets,
+            borderRadius: Radii,
+            margin: Insets,
+            padding: Insets
+        ): BackgroundShape {
             return BackgroundShape(
-                    computeBackgroundClip(clip, size, borderWidth, borderRadius, margin, padding)
+                computeBackgroundClip(clip, size, borderWidth, borderRadius, margin, padding)
             )
         }
     }
 }
 
-internal fun computeBackgroundClip(clip: Clip,
-                                   size: Dimension,
-                                   borderWidth: Insets,
-                                   borderRadius: Radii,
-                                   margin: Insets,
-                                   padding: Insets): Shape {
+internal fun computeBackgroundClip(
+    clip: Clip,
+    size: Dimension,
+    borderWidth: Insets,
+    borderRadius: Radii,
+    margin: Insets,
+    padding: Insets
+): Shape {
 
     val (width, bounds) = when (clip) {
         Clip.ContentBox -> {
             Pair(
-                    padding + borderWidth,
-                    Bounds.fromDimension(size) - padding - borderWidth - margin
+                padding + borderWidth,
+                Bounds.fromDimension(size) - padding - borderWidth - margin
             )
         }
         Clip.PaddingBox -> {
             Pair(
-                    borderWidth,
-                    Bounds.fromDimension(size) - borderWidth - margin
+                borderWidth,
+                Bounds.fromDimension(size) - borderWidth - margin
             )
         }
         Clip.BorderBox -> {
             Pair(
-                    Insets.empty(),
-                    Bounds.fromDimension(size) - margin
+                Insets.empty(),
+                Bounds.fromDimension(size) - margin
             )
         }
     }

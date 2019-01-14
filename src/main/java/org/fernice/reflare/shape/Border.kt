@@ -1,33 +1,69 @@
 package org.fernice.reflare.shape
 
+import org.fernice.flare.style.ComputedValues
 import org.fernice.flare.style.properties.longhand.Clip
+import org.fernice.reflare.element.AWTComponentElement
 import org.fernice.reflare.geom.Bounds
+import org.fernice.reflare.geom.Colors
 import org.fernice.reflare.geom.Insets
 import org.fernice.reflare.geom.Radii
+import org.fernice.reflare.geom.toColors
+import org.fernice.reflare.geom.toInsets
+import org.fernice.reflare.geom.toRadii
 import java.awt.Dimension
 import java.awt.Shape
 import java.awt.geom.Arc2D
 import java.awt.geom.Area
 import java.awt.geom.Path2D
 
+fun BorderShape.Companion.computeBorderShape(computedValues: ComputedValues, element: AWTComponentElement): BorderShape {
+    val border = computedValues.border
+
+    val borderWidth = border.toInsets()
+
+    val component = element.component
+
+    val bounds = component.bounds
+    val size = component.size
+
+    val borderRadius = border.toRadii(bounds)
+    val borderColor = border.toColors(computedValues.color.color)
+
+    val margin = element.margin
+    val padding = element.padding
+
+    return if (hasOnlyOneColor(borderColor)) {
+        BorderShape.new(size, borderWidth, borderRadius, margin, padding)
+    } else {
+        BorderShape.from(size, borderWidth, borderRadius, margin)
+    }
+}
+
+
+private fun hasOnlyOneColor(color: Colors): Boolean {
+    return color.top == color.right && color.right == color.bottom && color.bottom == color.left
+}
+
 sealed class BorderShape {
 
     class Simple(val shape: Area) : BorderShape()
 
     class Complex(
-            val top: Shape,
-            val right: Shape,
-            val bottom: Shape,
-            val left: Shape
+        val top: Shape,
+        val right: Shape,
+        val bottom: Shape,
+        val left: Shape
     ) : BorderShape()
 
     companion object {
 
-        fun new(size: Dimension,
-                borderWidth: Insets,
-                borderRadius: Radii,
-                margin: Insets,
-                padding: Insets): BorderShape {
+        fun new(
+            size: Dimension,
+            borderWidth: Insets,
+            borderRadius: Radii,
+            margin: Insets,
+            padding: Insets
+        ): BorderShape {
             val borderClip = computeBackgroundClip(Clip.BorderBox, size, borderWidth, borderRadius, margin, padding)
             val paddingClip = computeBackgroundClip(Clip.PaddingBox, size, borderWidth, borderRadius, margin, padding)
 
@@ -37,17 +73,19 @@ sealed class BorderShape {
             return BorderShape.Simple(clip)
         }
 
-        fun from(size: Dimension,
-                 borderWidth: Insets,
-                 borderRadius: Radii,
-                 margin: Insets): BorderShape {
+        fun from(
+            size: Dimension,
+            borderWidth: Insets,
+            borderRadius: Radii,
+            margin: Insets
+        ): BorderShape {
             val bounds = Bounds.fromDimension(size) - margin
 
             return BorderShape.Complex(
-                    computeTopBorder(bounds, borderRadius, borderWidth),
-                    computeRightBorder(bounds, borderRadius, borderWidth),
-                    computeBottomBorder(bounds, borderRadius, borderWidth),
-                    computeLeftBorder(bounds, borderRadius, borderWidth)
+                computeTopBorder(bounds, borderRadius, borderWidth),
+                computeRightBorder(bounds, borderRadius, borderWidth),
+                computeBottomBorder(bounds, borderRadius, borderWidth),
+                computeLeftBorder(bounds, borderRadius, borderWidth)
             )
         }
     }
@@ -65,14 +103,23 @@ private fun computeTopBorder(rect: Bounds, radii: Radii, width: Insets): Path2D 
     path.moveTo((rect.x + radii.topLeftWidth).toDouble(), rect.y.toDouble())
     path.lineTo((rect.x + rect.width - radii.topRightWidth).toDouble(), rect.y.toDouble())
 
-    path.append(Arc2D.Float(rect.x + rect.width - radii.topRightWidth * 2, rect.y, radii.topRightWidth * 2, radii.topRightHeight * 2, 90f, -45f, Arc2D.OPEN), true)
-    path.append(Arc2D.Float(rect.x + rect.width - Math.max(radii.topRightWidth, width.right) - trs, rect.y + width.top, trs * 2, trt * 2, 45f, 45f, Arc2D.OPEN),
-            true)
+    path.append(
+        Arc2D.Float(rect.x + rect.width - radii.topRightWidth * 2, rect.y, radii.topRightWidth * 2, radii.topRightHeight * 2, 90f, -45f, Arc2D.OPEN),
+        true
+    )
+    path.append(
+        Arc2D.Float(rect.x + rect.width - Math.max(radii.topRightWidth, width.right) - trs, rect.y + width.top, trs * 2, trt * 2, 45f, 45f, Arc2D.OPEN),
+        true
+    )
 
     path.lineTo((rect.x + Math.max(radii.topLeftWidth, width.left)).toDouble(), (rect.y + width.top).toDouble())
 
-    path.append(Arc2D.Float(rect.x + Math.max(radii.topLeftWidth, width.left) - tls, rect.y + Math.max(radii.topRightHeight, width.top) - tlt, tls * 2, tlt * 2, 90f, 45f,
-            Arc2D.OPEN), true)
+    path.append(
+        Arc2D.Float(
+            rect.x + Math.max(radii.topLeftWidth, width.left) - tls, rect.y + Math.max(radii.topRightHeight, width.top) - tlt, tls * 2, tlt * 2, 90f, 45f,
+            Arc2D.OPEN
+        ), true
+    )
     path.append(Arc2D.Float(rect.x, rect.y, radii.topLeftWidth * 2, radii.topLeftHeight * 2, 135f, -45f, Arc2D.OPEN), true)
 
     return path
@@ -89,16 +136,31 @@ private fun computeRightBorder(rect: Bounds, radii: Radii, width: Insets): Path2
     path.moveTo((rect.x + rect.width).toDouble(), (rect.y + radii.topRightHeight).toDouble())
     path.lineTo((rect.x + rect.width).toDouble(), (rect.y + rect.height - radii.bottomRightHeight).toDouble())
 
-    path.append(Arc2D.Float(rect.x + rect.width - radii.bottomRightWidth * 2, rect.y + rect.height - radii.bottomRightHeight * 2, radii.bottomRightWidth * 2,
-            radii.bottomRightHeight * 2, 0f, -45f, Arc2D.OPEN), true)
-    path.append(Arc2D.Float(rect.x + rect.width - Math.max(radii.bottomRightWidth, width.right) - brs,
-            rect.y + rect.height - Math.max(radii.bottomRightHeight, width.bottom) - brt, brs * 2, brt * 2, -45f, 45f, Arc2D.OPEN), true)
+    path.append(
+        Arc2D.Float(
+            rect.x + rect.width - radii.bottomRightWidth * 2, rect.y + rect.height - radii.bottomRightHeight * 2, radii.bottomRightWidth * 2,
+            radii.bottomRightHeight * 2, 0f, -45f, Arc2D.OPEN
+        ), true
+    )
+    path.append(
+        Arc2D.Float(
+            rect.x + rect.width - Math.max(radii.bottomRightWidth, width.right) - brs,
+            rect.y + rect.height - Math.max(radii.bottomRightHeight, width.bottom) - brt, brs * 2, brt * 2, -45f, 45f, Arc2D.OPEN
+        ), true
+    )
 
     path.lineTo((rect.x + rect.width - width.right).toDouble(), (rect.y + Math.max(radii.topRightHeight, width.bottom)).toDouble())
 
-    path.append(Arc2D.Float(rect.x + rect.width - Math.max(radii.topRightWidth, width.right) - trs, rect.y + Math.max(radii.topRightHeight, width.top) - trt, trs * 2,
-            trt * 2, 0f, 45f, Arc2D.OPEN), true)
-    path.append(Arc2D.Float(rect.x + rect.width - radii.topRightWidth * 2, rect.y, radii.topRightWidth * 2, radii.topRightHeight * 2, 45f, -45f, Arc2D.OPEN), true)
+    path.append(
+        Arc2D.Float(
+            rect.x + rect.width - Math.max(radii.topRightWidth, width.right) - trs, rect.y + Math.max(radii.topRightHeight, width.top) - trt, trs * 2,
+            trt * 2, 0f, 45f, Arc2D.OPEN
+        ), true
+    )
+    path.append(
+        Arc2D.Float(rect.x + rect.width - radii.topRightWidth * 2, rect.y, radii.topRightWidth * 2, radii.topRightHeight * 2, 45f, -45f, Arc2D.OPEN),
+        true
+    )
 
     return path
 }
@@ -114,17 +176,38 @@ private fun computeBottomBorder(rect: Bounds, radii: Radii, width: Insets): Path
     path.moveTo((rect.x + radii.topLeftWidth).toDouble(), (rect.y + rect.height).toDouble())
     path.lineTo((rect.x + rect.width - radii.bottomRightWidth).toDouble(), (rect.y + rect.height).toDouble())
 
-    path.append(Arc2D.Float(rect.x + rect.width - radii.bottomRightWidth * 2, rect.y + rect.height - radii.bottomRightHeight * 2, radii.bottomRightWidth * 2,
-            radii.bottomRightHeight * 2, -90f, 45f, Arc2D.OPEN), true)
-    path.append(Arc2D.Float(rect.x + rect.width - Math.max(radii.bottomRightWidth, width.right) - brs,
-            rect.y + rect.height - Math.max(radii.bottomRightHeight, width.bottom) - brt, brs * 2, brt * 2, -45f, -45f, Arc2D.OPEN), true)
+    path.append(
+        Arc2D.Float(
+            rect.x + rect.width - radii.bottomRightWidth * 2, rect.y + rect.height - radii.bottomRightHeight * 2, radii.bottomRightWidth * 2,
+            radii.bottomRightHeight * 2, -90f, 45f, Arc2D.OPEN
+        ), true
+    )
+    path.append(
+        Arc2D.Float(
+            rect.x + rect.width - Math.max(radii.bottomRightWidth, width.right) - brs,
+            rect.y + rect.height - Math.max(radii.bottomRightHeight, width.bottom) - brt, brs * 2, brt * 2, -45f, -45f, Arc2D.OPEN
+        ), true
+    )
 
     path.lineTo((rect.x + Math.max(radii.topLeftWidth, width.left)).toDouble(), (rect.y + rect.height - width.bottom).toDouble())
 
     path.append(
-            Arc2D.Float(rect.x + Math.max(radii.bottomLeftWidth, width.left) - bls, rect.y + rect.height - Math.max(radii.bottomLeftHeight, width.bottom) - blt, bls * 2,
-                    blt * 2, -90f, -45f, Arc2D.OPEN), true)
-    path.append(Arc2D.Float(rect.x, rect.y + rect.height - radii.bottomLeftHeight * 2, radii.bottomLeftWidth * 2, radii.bottomLeftHeight * 2, -135f, 45f, Arc2D.OPEN), true)
+        Arc2D.Float(
+            rect.x + Math.max(radii.bottomLeftWidth, width.left) - bls, rect.y + rect.height - Math.max(radii.bottomLeftHeight, width.bottom) - blt, bls * 2,
+            blt * 2, -90f, -45f, Arc2D.OPEN
+        ), true
+    )
+    path.append(
+        Arc2D.Float(
+            rect.x,
+            rect.y + rect.height - radii.bottomLeftHeight * 2,
+            radii.bottomLeftWidth * 2,
+            radii.bottomLeftHeight * 2,
+            -135f,
+            45f,
+            Arc2D.OPEN
+        ), true
+    )
 
     return path
 }
@@ -140,15 +223,32 @@ private fun computeLeftBorder(rect: Bounds, radii: Radii, width: Insets): Path2D
     path.moveTo(rect.x.toDouble(), (rect.y + radii.topLeftHeight).toDouble())
     path.lineTo(rect.x.toDouble(), (rect.y + rect.height - radii.bottomLeftHeight).toDouble())
 
-    path.append(Arc2D.Float(rect.x, rect.y + rect.height - radii.bottomLeftHeight * 2, radii.bottomLeftWidth * 2, radii.bottomLeftHeight * 2, 180f, 45f, Arc2D.OPEN), true)
     path.append(
-            Arc2D.Float(rect.x + Math.max(radii.bottomLeftWidth, width.left) - bls, rect.y + rect.height - Math.max(radii.bottomLeftHeight, width.bottom) - blt, bls * 2,
-                    blt * 2, 225f, -45f, Arc2D.OPEN), true)
+        Arc2D.Float(
+            rect.x,
+            rect.y + rect.height - radii.bottomLeftHeight * 2,
+            radii.bottomLeftWidth * 2,
+            radii.bottomLeftHeight * 2,
+            180f,
+            45f,
+            Arc2D.OPEN
+        ), true
+    )
+    path.append(
+        Arc2D.Float(
+            rect.x + Math.max(radii.bottomLeftWidth, width.left) - bls, rect.y + rect.height - Math.max(radii.bottomLeftHeight, width.bottom) - blt, bls * 2,
+            blt * 2, 225f, -45f, Arc2D.OPEN
+        ), true
+    )
 
     path.lineTo((rect.x + width.left).toDouble(), (rect.y + Math.max(radii.topLeftHeight, width.top)).toDouble())
 
-    path.append(Arc2D.Float(rect.x + Math.max(radii.topLeftWidth, width.left) - tls, rect.y + Math.max(radii.topLeftHeight, width.top) - tlt, tls * 2, tlt * 2, 180f, -45f,
-            Arc2D.OPEN), true)
+    path.append(
+        Arc2D.Float(
+            rect.x + Math.max(radii.topLeftWidth, width.left) - tls, rect.y + Math.max(radii.topLeftHeight, width.top) - tlt, tls * 2, tlt * 2, 180f, -45f,
+            Arc2D.OPEN
+        ), true
+    )
     path.append(Arc2D.Float(rect.x, rect.y, radii.topLeftWidth * 2, radii.topLeftHeight * 2, 135f, 45f, Arc2D.OPEN), true)
 
     return path

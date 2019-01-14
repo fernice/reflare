@@ -11,12 +11,13 @@ import fernice.reflare.classes
 import fernice.std.None
 import fernice.std.Option
 import fernice.std.Some
+import org.fernice.flare.dom.Element
 import org.fernice.flare.std.First
 import org.fernice.flare.std.Second
+import org.fernice.flare.style.ComputedValues
 import org.fernice.flare.style.ruletree.CascadeLevel
 import org.fernice.flare.style.ruletree.StyleSource
 import org.fernice.reflare.element.AWTComponentElement
-import org.fernice.reflare.element.RestyleListener
 import org.fernice.reflare.element.into
 import org.fernice.reflare.layout.VerticalLayout
 import java.awt.AWTEvent
@@ -135,26 +136,20 @@ private class MatchingStylesPanel : JPanel() {
         classes.add("dbg-matching")
     }
 
-    val restyleListener: RestyleListener by lazy {
-        object : RestyleListener {
-            override fun restyleFinished(element: AWTComponentElement) {
-                update()
-            }
-        }
-    }
+    val restyleListener: (ComputedValues) -> Unit = { update() }
 
     var element: Option<AWTComponentElement> = None
         set(value) {
             val previous = field
 
             if (previous is Some) {
-                previous.value.removeRestyleListener(restyleListener)
+                previous.value.restyle.addListener(restyleListener)
             }
 
             field = value
 
             if (value is Some) {
-                value.value.addRestyleListener(restyleListener)
+                value.value.restyle.removeListener(restyleListener)
             }
 
             update()
