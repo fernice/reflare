@@ -2,10 +2,7 @@ package fernice.reflare
 
 import fernice.std.Option
 import org.fernice.reflare.element.element
-import org.fernice.reflare.element.into
 import java.awt.Component
-import java.io.File
-import javax.swing.JFrame
 
 val Component.classes: MutableList<String>
     get() = this.element.classes

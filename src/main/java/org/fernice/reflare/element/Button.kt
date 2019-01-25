@@ -10,7 +10,7 @@ open class ButtonElement(button: AbstractButton) : ComponentElement(button) {
 
     init {
         button.model.addChangeListener {
-            invalidateStyle()
+            reapplyCSS()
         }
     }
 

@@ -48,7 +48,7 @@ public class FlarePopupMenuUI extends BasicPopupMenuUI implements FlareUI {
 
     @Override
     public Dimension getPreferredSize(JComponent c) {
-        ComponentKt.into(c).restyleImmediately();
+        ComponentKt.getElement(c).applyCSS();
         return super.getPreferredSize(c);
     }
 

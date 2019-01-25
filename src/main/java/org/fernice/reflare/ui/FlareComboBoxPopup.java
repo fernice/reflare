@@ -74,7 +74,7 @@ public class FlareComboBoxPopup extends BasicComboPopup {
 
         comboBoxElement.addVirtualChild(element);
 
-        element.restyle();
+        element.reapplyCSS$fernice_reflare();
 
         FlareListUI listUI = (FlareListUI) list.getUI();
 

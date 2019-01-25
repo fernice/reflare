@@ -4,8 +4,10 @@ import fernice.reflare.CSSEngine
 import fernice.std.None
 import fernice.std.Option
 import fernice.std.Some
+import fernice.std.into
 import fernice.std.mapOr
 import fernice.std.unwrap
+import org.fernice.flare.EngineContext
 import org.fernice.flare.cssparser.Parser
 import org.fernice.flare.cssparser.ParserInput
 import org.fernice.flare.dom.Element
@@ -16,6 +18,7 @@ import org.fernice.flare.selector.NonTSPseudoClass
 import org.fernice.flare.selector.PseudoElement
 import org.fernice.flare.std.min
 import org.fernice.flare.style.ComputedValues
+import org.fernice.flare.style.ElementStyleResolver
 import org.fernice.flare.style.MatchingResult
 import org.fernice.flare.style.PerPseudoElementMap
 import org.fernice.flare.style.ResolvedElementStyles
@@ -52,13 +55,10 @@ import java.awt.Window
 import java.awt.event.AWTEventListener
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
-import java.awt.event.ContainerEvent
-import java.awt.event.ContainerListener
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
 import java.awt.event.MouseEvent
 import java.util.WeakHashMap
-import java.util.concurrent.CopyOnWriteArrayList
 import javax.swing.CellRendererPane
 import javax.swing.JComponent
 import javax.swing.JLayeredPane
@@ -77,11 +77,11 @@ abstract class AWTComponentElement(val component: Component) : Element {
     init {
         component.addFocusListener(object : FocusListener {
             override fun focusLost(e: FocusEvent) {
-                invalidateStyle()
+                reapplyCSS()
             }
 
             override fun focusGained(e: FocusEvent) {
-                invalidateStyle()
+                reapplyCSS()
             }
         })
 
@@ -96,7 +96,157 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
     // ***************************** Dirty ***************************** //
 
-    private var state: StyleState = StyleState.CLEAN
+    private var dirtyBits: Int = 0
+
+    internal fun markDirty(dirtyBits: DirtyBits) {
+        if (isDirtyEmpty()) {
+            markElementDirty()
+        }
+
+        this.dirtyBits = this.dirtyBits or dirtyBits.mask
+    }
+
+    internal fun isDirty(dirtyBits: DirtyBits): Boolean {
+        return this.dirtyBits and dirtyBits.mask != 0
+    }
+
+    internal fun clearDirty(dirtyBits: DirtyBits) {
+        this.dirtyBits = this.dirtyBits and dirtyBits.mask.inv()
+    }
+
+    internal fun isDirtyEmpty() = dirtyBits == 0
+
+    internal fun isDirty() = dirtyBits != 0
+
+    private fun markElementDirty() {
+        frame?.markElementDirty(this)
+    }
+
+    internal var cssFlag: StyleState = StyleState.CLEAN
+
+    private fun notifyParentOfInvalidatedCSS() {
+        val root = frame?.root
+
+        if (root != null && !root.isDirty(DirtyBits.NODE_CSS)) {
+            root.markDirty(DirtyBits.NODE_CSS)
+            frame?.requestNextPulse(this)
+        }
+
+        var parent = parent
+        while (parent != null) {
+            if (parent.cssFlag == StyleState.CLEAN) {
+                parent.cssFlag = StyleState.DIRTY_BRANCH
+                parent = parent.parent
+            } else {
+                parent = null
+            }
+        }
+    }
+
+    internal fun reapplyCSS() {
+        if (cssFlag == StyleState.REAPPLY) {
+            return
+        }
+
+        // if the element has no frame find the root and restyle the element
+        // immediately to allow for size calculation off the scene graph
+        if (frame == null) {
+            var parent = this
+            while (parent.parent != null) {
+                parent = parent.parent!!
+            }
+
+            // Make sure this element and its children is suitable for restyling
+            parent.doReapplyCSS()
+
+            // Without a frame we are unable to process a few cases correctly namely
+            // viewport relative sizes root font size and more. Because in HTML no elements
+            // exists without being in a view hierarchy and because there is only one view
+            // hierarchy this edge case does not exist. We're solving it by providing means
+            // to at least get it right most cases.
+            val localContext = CSSEngine.createLocalEngineContext(parent)
+
+            // Immediately apply the styles
+            parent.processCSS(localContext)
+        } else {
+            doReapplyCSS()
+            notifyParentOfInvalidatedCSS()
+        }
+    }
+
+    private fun doReapplyCSS() {
+        cssFlag = StyleState.REAPPLY
+
+        if (this is AWTContainerElement) {
+            for (element in this.children) {
+                element.doReapplyCSS()
+            }
+        }
+    }
+
+    internal fun processCSS(context: EngineContext) {
+        when (cssFlag) {
+            StyleState.CLEAN -> return
+            StyleState.DIRTY_BRANCH -> {
+                val parent = this as AWTContainerElement
+                parent.cssFlag = StyleState.CLEAN
+
+                for (child in parent.children) {
+                    child.processCSS(context)
+                }
+            }
+            StyleState.REAPPLY -> doProcessCSS(context)
+        }
+    }
+
+    fun applyCSS() {
+        val frame = frame
+
+        if (frame != null) {
+            reapplyCSS()
+
+            frame.doCSSPass()
+        } else {
+            var parent = this
+            while (parent.parent != null) {
+                parent = parent.parent!!
+            }
+
+            // Make sure this element and its children is suitable for restyling
+            parent.doReapplyCSS()
+
+            // Without a frame we are unable to process a few cases correctly namely
+            // viewport relative sizes root font size and more. Because in HTML no elements
+            // exists without being in a view hierarchy and because there is only one view
+            // hierarchy this edge case does not exist. We're solving it by providing means
+            // to at least get it right most cases.
+            val localContext = CSSEngine.createLocalEngineContext(parent)
+
+            // Immediately apply the styles
+            parent.processCSS(localContext)
+        }
+    }
+
+    internal open fun doProcessCSS(context: EngineContext) {
+        if (cssFlag == StyleState.CLEAN) {
+            return
+        }
+
+        if (cssFlag == StyleState.REAPPLY) {
+            context.styleContext.bloomFilter.insertParent(this)
+
+            val styleResolver = ElementStyleResolver(this, context.styleContext)
+            val styles = styleResolver.resolvePrimaryStyleWithDefaultParentStyles()
+
+            val data = this.ensureData()
+
+            this.finishRestyle(context.styleContext, data, styles)
+        }
+
+        cssFlag = StyleState.CLEAN
+    }
+
+    // ***************************** Stuff ***************************** //
 
     fun invalidateBounds() {
 
@@ -104,56 +254,34 @@ abstract class AWTComponentElement(val component: Component) : Element {
         component.repaint()
     }
 
-    fun invalidateStyle() {
-        restyle()
-    }
-
-    fun restyle() {
-        val frame = frame
-
-        when (frame) {
-            is Some -> frame.value.markElementDirty(this)
-            else -> invokeLater {
-                CSSEngine.styleWithLocalContext(this)
-            }
-        }
-    }
-
-    fun restyleImmediately() {
-        val frame = frame
-
-        when (frame) {
-            is Some -> frame.value.applyStyles(this)
-            else -> CSSEngine.styleWithLocalContext(this)
-        }
-    }
-
     fun getMatchingStyles(): MatchingResult {
         val frame = frame
 
-        return when (frame) {
-            is Some -> frame.value.matchStyle(this)
-            else -> CSSEngine.matchStyleWithLocalContext(this)
-        }
+        return frame?.matchStyle(this) ?: CSSEngine.matchStyleWithLocalContext(this)
     }
 
     // ***************************** Frame & Parent ***************************** //
 
-    var frame: Option<Frame> = None
+    var frame: Frame? = null
         internal set (frame) {
+            val old = field
             field = frame
-            parentChanged(field, frame)
+            parentChanged(old, frame)
         }
 
-    internal abstract fun parentChanged(old: Option<Frame>, new: Option<Frame>)
+    internal abstract fun parentChanged(old: Frame?, new: Frame?)
 
-    var parent: Option<AWTContainerElement> = None
+    var parent: AWTContainerElement? = null
         internal set (parent) {
             field = parent
+
+            if (parent != null) {
+                reapplyCSS()
+            }
         }
 
     override fun parent(): Option<Element> {
-        return parent
+        return parent.into()
     }
 
     override fun owner(): Option<Element> {
@@ -161,11 +289,11 @@ abstract class AWTComponentElement(val component: Component) : Element {
     }
 
     override fun traversalParent(): Option<Element> {
-        return parent
+        return parent.into()
     }
 
     override fun inheritanceParent(): Option<Element> {
-        return parent
+        return parent.into()
     }
 
     override fun pseudoElement(): Option<PseudoElement> {
@@ -173,7 +301,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
     }
 
     override fun isRoot(): Boolean {
-        return parent.isNone()
+        return parent == null
     }
 
     private fun reapplyFont() {
@@ -227,9 +355,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
     }
 
     override fun hasID(id: String): Boolean {
-        val own = this.id
-
-        return when (own) {
+        return when (val own = this.id) {
             is Some -> own.value == id
             is None -> false
         }
@@ -284,7 +410,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
                 None
             }
 
-            restyle()
+            reapplyCSS()
         }
 
 
@@ -367,6 +493,10 @@ abstract class AWTComponentElement(val component: Component) : Element {
     val cache: RenderCache by lazy { RenderCache() }
 
     fun paintBackground(component: Component, g: Graphics) {
+        if (isDirty()) {
+            frame?.pulse()
+        }
+
         renderBackground(g, component, this, getStyle())
     }
 
@@ -381,7 +511,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
         this.hover = hover
 
         if (old != hover) {
-            invalidateStyle()
+            reapplyCSS()
         }
 
         return old
@@ -392,7 +522,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
         this.focus = focus
 
         if (old != focus) {
-            invalidateStyle()
+            reapplyCSS()
         }
 
         return old
@@ -405,7 +535,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
         this.active = active
 
         if (old != active) {
-            invalidateStyle()
+            reapplyCSS()
         }
 
         return old
@@ -461,122 +591,6 @@ abstract class AWTComponentElement(val component: Component) : Element {
     }
 }
 
-open class AWTContainerElement(container: Container) : AWTComponentElement(container) {
-
-    private val children: MutableList<AWTComponentElement> = CopyOnWriteArrayList()
-
-    init {
-        container.addContainerListener(object : ContainerListener {
-            override fun componentAdded(e: ContainerEvent) {
-                childAdded(e.child)
-            }
-
-            override fun componentRemoved(e: ContainerEvent) {
-                childRemoved(e.child)
-            }
-        })
-
-        for (child in container.components) {
-            childAdded(child)
-        }
-    }
-
-    private fun childAdded(child: Component) {
-        val childElement = child.element
-
-        val container = component as Container
-        val index = container.getComponentZOrder(child)
-
-        childElement.frame = frame
-        childElement.parent = Some(this)
-        children.add(index, childElement)
-
-        invalidateStyle()
-    }
-
-    private fun childRemoved(child: Component) {
-        val childElement = child.element
-
-        childElement.frame = None
-        childElement.parent = None
-        children.remove(childElement)
-
-        invalidateStyle()
-    }
-
-    fun addVirtualChild(childElement: AWTComponentElement) {
-        childElement.frame = frame
-        childElement.parent = Some(this)
-    }
-
-    fun removeVirtualChild(childElement: AWTComponentElement) {
-        childElement.frame = None
-        childElement.parent = None
-    }
-
-    final override fun parentChanged(old: Option<Frame>, new: Option<Frame>) {
-        for (child in children) {
-            child.frame = new
-        }
-    }
-
-    override fun children(): List<Element> {
-        return children
-    }
-
-    override fun previousSibling(): Option<Element> {
-        val parent = parent()
-
-        return when (parent) {
-            is Some -> {
-                val children = parent.value.children()
-
-                val index = children.indexOf(this) - 1
-
-                if (index >= 0) {
-                    Some(children[index])
-                } else {
-                    None
-                }
-            }
-            is None -> parent
-        }
-    }
-
-    override fun nextSibling(): Option<Element> {
-        val parent = parent()
-
-        return when (parent) {
-            is Some -> {
-                val children = parent.value.children()
-
-                val index = children.indexOf(this) + 1
-
-                if (index < children.size) {
-                    Some(children[index])
-                } else {
-                    None
-                }
-            }
-            is None -> parent
-        }
-    }
-
-    override fun isEmpty(): Boolean {
-        return children.isEmpty()
-    }
-
-    // ***************************** Matching ***************************** //
-
-    // In theory it is possible to construct a Container meaning that needs a
-    // local name to styled. In practice hopefully no one will try to do it
-    // because even though the element will be considered when it comes to
-    // matching, we have no means to render using its computed styles.
-    override fun localName(): String {
-        return "container"
-    }
-}
-
 abstract class ComponentElement(component: JComponent) : AWTContainerElement(component) {
 
     init {
@@ -585,7 +599,7 @@ abstract class ComponentElement(component: JComponent) : AWTContainerElement(com
                 if (event.ancestor is Window) {
                     val frame = event.ancestor as Window
 
-                    frame.into()
+                    frame.frame
                 }
             }
 
@@ -725,7 +739,7 @@ private fun ensureElement(component: Component): AWTComponentElement {
     }
 }
 
-@Deprecated(message = "Element is now a extension attribute")
+@Deprecated(message = "Element is now a extension attribute", level = DeprecationLevel.ERROR)
 fun Component.into(): AWTComponentElement {
     return ensureElement(this)
 }
@@ -736,8 +750,6 @@ val Component.element: AWTComponentElement
 enum class StyleState {
 
     CLEAN,
-
-    UPDATE,
 
     REAPPLY,
 

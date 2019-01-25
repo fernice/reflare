@@ -38,7 +38,7 @@ fun renderBackground(g: Graphics, component: Component, element: AWTComponentEle
 fun renderBorder(g: Graphics, component: Component, element: AWTComponentElement, style: Option<ComputedValues>) {
     if (style is Some) {
         g.use { g2 ->
-            paintBorder(g2, component, element, style.value)
+            paintBorder(g2, element, style.value)
         }
     } else {
         val bounds = component.bounds
@@ -48,7 +48,7 @@ fun renderBorder(g: Graphics, component: Component, element: AWTComponentElement
     }
 }
 
-fun Graphics.use(renderer: (Graphics2D) -> Unit) {
+inline fun Graphics.use(renderer: (Graphics2D) -> Unit) {
     val g2 = this.create() as Graphics2D
     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
     g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
@@ -170,7 +170,7 @@ private fun paintBackgroundImage(
     g2.clip = clip
 }
 
-fun paintBorder(g2: Graphics2D, component: Component, element: AWTComponentElement, computedValues: ComputedValues) {
+fun paintBorder(g2: Graphics2D, element: AWTComponentElement, computedValues: ComputedValues) {
     val border = computedValues.border
 
     val borderWidth = border.toInsets()

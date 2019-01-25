@@ -54,7 +54,7 @@ fun BackgroundLayer.Gradient.Companion.computeGradient(gradient: Gradient, size:
                         degrees > 90.0 && degrees <= 180.0 -> Point(0.0, size.height.toDouble()) to Point(size.width.toDouble(), 0.0)
                         degrees > 180.0 && degrees <= 270.0 -> Point(0.0, 0.0) to Point(size.width.toDouble(), size.height.toDouble())
                         degrees > 270.0 && degrees < 360.0 || degrees == 0f -> Point(size.width.toDouble(), 0.0) to Point(0.0, size.height.toDouble())
-                        else -> panic("$degrees degrees")
+                        else -> panic("angle is out of bounds: ${degrees}deg")
                     }
 
                     val midpoint = Point(size.width / 2.0, size.height / 2.0)
@@ -123,11 +123,16 @@ private fun computeColorFractions(gradientItems: List<GradientItem>, containingL
         do {
             val next = iterator.peek()
 
-            if (next is GradientItem.ColorStop) {
-                if (next.colorStop.position is None) {
-                    blankStops.add(next.colorStop)
-                } else {
-                    break@blanks
+            when (next) {
+                is GradientItem.ColorStop -> {
+                    if (next.colorStop.position is None) {
+                        blankStops.add(next.colorStop)
+                    } else {
+                        break@blanks
+                    }
+                }
+                is GradientItem.InterpolationHint -> {
+
                 }
             }
 

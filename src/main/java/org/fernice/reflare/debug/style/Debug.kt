@@ -18,6 +18,7 @@ import org.fernice.flare.style.ComputedValues
 import org.fernice.flare.style.ruletree.CascadeLevel
 import org.fernice.flare.style.ruletree.StyleSource
 import org.fernice.reflare.element.AWTComponentElement
+import org.fernice.reflare.element.element
 import org.fernice.reflare.element.into
 import org.fernice.reflare.layout.VerticalLayout
 import java.awt.AWTEvent
@@ -113,7 +114,7 @@ class DebugStylePanel : JPanel() {
 
                 val view = component.findComponentAt(mouseEvent.point)
 
-                matchingStylesPanel.element = Some(view.into())
+                matchingStylesPanel.element = Some(view.element)
 
                 mouseEvent.consume()
                 picking = false

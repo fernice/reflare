@@ -1,6 +1,7 @@
 package fernice.reflare
 
 import org.fernice.flare.Engine
+import org.fernice.flare.EngineContext
 import org.fernice.flare.SharedEngine
 import org.fernice.flare.dom.Device
 import org.fernice.flare.dom.Element
@@ -42,6 +43,13 @@ object CSSEngine {
         return engine
     }
 
+    fun createLocalEngineContext(element: Element): EngineContext {
+        val localDevice = LocalDevice((element as AWTComponentElement).component)
+
+        return shared.createEngineContext(localDevice)
+    }
+
+    @Deprecated(message = "restyling no longer done by the engine itself")
     fun styleWithLocalContext(element: Element) {
         val localDevice = LocalDevice((element as AWTComponentElement).component)
 
