@@ -29,6 +29,7 @@ import org.fernice.flare.style.value.computed.SingleFontFamily
 import org.fernice.flare.url.Url
 import org.fernice.reflare.geom.Insets
 import org.fernice.reflare.geom.toInsets
+import org.fernice.reflare.platform.Platform
 import org.fernice.reflare.render.BackgroundLayers
 import org.fernice.reflare.render.RenderCache
 import org.fernice.reflare.render.computeBackgroundLayers
@@ -40,12 +41,14 @@ import org.fernice.reflare.shape.computeBackgroundShape
 import org.fernice.reflare.shape.computeBorderShape
 import org.fernice.reflare.toAWTColor
 import org.fernice.reflare.util.Broadcast
+import org.fernice.reflare.util.Observables
 import org.fernice.reflare.util.broadcast
 import java.awt.AWTEvent
 import java.awt.Component
 import java.awt.Container
 import java.awt.Font
 import java.awt.Graphics
+import java.awt.GraphicsEnvironment
 import java.awt.Rectangle
 import java.awt.Toolkit
 import java.awt.Window
@@ -57,6 +60,7 @@ import java.awt.event.ContainerListener
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
 import java.awt.event.MouseEvent
+import java.awt.font.TextAttribute
 import java.util.WeakHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import javax.swing.CellRendererPane
@@ -64,6 +68,7 @@ import javax.swing.JComponent
 import javax.swing.JLayeredPane
 import javax.swing.event.AncestorEvent
 import javax.swing.event.AncestorListener
+import org.fernice.flare.style.properties.stylestruct.Font as FontStyle
 import org.fernice.reflare.render.CellRendererPane as ModernCellRenderPane
 import java.awt.Color as AWTColor
 
@@ -176,40 +181,59 @@ abstract class AWTComponentElement(val component: Component) : Element {
         return parent.isNone()
     }
 
-    private fun reapplyFont() {
-        val style = getStyle()
-
-        val values = when (style) {
-            is Some -> style.value
-            is None -> return
-        }
-
-        val font = values.font
-        val fontSize = font.fontSize.size().toPx().toInt()
+    private var fontStyle: FontStyle by Observables.observable(FontStyle.initial) { _, _, fontStyle ->
+        val fontSize = fontStyle.fontSize.size().toPx().toInt()
+        val fontWeight = fontStyle.fontWeight.value
 
         var awtFont: Font? = null
 
-        for (fontFamily in values.font.fontFamily.values) {
+        val g = GraphicsEnvironment.getLocalGraphicsEnvironment()
+        val fonts = g.availableFontFamilyNames
+
+        loop@
+        for (fontFamily in fontStyle.fontFamily.values) {
             awtFont = when (fontFamily) {
                 is SingleFontFamily.Generic -> {
                     when (fontFamily.name) {
-                        "serif" -> Font("Times", 0, fontSize)
-                        "sans-serif" -> Font("Helvetica", 0, fontSize)
-                        "monospace" -> Font("Courier", 0, fontSize)
-                        else -> Font("Times", 0, fontSize)
+                        "serif" -> Platform.SystemSerifFont
+                        "sans-serif" -> Platform.SystemSansSerifFont
+                        "monospace" -> Platform.SystemMonospaceFont
+                        else -> Platform.SystemSerifFont
                     }
                 }
                 is SingleFontFamily.FamilyName -> {
-                    Font(fontFamily.name.value, 0, fontSize)
+                    if (fonts.contains(fontFamily.name.value)) {
+                        Font(fontFamily.name.value, 0, 12)
+                    } else {
+                        continue@loop
+                    }
                 }
             }
+            break
         }
 
         if (awtFont != null) {
+            val awtFontWeight = when {
+                fontWeight < 200 -> TextAttribute.WEIGHT_EXTRA_LIGHT
+                fontWeight < 300 -> TextAttribute.WEIGHT_LIGHT
+                fontWeight < 400 -> TextAttribute.WEIGHT_DEMILIGHT
+                fontWeight < 500 -> TextAttribute.WEIGHT_REGULAR
+                fontWeight < 600 -> TextAttribute.WEIGHT_MEDIUM
+                fontWeight < 700 -> TextAttribute.WEIGHT_DEMIBOLD
+                fontWeight < 800 -> TextAttribute.WEIGHT_BOLD
+                fontWeight < 900 -> TextAttribute.WEIGHT_HEAVY
+                fontWeight < 1000 -> TextAttribute.WEIGHT_EXTRABOLD
+                else -> TextAttribute.WEIGHT_ULTRABOLD
+            }
+
+            awtFont = awtFont.deriveFont(
+                mutableMapOf(
+                    TextAttribute.WEIGHT to awtFontWeight,
+                    TextAttribute.SIZE to fontSize
+                )
+            )
             component.font = awtFont
         }
-
-        component.foreground = values.color.color.toAWTColor()
     }
 
     // ***************************** Matching ***************************** //
@@ -333,6 +357,10 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
         val primaryStyle = getStyle().unwrap()
 
+        if (oldStyle.primary !is None && primaryStyle == oldStyle.primary()) {
+            return
+        }
+
         updateStyle(primaryStyle)
 
         if (isRoot()) {
@@ -343,7 +371,8 @@ abstract class AWTComponentElement(val component: Component) : Element {
             }
         }
 
-        reapplyFont()
+        fontStyle = primaryStyle.font
+        component.foreground = primaryStyle.color.color.toAWTColor()
 
         for ((i, style) in data.styles.pseudos.iter().withIndex()) {
             if (style is Some) {
@@ -352,6 +381,8 @@ abstract class AWTComponentElement(val component: Component) : Element {
         }
 
         restyle.fire(primaryStyle)
+
+        component.repaint()
     }
 
     protected open fun updateStyle(style: ComputedValues) {

@@ -2,17 +2,21 @@ package org.fernice.reflare.ui;
 
 import java.awt.Component;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import javax.swing.CellRendererPane;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComponent;
 import javax.swing.JList;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListModel;
+import javax.swing.ListSelectionModel;
 import javax.swing.border.Border;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicListUI;
+import org.fernice.reflare.element.AWTComponentElement;
 import org.fernice.reflare.element.ComponentElement;
 import org.fernice.reflare.element.ComponentKt;
-import org.fernice.reflare.element.LabelElement;
 import org.fernice.reflare.element.ListElement;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
@@ -78,6 +82,28 @@ public class FlareListUI extends BasicListUI implements FlareUI {
         element.paintBorder(c, g);
     }
 
+    @Override
+    protected void paintCell(Graphics g, int row, Rectangle rowBounds, ListCellRenderer cellRenderer, ListModel dataModel, ListSelectionModel selModel,
+            int leadIndex) {
+        Object value = dataModel.getElementAt(row);
+        boolean cellHasFocus = list.hasFocus() && (row == leadIndex);
+        boolean isSelected = selModel.isSelectedIndex(row);
+
+        Component rendererComponent = cellRenderer.getListCellRendererComponent(list, value, row, isSelected, cellHasFocus);
+
+        AWTComponentElement element = ComponentKt.getElement(rendererComponent);
+
+        element.activeHint(isSelected);
+        element.focusHint(cellHasFocus);
+
+        int cx = rowBounds.x;
+        int cy = rowBounds.y;
+        int cw = rowBounds.width;
+        int ch = rowBounds.height;
+
+        rendererPane.paintComponent(g, rendererComponent, list, cx, cy, cw, ch, true);
+    }
+
     @NotNull
     @Override
     public ComponentElement getElement() {
@@ -94,22 +120,7 @@ public class FlareListUI extends BasicListUI implements FlareUI {
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean focus) {
             super.getListCellRendererComponent(list, value, index, isSelected, focus);
 
-            LabelElement element = (LabelElement) ComponentKt.into(this);
-
-            element.focusHint(focus);
-            element.activeHint(isSelected);
-
             return this;
-        }
-
-        @Override
-        public void paint(Graphics g) {
-            super.paint(g);
-
-            LabelElement element = (LabelElement) ComponentKt.into(this);
-
-            element.focusHint(false);
-            element.activeHint(false);
         }
     }
 }

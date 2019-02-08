@@ -48,7 +48,7 @@ fun renderBorder(g: Graphics, component: Component, element: AWTComponentElement
     }
 }
 
-fun Graphics.use(renderer: (Graphics2D) -> Unit) {
+inline fun Graphics.use(renderer: (Graphics2D) -> Unit) {
     val g2 = this.create() as Graphics2D
     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
     g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)

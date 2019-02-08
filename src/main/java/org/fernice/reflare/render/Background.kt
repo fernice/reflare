@@ -75,7 +75,7 @@ fun BackgroundLayers.Companion.computeBackgroundLayers(
                     component.repaint()
                 }
 
-                if (future.isDone || future.isCompletedExceptionally) {
+                if (future.isDone && !future.isCompletedExceptionally) {
                     layers.add(
                         BackgroundLayer.Image(future.get(), layer.attachment, layer.size, layer.positionX, layer.positionY)
                     )

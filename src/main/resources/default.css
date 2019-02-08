@@ -1,9 +1,8 @@
 
 root {
   background-color: white;
-
   font-size: 12px;
-  font-family: 'Roboto Medium', sans-serif;
+  font-family: sans-serif;
 }
 
 tabbed {
@@ -39,6 +38,7 @@ button {
 
 button:hover, button:focus:hover {
   background-color: #b6b6b6;
+  font-weight: bold;
 }
 
 button:focus {
