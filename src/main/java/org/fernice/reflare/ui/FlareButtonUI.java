@@ -60,6 +60,13 @@ public class FlareButtonUI extends BasicButtonUI implements FlareUI {
         element.paintBackground(component, g);
     }
 
+    @Override
+    protected void paintIcon(Graphics g, JComponent c, Rectangle iconRect) {
+        AbstractButton b = (AbstractButton) c;
+
+        b.getIcon().paintIcon(c, g, iconRect.x, iconRect.y);
+    }
+
     protected void paintText(Graphics g, JComponent c, Rectangle textRect, String text) {
         AbstractButton b = (AbstractButton) c;
         ButtonModel model = b.getModel();

@@ -15,17 +15,12 @@ import org.fernice.flare.style.value.computed.HorizontalPosition
 import org.fernice.flare.style.value.computed.Image
 import org.fernice.flare.style.value.computed.VerticalPosition
 import org.fernice.reflare.cache.ImageCache
-import org.fernice.reflare.element.AWTComponentElement
 import org.fernice.reflare.element.element
 import org.fernice.reflare.element.invalidate
-import org.fernice.reflare.geom.Insets
-import org.fernice.reflare.geom.toInsets
 import org.fernice.reflare.toAWTColor
 import java.awt.Color
 import java.awt.Component
 import java.awt.MultipleGradientPaint
-import java.awt.Rectangle
-import java.awt.image.BufferedImage
 import java.awt.Image as AWTImage
 
 class BackgroundLayers(
@@ -39,7 +34,7 @@ class BackgroundLayers(
 sealed class BackgroundLayer {
 
     data class Image(
-        val image: BufferedImage,
+        val image: AWTImage,
         val attachment: Attachment,
         val size: BackgroundSize,
         val positionX: HorizontalPosition,

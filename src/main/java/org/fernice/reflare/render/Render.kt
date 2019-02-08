@@ -16,6 +16,7 @@ import org.fernice.reflare.shape.BorderShape
 import java.awt.Component
 import java.awt.Graphics
 import java.awt.Graphics2D
+import java.awt.Image
 import java.awt.Rectangle
 import java.awt.RenderingHints
 import javax.swing.SwingUtilities
@@ -231,3 +232,10 @@ operator fun Rectangle.minusAssign(insets: Insets) {
     this.width -= (insets.left + insets.right).toInt()
     this.height -= (insets.top + insets.bottom).toInt()
 }
+
+internal val Image.height: Int
+    get() = this.getHeight(null)
+
+
+internal val Image.width: Int
+    get() = this.getWidth(null)

@@ -98,8 +98,10 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
             defaults.put("RootPaneUI", basicPackageName + "FlareRootPaneUI");
             defaults.put("ViewportUI", basicPackageName + "FlareViewportUI");
             defaults.put("PanelUI", basicPackageName + "FlarePanelUI");
-            defaults.put("ScrollPaneUI", basicPackageName + "FlareScrollPaneUI");
             defaults.put("TabbedPaneUI", basicPackageName + "FlareTabbedPaneUI");
+
+            defaults.put("ScrollPaneUI", basicPackageName + "FlareScrollPaneUI");
+            defaults.put("ScrollBarUI", basicPackageName + "FlareKotlinUIPeer");
 
             defaults.put("LabelUI", basicPackageName + "FlareLabelUI");
 

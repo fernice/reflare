@@ -29,7 +29,7 @@
         <dependency>
             <groupId>org.fernice</groupId>
             <artifactId>fernice-reflare-access</artifactId>
-            <version>1.0.6</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>

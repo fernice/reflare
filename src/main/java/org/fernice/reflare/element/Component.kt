@@ -358,6 +358,12 @@ abstract class AWTComponentElement(val component: Component) : Element {
         val primaryStyle = getStyle().unwrap()
 
         if (oldStyle.primary !is None && primaryStyle == oldStyle.primary()) {
+            for ((i, style) in data.styles.pseudos.iter().withIndex()) {
+                if (style is Some) {
+                    updatePseudoElement(PseudoElement.fromEagerOrdinal(i), style.value)
+                }
+            }
+
             return
         }
 

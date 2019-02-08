@@ -1,7 +1,8 @@
 package org.fernice.reflare.cache
 
 import org.fernice.flare.url.Url
-import java.awt.image.BufferedImage
+import org.fernice.reflare.internal.ImageHelper
+import java.awt.Image
 import java.net.URL
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.LinkedBlockingQueue
@@ -24,26 +25,24 @@ object ImageCache {
         }
     }
 
-    private val images: MutableMap<Url, CompletableFuture<BufferedImage>> = mutableMapOf()
+    private val images: MutableMap<Url, CompletableFuture<out Image>> = mutableMapOf()
 
-    fun image(url: Url, invoker: () -> Unit): CompletableFuture<BufferedImage> {
+    fun image(url: Url, invoker: () -> Unit): CompletableFuture<out Image> {
         val cachedRequest = images[url]
 
         if (cachedRequest != null) {
             return cachedRequest
         }
 
-        val resource = URL(url.value)
-
-        val file = resource.file
-
-        if(file.isBlank()) {
-
+        val future = if (url.value.startsWith("/")) {
+            CompletableFuture.supplyAsync(Supplier {
+                ImageHelper.getMultiResolutionImageResource(url.value)
+            }, executor)
+        } else {
+            CompletableFuture.supplyAsync(Supplier {
+                ImageIO.read(URL(url.value))
+            }, executor)
         }
-
-        val future = CompletableFuture.supplyAsync(Supplier {
-            ImageIO.read(resource)
-        }, executor)
 
         future.thenRun(invoker)
 

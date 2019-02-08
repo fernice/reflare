@@ -8,7 +8,6 @@ import org.fernice.reflare.element.ButtonElement;
 import org.fernice.reflare.element.RadioButtonElement;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
-import org.fernice.reflare.util.ImageKt;
 
 @SuppressWarnings("unused")
 public class FlareRadioButtonUI extends FlareToggleButtonUI {
@@ -21,9 +20,6 @@ public class FlareRadioButtonUI extends FlareToggleButtonUI {
     @Override
     protected void installDefaults(AbstractButton button) {
         super.installDefaults(button);
-
-        button.setIcon(ImageKt.getScaledIconResource("/radiobutton.png", 17, 17));
-        button.setSelectedIcon(ImageKt.getScaledIconResource("/radiobutton-selected.png", 17, 17));
     }
 
     @Override

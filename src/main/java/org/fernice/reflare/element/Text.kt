@@ -63,17 +63,9 @@ open class TextFieldElement(textField: JTextField) : TextElement(textField) {
     }
 }
 
-class FormattedTextFieldElement(textField: JFormattedTextField) : TextFieldElement(textField) {
-    override fun localName(): String {
-        return "formatted"
-    }
-}
+class FormattedTextFieldElement(textField: JFormattedTextField) : TextFieldElement(textField)
 
-class PasswordFieldElement(textField: JPasswordField) : TextFieldElement(textField) {
-    override fun localName(): String {
-        return "password"
-    }
-}
+class PasswordFieldElement(textField: JPasswordField) : TextFieldElement(textField)
 
 class TextAreaElement(textArea: JTextArea) : TextElement(textArea) {
     override fun localName(): String {

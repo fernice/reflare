@@ -26,13 +26,9 @@ public class FlareCheckBoxUI extends FlareToggleButtonUI {
         return new CheckBoxElement((JCheckBox) button);
     }
 
-
     @Override
     protected void installDefaults(AbstractButton button) {
         super.installDefaults(button);
-
-        button.setIcon(ImageKt.getScaledIconResource("/checkbox.png", 17, 17));
-        button.setSelectedIcon(ImageKt.getScaledIconResource("/checkbox-selected.png", 17, 17));
     }
 
     @Override

@@ -9,21 +9,21 @@ tabbed {
   background-color: white;
 }
 
-text, formatted, textarea, password {
+text, textarea {
   background-color: #eeeeee;
   border: 1px #848484;
   border-radius: 2px;
-  /*margin: 2px;*/
+  margin: 2px;
   padding: 3px;
 
   color: black;
 }
 
-text:hover, formatted:hover, textarea:hover, password:hover {
+text:hover, textarea:hover {
   border-color: black;
 }
 
-text:focus, formatted:focus, textarea:focus, password:focus {
+text:focus, textarea:focus {
   margin: 1px;
   border: 2px dodgerblue;
 }
@@ -36,15 +36,37 @@ button {
   border-radius: 2px;
 }
 
+checkbox::icon {
+  background-image: url("/checkbox.png");
+  background-size: 100%;
+}
+
+checkbox:checked::icon  {
+  background-image: url("/checkbox-selected.png");
+  background-size: 100%;
+}
+
+radio-button::icon {
+  background-image: url("/radiobutton.png");
+  background-size: 100%;
+}
+
+radio-button:checked::icon  {
+  background-image: url("/radiobutton-selected.png");
+  background-size: 100%;
+}
+
+:disabled::icon {
+  fill: #aaaaaa;
+}
+
 button:hover, button:focus:hover {
-  background-color: #b6b6b6;
-  font-weight: bold;
+  background-color: #75b3b5;
 }
 
 button:focus {
   margin: 0;
   border: 2px dodgerblue;
-  background-color: deeppink;
 }
 
 button:focus:hover:active {
@@ -117,4 +139,8 @@ menuitem, menu {
 menuitem:active, menu:active {
   background-color: #444444;
   color: white;
+}
+
+scrollbar {
+  color: #888888DD
 }
