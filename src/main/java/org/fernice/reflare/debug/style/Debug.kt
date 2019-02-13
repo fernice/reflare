@@ -11,7 +11,6 @@ import fernice.reflare.classes
 import fernice.std.None
 import fernice.std.Option
 import fernice.std.Some
-import org.fernice.flare.dom.Element
 import org.fernice.flare.std.First
 import org.fernice.flare.std.Second
 import org.fernice.flare.style.ComputedValues

@@ -93,6 +93,7 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
             AATextInfoHelper.aaTextInfo(defaults);
 
             final String basicPackageName = "org.fernice.reflare.ui.";
+            final String kotlinPeer = basicPackageName + "FlareKotlinUIPeer";
 
             defaults.put("ComponentUI", FlareLookAndFeel.class.getName());
             defaults.put("RootPaneUI", basicPackageName + "FlareRootPaneUI");
@@ -100,8 +101,10 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
             defaults.put("PanelUI", basicPackageName + "FlarePanelUI");
             defaults.put("TabbedPaneUI", basicPackageName + "FlareTabbedPaneUI");
 
+            defaults.put("ToolTipUI", kotlinPeer);
+
             defaults.put("ScrollPaneUI", basicPackageName + "FlareScrollPaneUI");
-            defaults.put("ScrollBarUI", basicPackageName + "FlareKotlinUIPeer");
+            defaults.put("ScrollBarUI", kotlinPeer);
 
             defaults.put("LabelUI", basicPackageName + "FlareLabelUI");
 
@@ -124,6 +127,8 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
             defaults.put("MenuBarUI", basicPackageName + "FlareMenuBarUI");
             defaults.put("MenuItemUI", basicPackageName + "FlareMenuItemUI");
             defaults.put("MenuUI", basicPackageName + "FlareMenuUI");
+
+            defaults.put("FileChooserUI", basicPackageName + "FlareAbstractFileChooserUI");
         }
 
         return defaults;
@@ -136,5 +141,5 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
     }
 
 
-    public static final Font DEFAULT_FONT = new Font("sans-serif", java.awt.Font.PLAIN, 12);
+    public static final Font DEFAULT_FONT = new Font("serif", java.awt.Font.PLAIN, 12);
 }

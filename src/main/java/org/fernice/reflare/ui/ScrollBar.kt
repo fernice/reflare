@@ -55,7 +55,6 @@ class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentEle
 
     override fun paintTrack(g: Graphics?, c: JComponent?, trackBounds: Rectangle?) {
 
-
     }
 
     override fun paintThumb(g: Graphics, c: JComponent, thumbBounds: Rectangle) {
@@ -63,14 +62,28 @@ class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentEle
             return
         }
 
+        val vertical = scrollbar.orientation == JScrollBar.VERTICAL
+
         val w = thumbBounds.width
         val h = thumbBounds.height
-        val radii = if (showButtons) 3 else w - 2
         val padding = if (showButtons) 0 else 2
+
+        val wp = if (vertical) padding else 0
+        val hp = if (vertical) 0 else padding
+
+        val radii = if (showButtons) {
+            3
+        } else {
+            when (scrollbar.orientation) {
+                JScrollBar.VERTICAL -> w - 2
+                JScrollBar.HORIZONTAL -> h - 2
+                else -> 0
+            }
+        }
 
         g.use { g2 ->
             g2.color = scrollbar.foreground
-            g2.fillRoundRect(thumbBounds.x + padding, thumbBounds.y, w - (padding * 2), h, radii, radii)
+            g2.fillRoundRect(thumbBounds.x + wp, thumbBounds.y + hp, w - (wp * 2), h - (hp * 2), radii, radii)
         }
     }
 

@@ -57,7 +57,8 @@ object CSSEngine {
     private val stylesheets: MutableMap<Source, Stylesheet> = mutableMapOf()
 
     init {
-        addStylesheet(Source.Resource("/default.css"), Origin.USER_AGENT)
+        addStylesheet(Source.Resource("/reflare/style/user-agent.css"), Origin.USER_AGENT)
+        addStylesheet(Source.Resource("/reflare/style/file_chooser.css"), Origin.USER_AGENT)
     }
 
     fun addStylesheetResource(resource: String) {

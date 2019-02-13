@@ -1,13 +1,11 @@
+@file:JvmName("FlareElement")
 package fernice.reflare
 
 import fernice.std.Option
 import org.fernice.reflare.element.element
-import org.fernice.reflare.element.into
 import java.awt.Component
-import java.io.File
-import javax.swing.JFrame
 
-val Component.classes: MutableList<String>
+val Component.classes: MutableSet<String>
     get() = this.element.classes
 
 var Component.id: Option<String>
@@ -22,7 +20,7 @@ var Component.style: String
         this.element.styleAttribute = value
     }
 
-fun <E> MutableList<E>.addAll(vararg values: E) {
+fun <E> MutableSet<E>.addAll(vararg values: E) {
     for (value in values) {
         this.add(value)
     }

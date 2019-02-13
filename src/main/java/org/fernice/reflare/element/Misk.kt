@@ -11,7 +11,7 @@ import org.fernice.reflare.render.CellRendererPane as ModernCellRenderPane
 class ComboBoxElement(comboBox: JComboBox<*>) : ComponentElement(comboBox) {
 
     override fun localName(): String {
-        return "combo-box"
+        return "combobox"
     }
 }
 
@@ -25,7 +25,7 @@ class ListElement(list: JList<*>) : ComponentElement(list) {
 class ScrollPaneElement(scrollPane: JScrollPane) : ComponentElement(scrollPane) {
 
     override fun localName(): String {
-        return "scroll-pane"
+        return "scrollpane"
     }
 }
 

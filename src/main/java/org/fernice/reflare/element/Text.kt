@@ -3,7 +3,9 @@ package org.fernice.reflare.element
 import org.fernice.flare.selector.NonTSPseudoClass
 import org.fernice.flare.selector.PseudoElement
 import org.fernice.flare.style.ComputedValues
+import org.fernice.reflare.render.icon.setIcon
 import org.fernice.reflare.toAWTColor
+import javax.swing.AbstractButton
 import javax.swing.JFormattedTextField
 import javax.swing.JLabel
 import javax.swing.JPasswordField
@@ -15,6 +17,23 @@ class LabelElement(label: JLabel) : ComponentElement(label) {
 
     override fun localName(): String {
         return "label"
+    }
+
+    override fun matchPseudoElement(pseudoElement: PseudoElement): Boolean {
+        return when (pseudoElement) {
+            is PseudoElement.Icon -> true
+            else -> super.matchPseudoElement(pseudoElement)
+        }
+    }
+
+    override fun updatePseudoElement(pseudoElement: PseudoElement, style: ComputedValues) {
+        when (pseudoElement) {
+            is PseudoElement.Icon -> {
+                val component = component as JLabel
+                component.setIcon(style) { restyle() }
+            }
+            else -> super.updatePseudoElement(pseudoElement, style)
+        }
     }
 }
 

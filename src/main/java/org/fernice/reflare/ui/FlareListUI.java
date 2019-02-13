@@ -40,6 +40,9 @@ public class FlareListUI extends BasicListUI implements FlareUI {
 
         list.setOpaque(false);
         list.setBorder(new FlareBorder(this));
+        list.setBackground(FlareConstants.TRANSPARENT);
+        list.setFont(FlareConstants.DEFAULT_FONT);
+        list.setSelectionBackground(FlareConstants.TRANSPARENT);
 
         ComponentKt.registerElement(list, element);
 

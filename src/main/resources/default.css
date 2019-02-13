@@ -1,5 +1,5 @@
 
-root {
+root, tooltip {
   background-color: white;
   font-size: 12px;
   font-family: sans-serif;
@@ -36,30 +36,6 @@ button {
   border-radius: 2px;
 }
 
-checkbox::icon {
-  background-image: url("/checkbox.png");
-  background-size: 100%;
-}
-
-checkbox:checked::icon  {
-  background-image: url("/checkbox-selected.png");
-  background-size: 100%;
-}
-
-radio-button::icon {
-  background-image: url("/radiobutton.png");
-  background-size: 100%;
-}
-
-radio-button:checked::icon  {
-  background-image: url("/radiobutton-selected.png");
-  background-size: 100%;
-}
-
-:disabled::icon {
-  fill: #aaaaaa;
-}
-
 button:hover, button:focus:hover {
   background-color: #75b3b5;
 }
@@ -92,18 +68,12 @@ combo-box:focus {
   margin: 1px;
 }
 
-combo-box > button {
+combo-box > button, combo-box > button:hover, combo-box > button:focus, combo-box > button:active, combo-box > button:active {
   background-color: transparent;
   border-radius: 0;
   margin: 0;
   padding: 0;
-}
-
-combo-box > button:hover, combo-box > button:focus, combo-box > button:active, combo-box > button:active {
-  background-color: transparent;
-  border-radius: 0;
-  margin: 0;
-  padding: 0;
+  border: 0;
 }
 
 combo-box-popup -flr-renderer > label {
@@ -117,9 +87,9 @@ combo-box-popup -flr-renderer > label:active {
 }
 
 combo-box-popup {
-  background-color: #efefef;
-  padding: 2px;
-  border: 1px #b6b6b6;
+  background-color: white;
+  border: 1px;
+  border-color: #d7d7d7 #d3d3d3 #bfbfbf;
 }
 
 ::selection {
@@ -143,4 +113,11 @@ menuitem:active, menu:active {
 
 scrollbar {
   color: #888888DD
+}
+
+tooltip {
+  background-color: #505050;
+  color: white;
+  font-size: 12px;
+  padding: 5px;
 }

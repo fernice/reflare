@@ -29,6 +29,7 @@ import org.fernice.flare.style.value.computed.SingleFontFamily
 import org.fernice.flare.url.Url
 import org.fernice.reflare.geom.Insets
 import org.fernice.reflare.geom.toInsets
+import org.fernice.reflare.internal.SunFontHelper
 import org.fernice.reflare.platform.Platform
 import org.fernice.reflare.render.BackgroundLayers
 import org.fernice.reflare.render.RenderCache
@@ -48,7 +49,6 @@ import java.awt.Component
 import java.awt.Container
 import java.awt.Font
 import java.awt.Graphics
-import java.awt.GraphicsEnvironment
 import java.awt.Rectangle
 import java.awt.Toolkit
 import java.awt.Window
@@ -60,7 +60,6 @@ import java.awt.event.ContainerListener
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
 import java.awt.event.MouseEvent
-import java.awt.font.TextAttribute
 import java.util.WeakHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import javax.swing.CellRendererPane
@@ -187,9 +186,6 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
         var awtFont: Font? = null
 
-        val g = GraphicsEnvironment.getLocalGraphicsEnvironment()
-        val fonts = g.availableFontFamilyNames
-
         loop@
         for (fontFamily in fontStyle.fontFamily.values) {
             awtFont = when (fontFamily) {
@@ -202,36 +198,14 @@ abstract class AWTComponentElement(val component: Component) : Element {
                     }
                 }
                 is SingleFontFamily.FamilyName -> {
-                    if (fonts.contains(fontFamily.name.value)) {
-                        Font(fontFamily.name.value, 0, 12)
-                    } else {
-                        continue@loop
-                    }
+                    SunFontHelper.findFont(fontFamily.name.value, fontWeight.toInt(), false) ?: continue@loop
                 }
             }
             break
         }
 
         if (awtFont != null) {
-            val awtFontWeight = when {
-                fontWeight < 200 -> TextAttribute.WEIGHT_EXTRA_LIGHT
-                fontWeight < 300 -> TextAttribute.WEIGHT_LIGHT
-                fontWeight < 400 -> TextAttribute.WEIGHT_DEMILIGHT
-                fontWeight < 500 -> TextAttribute.WEIGHT_REGULAR
-                fontWeight < 600 -> TextAttribute.WEIGHT_MEDIUM
-                fontWeight < 700 -> TextAttribute.WEIGHT_DEMIBOLD
-                fontWeight < 800 -> TextAttribute.WEIGHT_BOLD
-                fontWeight < 900 -> TextAttribute.WEIGHT_HEAVY
-                fontWeight < 1000 -> TextAttribute.WEIGHT_EXTRABOLD
-                else -> TextAttribute.WEIGHT_ULTRABOLD
-            }
-
-            awtFont = awtFont.deriveFont(
-                mutableMapOf(
-                    TextAttribute.WEIGHT to awtFontWeight,
-                    TextAttribute.SIZE to fontSize
-                )
-            )
+            awtFont = awtFont.deriveFont(fontSize.toFloat())
             component.font = awtFont
         }
     }
@@ -259,9 +233,9 @@ abstract class AWTComponentElement(val component: Component) : Element {
         }
     }
 
-    val classes: MutableList<String> = mutableListOf()
+    val classes: MutableSet<String> = mutableSetOf()
 
-    override fun classes(): List<String> {
+    override fun classes(): Set<String> {
         return classes
     }
 

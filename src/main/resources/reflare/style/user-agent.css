@@ -1,0 +1,135 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+root, tooltip {
+  background-color: #ececec;
+  color: #262626;
+  font-size: 12px;
+  font-family: sans-serif;
+}
+
+/* none - :hover */
+
+button, button:hover {
+  background-color: white;
+  border: 1px;
+  border-color: #d7d7d7 #d3d3d3 #bfbfbf;
+  border-radius: 4px;
+  margin: 2px;
+  padding: 2px 12px;
+  color: #262626;
+}
+
+text, text:hover, textarea, textarea:hover,
+combobox, combobox:hover {
+  background-color: #f8f8f8;
+  border-color: #d7d7d7 #d3d3d3 #bfbfbf;
+  border-radius: 4px;
+  padding: 3px;
+  margin: 2px;
+  border-width: 1px;
+}
+
+/* :focus */
+
+button:focus, button:focus,
+text:focus, textarea:focus, combobox:focus {
+  border: 2px #91C8FF;
+  margin: 1px;
+}
+
+/* :active */
+
+button:active {
+  background-color: #1e90ff;
+  border: 1px dodgerblue;
+  border-radius: 4px;
+  margin: 2px;
+  color: white;
+}
+
+button:disabled {
+  background-color: #f6f6f6;
+  color: #636363;
+}
+
+combobox button, combobox button:hover,
+combobox button:focus, combobox button:active {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+}
+
+checkbox::icon {
+  background-image: url("/reflare/icons/checkbox.png");
+  fill: #444444;
+}
+
+checkbox:checked::icon {
+  background-image: url("/reflare/icons/checkbox-checked.png");
+  fill: dodgerblue;
+}
+
+radio::icon {
+  background-image: url("/reflare/icons/radio.png");
+  fill: #444444;
+}
+
+radio:checked::icon {
+  background-image: url("/reflare/icons/radio-checked.png");
+  fill: dodgerblue;
+}
+
+:disabled::icon {
+  fill: #aaaaaa;
+}
+
+combobox-popup -flr-renderer > label {
+  color: black;
+  padding: 5px;
+}
+
+combobox-popup -flr-renderer > label:active {
+  background-color: dodgerblue;
+  color: white;
+}
+
+combobox-popup {
+  background-color: white;
+  border: 1px;
+  border-color: #d7d7d7 #d3d3d3 #bfbfbf;
+}
+
+::selection {
+  background-color: dodgerblue;
+  color: white;
+}
+
+menubar {
+  background: linear-gradient(to bottom, #ececec, #d5d5d5);
+}
+
+menuitem, menu {
+  background-color: #f2f2f2;
+  padding: 2px 3px;
+}
+
+menuitem:active, menu:active {
+  background-color: dodgerblue;
+  color: white;
+}
+
+scrollbar {
+  color: #888888DD
+}
+
+tooltip {
+  background-color: #505050;
+  color: white;
+  font-size: 12px;
+  padding: 5px;
+}

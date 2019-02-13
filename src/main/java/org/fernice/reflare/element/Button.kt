@@ -3,12 +3,11 @@ package org.fernice.reflare.element
 import org.fernice.flare.selector.NonTSPseudoClass
 import org.fernice.flare.selector.PseudoElement
 import org.fernice.flare.style.ComputedValues
-import org.fernice.reflare.render.icon.IconPseudoElementHelper
+import org.fernice.reflare.render.icon.setIcon
 import javax.swing.AbstractButton
 import javax.swing.JCheckBox
 import javax.swing.JRadioButton
 import javax.swing.JToggleButton
-import javax.swing.plaf.UIResource
 
 open class ButtonElement(button: AbstractButton) : ComponentElement(button) {
 
@@ -45,13 +44,7 @@ open class ButtonElement(button: AbstractButton) : ComponentElement(button) {
         when (pseudoElement) {
             is PseudoElement.Icon -> {
                 val component = component as AbstractButton
-                val icon = IconPseudoElementHelper.getIcon(style) { restyle() }
-
-                // prevent manually set icons from being overridden if no
-                // icon is specified via css
-                if (icon != null || component.icon is UIResource) {
-                    component.icon = icon
-                }
+                component.setIcon(style) { restyle() }
             }
             else -> super.updatePseudoElement(pseudoElement, style)
         }
@@ -65,14 +58,14 @@ open class ButtonElement(button: AbstractButton) : ComponentElement(button) {
 open class ToggleButtonElement(toggleButton: JToggleButton) : ButtonElement(toggleButton) {
 
     override fun localName(): String {
-        return "toggle-button"
+        return "toggle"
     }
 }
 
 class RadioButtonElement(radioButton: JRadioButton) : ToggleButtonElement(radioButton) {
 
     override fun localName(): String {
-        return "radio-button"
+        return "radio"
     }
 }
 

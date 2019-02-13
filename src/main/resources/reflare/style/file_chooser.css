@@ -1,0 +1,90 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+
+filechooser {
+  padding: 5px;
+  background-color: #ececec;
+  color: #262626;
+}
+
+filechooser > .file-pane {
+  border: 1px;
+  border-color: #d7d7d7 #d3d3d3 #bfbfbf;
+  background-color: white;
+}
+
+filechooser button, filechooser button:hover, filechooser button:hover:focus {
+  background-color: white;
+  border: 1px;
+  border-color: #d7d7d7 #d3d3d3 #bfbfbf;
+  border-radius: 4px;
+  margin: 2px;
+  padding: 2px 12px;
+  color: #262626;
+}
+
+filechooser text, filechooser text:hover,
+filechooser combo-box, filechooser combo-box:hover {
+  background-color: #f6f6f6;
+  border-color: #d7d7d7 #d3d3d3 #bfbfbf;
+  border-radius: 4px;
+  padding: 3px;
+}
+
+filechooser button:focus, filechooser button:hover:focus,
+filechooser text:focus, filechooser combo-box:focus {
+  border: 2px #91C8FF;
+  margin: 1px;
+}
+
+filechooser button:active, filechooser button:hover:active,
+filechooser button:focus:active, filechooser button:hover:focus:active {
+  background-color: #1e90ff;
+  border: 1px dodgerblue;
+  border-radius: 4px;
+  margin: 2px;
+  color: white;
+}
+
+filechooser button:disabled {
+  background-color: #f6f6f6;
+  color: #636363;
+}
+
+filechooser button.icn-folder-up:active::icon,
+filechooser button.icn-folder-home:active::icon,
+filechooser button.icn-folder-new:active::icon{
+  fill: white;
+}
+
+filechooser button.icn-folder-up::icon {
+  background-image: url("/reflare/icons/folder.png");
+}
+
+filechooser button.icn-folder-home::icon {
+  background-image: url("/reflare/icons/folder-home.png");
+}
+
+filechooser button.icn-folder-new::icon {
+  background-image: url("/reflare/icons/folder-new.png");
+}
+
+filechooser list text, filechooser list text:hover,
+filechooser list text:focus, filechooser list text:active {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background-color: white;
+}
+
+filechooser combo-box button, filechooser combo-box button:hover,
+filechooser combo-box button:focus, filechooser combo-box button:active {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+}

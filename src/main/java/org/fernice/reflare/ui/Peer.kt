@@ -8,6 +8,7 @@ package org.fernice.reflare.ui
 
 import javax.swing.JComponent
 import javax.swing.JScrollBar
+import javax.swing.JToolTip
 import javax.swing.plaf.ComponentUI
 
 object FlareKotlinUIPeer {
@@ -16,6 +17,7 @@ object FlareKotlinUIPeer {
     fun createUI(component: JComponent): ComponentUI {
         return when (component) {
             is JScrollBar -> FlareScrollBarUI(component)
+            is JToolTip -> FlareToolTipUI(component)
             else -> throw IllegalArgumentException("unknown component type ${component::class.qualifiedName}")
         }
     }

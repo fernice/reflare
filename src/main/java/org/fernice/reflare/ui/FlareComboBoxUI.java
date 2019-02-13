@@ -61,9 +61,7 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
 
     @Override
     protected JButton createArrowButton() {
-        JButton button = new JButton();
-        ModKt.setIconResource(button, "/combobox-arrow.png");
-        return button;
+        return new JButton();
     }
 
     @Override
