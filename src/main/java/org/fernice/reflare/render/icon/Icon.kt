@@ -74,8 +74,9 @@ object IconPseudoElementHelper {
                 is BackgroundSize.Contain,
                 is BackgroundSize.Cover -> null
                 is BackgroundSize.Explicit -> {
-                    size.height.toPixelLength(Au.fromPx(20), Au.fromPx(icon.height.toFloat())) to
-                            size.width.toPixelLength(Au.fromPx(20), Au.fromPx(icon.width.toFloat()))
+                    size.width.toPixelLength(Au.fromPx(20), Au.fromPx(icon.width.toFloat())) to
+                            size.height.toPixelLength(Au.fromPx(20), Au.fromPx(icon.height.toFloat()))
+
                 }
             }
 

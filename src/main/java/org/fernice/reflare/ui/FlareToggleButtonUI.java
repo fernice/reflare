@@ -3,6 +3,7 @@ package org.fernice.reflare.ui;
 import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 import javax.swing.JToggleButton;
+import javax.swing.SwingUtilities;
 import javax.swing.plaf.ComponentUI;
 import org.fernice.reflare.element.ButtonElement;
 import org.fernice.reflare.element.ToggleButtonElement;
@@ -21,7 +22,7 @@ public class FlareToggleButtonUI extends FlareButtonUI {
     protected void installDefaults(AbstractButton button) {
         super.installDefaults(button);
 
-        button.setBorderPainted(true);
+        SwingUtilities.invokeLater(() -> button.setBorderPainted(true));
     }
 
     @Override

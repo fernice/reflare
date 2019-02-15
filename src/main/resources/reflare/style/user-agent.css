@@ -64,6 +64,12 @@ combobox button:focus, combobox button:active {
   background-color: transparent;
 }
 
+combobox button::icon {
+  background-image: url("/reflare/icons/combobox-arrow.png");
+  fill: #444444;
+  background-size: 100%;
+}
+
 checkbox::icon {
   background-image: url("/reflare/icons/checkbox.png");
   fill: #444444;

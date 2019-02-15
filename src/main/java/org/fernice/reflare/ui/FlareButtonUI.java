@@ -41,6 +41,8 @@ public class FlareButtonUI extends BasicButtonUI implements FlareUI {
         button.setBorder(new FlareBorder(this));
         button.setFont(FlareLookAndFeel.DEFAULT_FONT);
 
+        button.setBorderPainted(true);
+
         ComponentKt.registerElement(button, element);
     }
 

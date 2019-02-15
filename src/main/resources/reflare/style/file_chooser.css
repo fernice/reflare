@@ -17,7 +17,7 @@ filechooser > .file-pane {
   background-color: white;
 }
 
-filechooser button, filechooser button:hover, filechooser button:hover:focus {
+filechooser button, filechooser button:hover, filechooser button:focus {
   background-color: white;
   border: 1px;
   border-color: #d7d7d7 #d3d3d3 #bfbfbf;
@@ -28,21 +28,20 @@ filechooser button, filechooser button:hover, filechooser button:hover:focus {
 }
 
 filechooser text, filechooser text:hover,
-filechooser combo-box, filechooser combo-box:hover {
+filechooser combobox, filechooser combobox:hover {
   background-color: #f6f6f6;
   border-color: #d7d7d7 #d3d3d3 #bfbfbf;
   border-radius: 4px;
   padding: 3px;
 }
 
-filechooser button:focus, filechooser button:hover:focus,
-filechooser text:focus, filechooser combo-box:focus {
+filechooser button:focus,
+filechooser text:focus, filechooser combobox:focus {
   border: 2px #91C8FF;
   margin: 1px;
 }
 
-filechooser button:active, filechooser button:hover:active,
-filechooser button:focus:active, filechooser button:hover:focus:active {
+filechooser button:active {
   background-color: #1e90ff;
   border: 1px dodgerblue;
   border-radius: 4px;
@@ -81,8 +80,8 @@ filechooser list text:focus, filechooser list text:active {
   background-color: white;
 }
 
-filechooser combo-box button, filechooser combo-box button:hover,
-filechooser combo-box button:focus, filechooser combo-box button:active {
+filechooser combobox button, filechooser combobox button:hover,
+filechooser combobox button:focus, filechooser combobox button:active {
   border: 0;
   margin: 0;
   padding: 0;

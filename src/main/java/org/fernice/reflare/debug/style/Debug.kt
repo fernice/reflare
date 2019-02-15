@@ -142,13 +142,13 @@ private class MatchingStylesPanel : JPanel() {
             val previous = field
 
             if (previous is Some) {
-                previous.value.restyle.addListener(restyleListener)
+                previous.value.restyle.removeListener(restyleListener)
             }
 
             field = value
 
             if (value is Some) {
-                value.value.restyle.removeListener(restyleListener)
+                value.value.restyle.addListener(restyleListener)
             }
 
             update()

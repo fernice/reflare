@@ -381,7 +381,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
         renderBackground(g, component, this, getStyle())
     }
 
-    fun paintBorder(component: Component, g: Graphics) {
+    open fun paintBorder(component: Component, g: Graphics) {
         renderBorder(g, component, this, getStyle())
     }
 

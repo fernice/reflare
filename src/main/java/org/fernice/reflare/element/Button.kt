@@ -4,6 +4,8 @@ import org.fernice.flare.selector.NonTSPseudoClass
 import org.fernice.flare.selector.PseudoElement
 import org.fernice.flare.style.ComputedValues
 import org.fernice.reflare.render.icon.setIcon
+import java.awt.Component
+import java.awt.Graphics
 import javax.swing.AbstractButton
 import javax.swing.JCheckBox
 import javax.swing.JRadioButton
@@ -63,6 +65,10 @@ open class ToggleButtonElement(toggleButton: JToggleButton) : ButtonElement(togg
 }
 
 class RadioButtonElement(radioButton: JRadioButton) : ToggleButtonElement(radioButton) {
+
+    override fun paintBorder(component: Component, g: Graphics) {
+        super.paintBorder(component, g)
+    }
 
     override fun localName(): String {
         return "radio"
