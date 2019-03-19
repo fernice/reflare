@@ -9,6 +9,7 @@ package org.fernice.reflare.render.icon
 
 import org.fernice.flare.style.ComputedValues
 import org.fernice.flare.style.properties.stylestruct.Background
+import org.fernice.flare.style.properties.stylestruct.Color
 import org.fernice.flare.style.value.computed.Au
 import org.fernice.flare.style.value.computed.BackgroundSize
 import org.fernice.flare.style.value.computed.ComputedUrl
@@ -21,16 +22,29 @@ import org.fernice.reflare.render.filter.createTintedImage
 import org.fernice.reflare.render.height
 import org.fernice.reflare.render.width
 import org.fernice.reflare.toAWTColor
+import java.awt.Component
+import java.awt.Graphics
 import javax.swing.AbstractButton
 import javax.swing.Icon
-import javax.swing.ImageIcon
 import javax.swing.JLabel
 import javax.swing.plaf.UIResource
 import java.awt.Image as AWTImage
 
-class FlareImageIcon(image: AWTImage) : ImageIcon(image), UIResource
+class FlareImageIcon(val image: AWTImage) : Icon, UIResource {
 
-fun AbstractButton.setIcon(style: ComputedValues, completion: () -> Unit = {}) {
+    override fun getIconWidth(): Int = image.getWidth(null)
+    override fun getIconHeight(): Int = image.getHeight(null)
+
+    override fun paintIcon(c: Component, g: Graphics, x: Int, y: Int) {
+        // The standard implementation namely ImageIcon uses the given
+        // component as the image observe, but this causes severe
+        // problems when rendering under JDK 8 in combination with
+        // internal multi resolution images.
+        g.drawImage(image, x, y, null)
+    }
+}
+
+fun AbstractButton.setIcon(style: ColorAndBackground, completion: () -> Unit = {}) {
     val (icon, loading) = IconPseudoElementHelper.getIcon(style, completion)
 
     // prevent manually set icons from being overridden if no
@@ -40,7 +54,7 @@ fun AbstractButton.setIcon(style: ComputedValues, completion: () -> Unit = {}) {
     }
 }
 
-fun JLabel.setIcon(style: ComputedValues, completion: () -> Unit = {}) {
+fun JLabel.setIcon(style: ColorAndBackground, completion: () -> Unit = {}) {
     val (icon, loading) = IconPseudoElementHelper.getIcon(style, completion)
 
     // prevent manually set icons from being overridden if no
@@ -53,12 +67,24 @@ fun JLabel.setIcon(style: ComputedValues, completion: () -> Unit = {}) {
 fun getIcon(resource: String): Icon {
     val image = ImageHelper.getMultiResolutionImageResource(resource)
 
-    return ImageIcon(image)
+    return FlareImageIcon(image)
+}
+
+data class ColorAndBackground(val color: Color, val background: Background) {
+
+    companion object {
+
+        val Initial by lazy { ColorAndBackground(Color.Initial, Background.Initial) }
+
+        fun from(style: ComputedValues): ColorAndBackground {
+            return ColorAndBackground(style.color, style.background)
+        }
+    }
 }
 
 object IconPseudoElementHelper {
 
-    fun getIcon(style: ComputedValues, completion: () -> Unit): Pair<Icon?, Boolean> {
+    fun getIcon(style: ColorAndBackground, completion: () -> Unit): Pair<Icon?, Boolean> {
         val (url, size) = selectImage(style.background) ?: return null to false
 
         val iconFuture = ImageCache.image(url) { completion() }
@@ -88,7 +114,7 @@ object IconPseudoElementHelper {
             return if (imageSize != null) {
                 val (width, height) = imageSize
 
-                FlareImageIcon(processedIcon.getScaledInstance(width.px().toInt(), height.px().toInt(), AWTImage.SCALE_SMOOTH)) to false
+                FlareImageIcon(ImageHelper.getScaledInstance(processedIcon, width.px().toInt(), height.px().toInt(), AWTImage.SCALE_SMOOTH)) to false
             } else {
                 FlareImageIcon(processedIcon) to false
             }

@@ -112,6 +112,7 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
             defaults.put("FormattedTextFieldUI", basicPackageName + "FlareFormattedTextFieldUI");
             defaults.put("PasswordFieldUI", basicPackageName + "FlarePasswordFieldUI");
             defaults.put("TextAreaUI", basicPackageName + "FlareTextAreaUI");
+            defaults.put("EditorPaneUI", kotlinPeer);
 
             defaults.put("ButtonUI", basicPackageName + "FlareButtonUI");
             defaults.put("ToggleButtonUI", basicPackageName + "FlareToggleButtonUI");

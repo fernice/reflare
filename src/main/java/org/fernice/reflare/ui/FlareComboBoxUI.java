@@ -1,6 +1,7 @@
 package org.fernice.reflare.ui;
 
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import javax.swing.Icon;
@@ -15,7 +16,6 @@ import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 import javax.swing.plaf.basic.ComboPopup;
-import org.fernice.reflare.ModKt;
 import org.fernice.reflare.element.AWTComponentElement;
 import org.fernice.reflare.element.ComboBoxElement;
 import org.fernice.reflare.element.ComponentElement;
@@ -61,7 +61,9 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
 
     @Override
     protected JButton createArrowButton() {
-        return new JButton();
+        JButton button = new JButton();
+        button.setCursor(Cursor.getDefaultCursor());
+        return button;
     }
 
     @Override

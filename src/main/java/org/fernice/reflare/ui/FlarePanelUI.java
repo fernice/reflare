@@ -3,6 +3,9 @@ package org.fernice.reflare.ui;
 import fernice.reflare.FlareLookAndFeel;
 import java.awt.Component;
 import java.awt.Graphics;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.FocusManager;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.plaf.ComponentUI;
@@ -36,6 +39,13 @@ public class FlarePanelUI extends BasicPanelUI implements FlareUI {
         panel.setBorder(new FlareBorder(this));
 
         ComponentKt.registerElement(panel, element);
+
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                FocusManager.getCurrentManager().clearFocusOwner();
+            }
+        });
     }
 
     @Override

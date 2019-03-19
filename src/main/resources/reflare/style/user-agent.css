@@ -67,7 +67,6 @@ combobox button:focus, combobox button:active {
 combobox button::icon {
   background-image: url("/reflare/icons/combobox-arrow.png");
   fill: #444444;
-  background-size: 100%;
 }
 
 checkbox::icon {
@@ -88,6 +87,10 @@ radio::icon {
 radio:checked::icon {
   background-image: url("/reflare/icons/radio-checked.png");
   fill: dodgerblue;
+}
+
+checkbox::icon {
+  background-size: contain;
 }
 
 :disabled::icon {
@@ -116,7 +119,7 @@ combobox-popup {
 }
 
 menubar {
-  background: linear-gradient(to bottom, #ececec, #d5d5d5);
+  background: linear-gradient(to top, #ececec, #d5d5d5);
 }
 
 menuitem, menu {
@@ -138,4 +141,23 @@ tooltip {
   color: white;
   font-size: 12px;
   padding: 5px;
+}
+
+text.placeholder-text {
+  padding: 8px 3px;
+  font-size: 13px;
+}
+
+text.placeholder-text-filled {
+  padding: 13px 3px 3px;
+}
+
+text.placeholder-text > label.placeholder-label {
+  color: #777777;
+  font-size: 13px;
+  padding: 2px 0;
+}
+
+text.placeholder-text-filled > label.placeholder-label {
+  font-size: 10px;
 }

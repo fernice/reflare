@@ -1,11 +1,16 @@
 package org.fernice.reflare.element
 
+import org.fernice.flare.dom.ElementData
 import org.fernice.flare.selector.NonTSPseudoClass
 import org.fernice.flare.selector.PseudoElement
 import org.fernice.flare.style.ComputedValues
+import org.fernice.flare.style.ResolvedElementStyles
+import org.fernice.flare.style.context.StyleContext
+import org.fernice.reflare.render.icon.ColorAndBackground
 import org.fernice.reflare.render.icon.setIcon
 import org.fernice.reflare.toAWTColor
-import javax.swing.AbstractButton
+import org.fernice.reflare.util.Observables
+import javax.swing.JEditorPane
 import javax.swing.JFormattedTextField
 import javax.swing.JLabel
 import javax.swing.JPasswordField
@@ -29,10 +34,17 @@ class LabelElement(label: JLabel) : ComponentElement(label) {
     override fun updatePseudoElement(pseudoElement: PseudoElement, style: ComputedValues) {
         when (pseudoElement) {
             is PseudoElement.Icon -> {
-                val component = component as JLabel
-                component.setIcon(style) { restyle() }
+               iconStyle = ColorAndBackground.from(style)
             }
             else -> super.updatePseudoElement(pseudoElement, style)
+        }
+    }
+
+    private var iconStyle by Observables.observable(ColorAndBackground.Initial) { _, _, iconStyle ->
+        val component = component as JLabel
+
+        component.setIcon(iconStyle) {
+            component.setIcon(iconStyle)
         }
     }
 }
@@ -89,5 +101,19 @@ class PasswordFieldElement(textField: JPasswordField) : TextFieldElement(textFie
 class TextAreaElement(textArea: JTextArea) : TextElement(textArea) {
     override fun localName(): String {
         return "textarea"
+    }
+}
+
+open class EditorPaneElement(editorPane: JEditorPane) : TextElement(editorPane) {
+
+    override fun localName(): String {
+        return "text"
+    }
+
+    override fun finishRestyle(context: StyleContext, data: ElementData, elementStyles: ResolvedElementStyles) {
+        super.finishRestyle(context, data, elementStyles)
+
+        val editorPane = component as JEditorPane
+
     }
 }

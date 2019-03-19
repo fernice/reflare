@@ -45,7 +45,7 @@ object DebugHelper : JPanel() {
 
         frame.contentPane = debugHelper
 
-        CSSEngine.addStylesheetResource("/debug.css")
+        CSSEngine.addStylesheetResource("/reflare/style/debug/debug.css")
 
         frame
     }

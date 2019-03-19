@@ -3,9 +3,9 @@ package org.fernice.reflare.element
 import org.fernice.flare.selector.NonTSPseudoClass
 import org.fernice.flare.selector.PseudoElement
 import org.fernice.flare.style.ComputedValues
+import org.fernice.reflare.render.icon.ColorAndBackground
 import org.fernice.reflare.render.icon.setIcon
-import java.awt.Component
-import java.awt.Graphics
+import org.fernice.reflare.util.Observables
 import javax.swing.AbstractButton
 import javax.swing.JCheckBox
 import javax.swing.JRadioButton
@@ -42,11 +42,18 @@ open class ButtonElement(button: AbstractButton) : ComponentElement(button) {
         }
     }
 
+    private var iconStyle by Observables.observable(ColorAndBackground.Initial) { _, _, iconStyle ->
+        val component = component as AbstractButton
+
+        component.setIcon(iconStyle) {
+            component.setIcon(iconStyle)
+        }
+    }
+
     override fun updatePseudoElement(pseudoElement: PseudoElement, style: ComputedValues) {
         when (pseudoElement) {
             is PseudoElement.Icon -> {
-                val component = component as AbstractButton
-                component.setIcon(style) { restyle() }
+                iconStyle = ColorAndBackground.from(style)
             }
             else -> super.updatePseudoElement(pseudoElement, style)
         }
@@ -65,10 +72,6 @@ open class ToggleButtonElement(toggleButton: JToggleButton) : ButtonElement(togg
 }
 
 class RadioButtonElement(radioButton: JRadioButton) : ToggleButtonElement(radioButton) {
-
-    override fun paintBorder(component: Component, g: Graphics) {
-        super.paintBorder(component, g)
-    }
 
     override fun localName(): String {
         return "radio"

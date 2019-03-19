@@ -7,8 +7,8 @@
 package org.fernice.reflare.render
 
 import org.fernice.flare.style.ComputedValues
-import org.fernice.flare.style.properties.longhand.Attachment
-import org.fernice.flare.style.properties.longhand.Clip
+import org.fernice.flare.style.properties.longhand.background.Attachment
+import org.fernice.flare.style.properties.longhand.background.Clip
 import org.fernice.flare.style.value.computed.BackgroundSize
 import org.fernice.flare.style.value.computed.ComputedUrl
 import org.fernice.flare.style.value.computed.HorizontalPosition

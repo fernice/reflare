@@ -1,5 +1,6 @@
 package org.fernice.reflare.ui;
 
+import java.awt.Cursor;
 import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 import javax.swing.JToggleButton;
@@ -21,6 +22,8 @@ public class FlareToggleButtonUI extends FlareButtonUI {
     @Override
     protected void installDefaults(AbstractButton button) {
         super.installDefaults(button);
+
+        button.setCursor(Cursor.getDefaultCursor());
 
         SwingUtilities.invokeLater(() -> button.setBorderPainted(true));
     }

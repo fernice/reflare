@@ -1,7 +1,7 @@
 package org.fernice.reflare.shape
 
 import org.fernice.flare.style.ComputedValues
-import org.fernice.flare.style.properties.longhand.Clip
+import org.fernice.flare.style.properties.longhand.background.Clip
 import org.fernice.reflare.element.AWTComponentElement
 import org.fernice.reflare.geom.Bounds
 import org.fernice.reflare.geom.Colors

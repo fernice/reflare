@@ -1,9 +1,9 @@
 package org.fernice.reflare.ui
 
+import fernice.std.Some
 import org.fernice.reflare.element.AWTComponentElement
 import org.fernice.reflare.geom.Insets
 import org.fernice.reflare.geom.toInsets
-import fernice.std.Some
 import java.awt.Component
 import java.awt.Graphics
 import javax.swing.border.AbstractBorder
@@ -39,7 +39,7 @@ class FlareBorder(private val ui: FlareUI) : AbstractBorder() {
             val values = style.value
             val bounds = c.bounds
 
-            insets = insets + values.margin.toInsets(bounds) + values.padding.toInsets(bounds) + values.border.toInsets()
+            insets = insets + values.margin.toInsets(bounds) + values.border.toInsets() + values.padding.toInsets(bounds)
         }
 
         return insets
@@ -47,6 +47,19 @@ class FlareBorder(private val ui: FlareUI) : AbstractBorder() {
 
     override fun isBorderOpaque(): Boolean {
         return false
+    }
+
+    fun getMarginAndBorderInsets(): AWTInsets {
+        val style = ui.element.getStyle()
+
+        return if (style is Some) {
+            val values = style.value
+            val bounds = ui.element.component.bounds
+
+            AWTInsets(0, 0, 0, 0) + values.margin.toInsets(bounds) + values.border.toInsets()
+        } else {
+            AWTInsets(0, 0, 0, 0)
+        }
     }
 }
 

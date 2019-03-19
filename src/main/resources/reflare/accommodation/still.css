@@ -1,0 +1,28 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+.still {
+  background: #564154;
+  padding: 20px;
+}
+
+.still label, .still button {
+  font-family: monospace;
+  font-size: 13px;
+  color: white;
+}
+
+button.acc-action {
+  background: transparent;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+}
+
+button.acc-action:hover, button.acc-action:focus {
+  background: #ffffff22;
+}

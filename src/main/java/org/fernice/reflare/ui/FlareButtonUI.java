@@ -1,6 +1,8 @@
 package org.fernice.reflare.ui;
 
+import fernice.reflare.FlareLookAndFeel;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Rectangle;
@@ -9,7 +11,6 @@ import javax.swing.ButtonModel;
 import javax.swing.JComponent;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicButtonUI;
-import fernice.reflare.FlareLookAndFeel;
 import org.fernice.reflare.element.ButtonElement;
 import org.fernice.reflare.element.ComponentElement;
 import org.fernice.reflare.element.ComponentKt;
@@ -42,6 +43,8 @@ public class FlareButtonUI extends BasicButtonUI implements FlareUI {
         button.setFont(FlareLookAndFeel.DEFAULT_FONT);
 
         button.setBorderPainted(true);
+
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         ComponentKt.registerElement(button, element);
     }

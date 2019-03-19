@@ -7,6 +7,7 @@
 package org.fernice.reflare.ui
 
 import javax.swing.JComponent
+import javax.swing.JEditorPane
 import javax.swing.JScrollBar
 import javax.swing.JToolTip
 import javax.swing.plaf.ComponentUI
@@ -18,6 +19,7 @@ object FlareKotlinUIPeer {
         return when (component) {
             is JScrollBar -> FlareScrollBarUI(component)
             is JToolTip -> FlareToolTipUI(component)
+            is JEditorPane -> FlareEditorPaneUI(component)
             else -> throw IllegalArgumentException("unknown component type ${component::class.qualifiedName}")
         }
     }

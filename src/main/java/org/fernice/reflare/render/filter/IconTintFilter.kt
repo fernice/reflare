@@ -6,10 +6,9 @@
 
 package org.fernice.reflare.render.filter
 
+import org.fernice.reflare.internal.ImageHelper
 import java.awt.Color
 import java.awt.Image
-import java.awt.Toolkit
-import java.awt.image.FilteredImageSource
 import java.awt.image.RGBImageFilter
 
 private const val RGB_MASK = 0x00ffffff
@@ -28,6 +27,5 @@ class TintFilter(private val color: Color) : RGBImageFilter() {
 
 fun Image.createTintedImage(color: Color): Image {
     val filter = TintFilter(color)
-    val prod = FilteredImageSource(this.source, filter)
-    return Toolkit.getDefaultToolkit().createImage(prod)
+    return ImageHelper.getFilteredInstance(this, filter)
 }
