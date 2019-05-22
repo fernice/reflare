@@ -1,6 +1,5 @@
 package org.fernice.reflare.ui;
 
-import fernice.reflare.FlareLookAndFeel;
 import java.awt.Component;
 import java.awt.Graphics;
 import javax.swing.BoxLayout;
@@ -9,8 +8,8 @@ import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicMenuBarUI;
 import org.fernice.reflare.element.ComponentElement;
-import org.fernice.reflare.element.ComponentKt;
 import org.fernice.reflare.element.MenuBarElement;
+import org.fernice.reflare.element.StyleTreeElementLookup;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
 import org.jetbrains.annotations.NotNull;
@@ -27,25 +26,22 @@ public class FlareMenuBarUI extends BasicMenuBarUI implements FlareUI {
 
     @Override
     protected void installDefaults() {
-        menuBar.setFont(FlareLookAndFeel.DEFAULT_FONT);
-
         if (element == null) {
             element = new MenuBarElement(menuBar);
         }
 
-        menuBar.setOpaque(false);
-        menuBar.setBorder(new FlareBorder(this));
+        FlareUIHelper.installDefaults(this, menuBar);
 
         if (menuBar.getLayout() == null || menuBar.getLayout() instanceof UIResource) {
             menuBar.setLayout(new FlareMenuLayout(menuBar, BoxLayout.LINE_AXIS));
         }
 
-        ComponentKt.registerElement(menuBar, element);
+        StyleTreeElementLookup.registerElement(menuBar, this);
     }
 
     @Override
     protected void uninstallDefaults() {
-        ComponentKt.deregisterElement(menuBar);
+        StyleTreeElementLookup.deregisterElement(menuBar);
     }
 
     @Override

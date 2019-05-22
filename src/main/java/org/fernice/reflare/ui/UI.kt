@@ -61,6 +61,32 @@ class FlareBorder(private val ui: FlareUI) : AbstractBorder() {
             AWTInsets(0, 0, 0, 0)
         }
     }
+
+    fun getMarginInsets(): AWTInsets {
+        val style = ui.element.getStyle()
+
+        return if (style is Some) {
+            val values = style.value
+            val bounds = ui.element.component.bounds
+
+            AWTInsets(0, 0, 0, 0) + values.margin.toInsets(bounds)
+        } else {
+            AWTInsets(0, 0, 0, 0)
+        }
+    }
+
+    fun getPaddingInsets(): AWTInsets {
+        val style = ui.element.getStyle()
+
+        return if (style is Some) {
+            val values = style.value
+            val bounds = ui.element.component.bounds
+
+            AWTInsets(0, 0, 0, 0) + values.padding.toInsets(bounds)
+        } else {
+            AWTInsets(0, 0, 0, 0)
+        }
+    }
 }
 
 operator fun AWTInsets.plus(insets: Insets): AWTInsets {

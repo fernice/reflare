@@ -6,11 +6,10 @@
 
 package org.fernice.reflare.ui
 
-import fernice.reflare.FlareLookAndFeel
+import org.fernice.reflare.Defaults
 import org.fernice.reflare.element.ComponentElement
 import org.fernice.reflare.element.ScrollBarElement
-import org.fernice.reflare.element.deregisterElement
-import org.fernice.reflare.element.registerElement
+import org.fernice.reflare.element.StyleTreeElementLookup
 import org.fernice.reflare.platform.OperatingSystem
 import org.fernice.reflare.platform.Platform
 import org.fernice.reflare.render.use
@@ -36,15 +35,15 @@ class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentEle
         scrollBarWidth = if (showButtons) 16 else 12
         scrollbar.isOpaque = false
         scrollbar.border = FlareBorder(this)
-        scrollbar.font = FlareLookAndFeel.DEFAULT_FONT
+        scrollbar.font = Defaults.FONT_SERIF
 
-        registerElement(scrollbar, element)
+        StyleTreeElementLookup.registerElement(scrollbar, this)
     }
 
     override fun uninstallDefaults() {
         super.uninstallDefaults()
 
-        deregisterElement(scrollbar)
+        StyleTreeElementLookup.deregisterElement(scrollbar)
     }
 
     override fun paint(graphics: Graphics, component: JComponent) {
@@ -53,8 +52,11 @@ class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentEle
         super.paint(graphics, component)
     }
 
-    override fun paintTrack(g: Graphics?, c: JComponent?, trackBounds: Rectangle?) {
-
+    override fun paintTrack(g: Graphics, c: JComponent, trackBounds: Rectangle) {
+        if (showButtons) {
+            g.color = c.background
+            g.fillRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height)
+        }
     }
 
     override fun paintThumb(g: Graphics, c: JComponent, thumbBounds: Rectangle) {
@@ -71,14 +73,11 @@ class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentEle
         val wp = if (vertical) padding else 0
         val hp = if (vertical) 0 else padding
 
-        val radii = if (showButtons) {
-            3
-        } else {
-            when (scrollbar.orientation) {
-                JScrollBar.VERTICAL -> w - 2
-                JScrollBar.HORIZONTAL -> h - 2
-                else -> 0
-            }
+        val radii = when {
+            showButtons -> 3
+            scrollbar.orientation == JScrollBar.VERTICAL -> w - 2
+            scrollbar.orientation == JScrollBar.HORIZONTAL -> h - 2
+            else -> 0
         }
 
         g.use { g2 ->

@@ -19,7 +19,8 @@ import javax.swing.plaf.basic.ComboPopup;
 import org.fernice.reflare.element.AWTComponentElement;
 import org.fernice.reflare.element.ComboBoxElement;
 import org.fernice.reflare.element.ComponentElement;
-import org.fernice.reflare.element.ComponentKt;
+import org.fernice.reflare.element.StyleTreeElementLookup;
+import org.fernice.reflare.element.StyleTreeHelper;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
 import org.jetbrains.annotations.NotNull;
@@ -42,12 +43,12 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
         comboBox.setOpaque(false);
         comboBox.setBorder(new FlareBorder(this));
 
-        ComponentKt.registerElement(comboBox, element);
+        StyleTreeElementLookup.registerElement(comboBox, this);
     }
 
     @Override
     protected void uninstallDefaults() {
-        ComponentKt.deregisterElement(comboBox);
+        StyleTreeElementLookup.deregisterElement(comboBox);
 
         super.uninstallDefaults();
     }
@@ -146,7 +147,7 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
         public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index, final boolean isSelected, final boolean focus) {
             Component component = renderer.getListCellRendererComponent(list, value, index, isSelected, focus);
 
-            AWTComponentElement element = ComponentKt.into(component);
+            AWTComponentElement element = StyleTreeHelper.getElement(component);
 
             element.focusHint(focus);
             element.activeHint(isSelected);

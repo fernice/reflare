@@ -1,15 +1,15 @@
 package org.fernice.reflare.ui;
 
-import org.fernice.reflare.element.ComboBoxPopupElement;
-import org.fernice.reflare.element.ComponentElement;
-import org.fernice.reflare.element.ComponentKt;
-import org.fernice.reflare.meta.DefinedBy;
-import org.fernice.reflare.meta.DefinedBy.Api;
 import java.awt.Component;
 import java.awt.Graphics;
 import javax.swing.JComponent;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicPopupMenuUI;
+import org.fernice.reflare.element.ComboBoxPopupElement;
+import org.fernice.reflare.element.ComponentElement;
+import org.fernice.reflare.element.StyleTreeElementLookup;
+import org.fernice.reflare.meta.DefinedBy;
+import org.fernice.reflare.meta.DefinedBy.Api;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
@@ -21,6 +21,7 @@ public class FlareComboBoxPopupUI extends BasicPopupMenuUI implements FlareUI {
     }
 
     private ComponentElement element;
+    private FlareBorder border;
 
     @Override
     public void installDefaults() {
@@ -31,14 +32,16 @@ public class FlareComboBoxPopupUI extends BasicPopupMenuUI implements FlareUI {
         }
 
         popupMenu.setOpaque(false);
-        popupMenu.setBorder(new FlareBorder(this));
 
-        ComponentKt.registerElement(popupMenu, element);
+        border = new FlareBorder(this);
+        popupMenu.setBorder(border);
+
+        StyleTreeElementLookup.registerElement(popupMenu, this);
     }
 
     @Override
     public void uninstallDefaults() {
-        ComponentKt.deregisterElement(popupMenu);
+        StyleTreeElementLookup.deregisterElement(popupMenu);
 
         super.uninstallDefaults();
     }

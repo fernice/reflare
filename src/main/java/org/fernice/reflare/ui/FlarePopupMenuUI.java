@@ -1,15 +1,14 @@
 package org.fernice.reflare.ui;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import javax.swing.JComponent;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicPopupMenuUI;
 import org.fernice.reflare.element.ComponentElement;
-import org.fernice.reflare.element.ComponentKt;
 import org.fernice.reflare.element.PopupMenuElement;
+import org.fernice.reflare.element.StyleTreeElementLookup;
 import org.fernice.reflare.layout.VerticalLayout;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
@@ -36,20 +35,14 @@ public class FlarePopupMenuUI extends BasicPopupMenuUI implements FlareUI {
         popupMenu.setOpaque(false);
         popupMenu.setBorder(new FlareBorder(this));
 
-        ComponentKt.registerElement(popupMenu, element);
+        StyleTreeElementLookup.registerElement(popupMenu, this);
     }
 
     @Override
     public void uninstallDefaults() {
-        ComponentKt.deregisterElement(popupMenu);
+        StyleTreeElementLookup.deregisterElement(popupMenu);
 
         super.uninstallDefaults();
-    }
-
-    @Override
-    public Dimension getPreferredSize(JComponent c) {
-        ComponentKt.into(c).restyleImmediately();
-        return super.getPreferredSize(c);
     }
 
     @Override

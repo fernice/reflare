@@ -107,7 +107,7 @@ combobox-popup -flr-renderer > label:active {
   color: white;
 }
 
-combobox-popup {
+combobox-popup, popup {
   background-color: white;
   border: 1px;
   border-color: #d7d7d7 #d3d3d3 #bfbfbf;
@@ -119,11 +119,11 @@ combobox-popup {
 }
 
 menubar {
-  background: linear-gradient(to top, #ececec, #d5d5d5);
+  background: linear-gradient(to bottom, #ececec, #d5d5d5);
 }
 
 menuitem, menu {
-  background-color: #f2f2f2;
+  background-color: white;
   padding: 2px 3px;
 }
 
@@ -160,4 +160,29 @@ text.placeholder-text > label.placeholder-label {
 
 text.placeholder-text-filled > label.placeholder-label {
   font-size: 10px;
+}
+
+label.outlined-placeholder {
+  color: #777777;
+}
+
+label.outlined-placeholder-active {
+  color: dodgerblue;
+  font-size: 10px;
+  background: white;
+}
+
+th label {
+  padding: 1px;
+  border: #d3d3d3 1px;
+  background: white;
+}
+
+table label {
+  padding: 2px;
+}
+
+table label:active {
+  color: white;
+  background: dodgerblue;
 }

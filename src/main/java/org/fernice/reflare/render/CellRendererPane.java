@@ -31,6 +31,8 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import javax.accessibility.Accessible;
 import javax.swing.JComponent;
+import org.fernice.reflare.element.StyleTreeHelper;
+import org.fernice.reflare.ui.FlareBorder;
 
 /**
  * This class is inserted in between cell renderers and the components that
@@ -101,9 +103,7 @@ public class CellRendererPane extends javax.swing.CellRendererPane implements Ac
      * renderer components (CellRendererPane doesn't paint anyway).
      */
     protected void addImpl(Component x, Object constraints, int index) {
-        if (x.getParent() == this) {
-            return;
-        } else {
+        if (x.getParent() != this) {
             super.addImpl(x, constraints, index);
         }
     }
@@ -135,7 +135,12 @@ public class CellRendererPane extends javax.swing.CellRendererPane implements Ac
 
         c.setBounds(x, y, w, h);
 
-        // ComponentKt.into(c).invalidateStyle();
+        StyleTreeHelper.getElement(c).invalidateShape();
+        StyleTreeHelper.getElement(c).forceRestyle();
+
+        if (c instanceof JComponent && !(((JComponent) c).getBorder() instanceof FlareBorder)) {
+            ((JComponent) c).setBorder(new FlareBorder(StyleTreeHelper.getUi(c)));
+        }
 
         c.validate();
 

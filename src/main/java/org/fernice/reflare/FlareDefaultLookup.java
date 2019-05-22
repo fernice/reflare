@@ -61,6 +61,14 @@ public class FlareDefaultLookup implements DefaultLookup {
         // the only convenient way to this, is the way Synth does it.
 
         // @formatter:off
+        DEFAULTS.put("Table.dropCellForeground", Defaults.COLOR_TRANSPARENT);
+        DEFAULTS.put("Table.dropCellBackground", Defaults.COLOR_TRANSPARENT);
+        DEFAULTS.put("Table.alternateRowColor", Defaults.COLOR_TRANSPARENT);
+        DEFAULTS.put("Table.focusSelectedCellHighlightBorder", null);
+        DEFAULTS.put("Table.focusCellHighlightBorder", null);
+        DEFAULTS.put("Table.focusCellForeground", Defaults.COLOR_TRANSPARENT);
+        DEFAULTS.put("Table.focusCellBackground", Defaults.COLOR_TRANSPARENT);
+
         Object buttonMap = new UIDefaults.LazyInputMap(new Object[] {
                 "SPACE", "pressed",
                 "released SPACE", "released"

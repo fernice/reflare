@@ -14,7 +14,6 @@ import org.fernice.flare.dom.ElementStyles
 import org.fernice.flare.selector.NamespaceUrl
 import org.fernice.flare.selector.NonTSPseudoClass
 import org.fernice.flare.selector.PseudoElement
-import org.fernice.flare.std.min
 import org.fernice.flare.style.ComputedValues
 import org.fernice.flare.style.MatchingResult
 import org.fernice.flare.style.PerPseudoElementMap
@@ -27,6 +26,7 @@ import org.fernice.flare.style.properties.PropertyDeclarationBlock
 import org.fernice.flare.style.properties.parsePropertyDeclarationList
 import org.fernice.flare.style.value.computed.SingleFontFamily
 import org.fernice.flare.url.Url
+import org.fernice.reflare.Defaults
 import org.fernice.reflare.geom.Insets
 import org.fernice.reflare.geom.toInsets
 import org.fernice.reflare.internal.SunFontHelper
@@ -44,27 +44,15 @@ import org.fernice.reflare.toAWTColor
 import org.fernice.reflare.util.Broadcast
 import org.fernice.reflare.util.Observables
 import org.fernice.reflare.util.broadcast
-import java.awt.AWTEvent
 import java.awt.Component
-import java.awt.Container
+import java.awt.Dialog
 import java.awt.Font
 import java.awt.Graphics
 import java.awt.Rectangle
-import java.awt.Toolkit
 import java.awt.Window
-import java.awt.event.AWTEventListener
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
-import java.awt.event.ContainerEvent
-import java.awt.event.ContainerListener
-import java.awt.event.FocusEvent
-import java.awt.event.FocusListener
-import java.awt.event.MouseEvent
-import java.util.WeakHashMap
-import java.util.concurrent.CopyOnWriteArrayList
-import javax.swing.CellRendererPane
 import javax.swing.JComponent
-import javax.swing.JLayeredPane
 import javax.swing.event.AncestorEvent
 import javax.swing.event.AncestorListener
 import org.fernice.flare.style.properties.stylestruct.Font as FontStyle
@@ -79,37 +67,26 @@ abstract class AWTComponentElement(val component: Component) : Element {
     }
 
     init {
-        component.addFocusListener(object : FocusListener {
-            override fun focusLost(e: FocusEvent) {
-                invalidateStyle()
-            }
-
-            override fun focusGained(e: FocusEvent) {
-                invalidateStyle()
-            }
-        })
-
         component.addComponentListener(object : ComponentAdapter() {
             override fun componentResized(e: ComponentEvent) {
                 boundsChange.fire(component.bounds)
             }
         })
-
-        SharedHoverHandler
     }
 
     // ***************************** Dirty ***************************** //
 
     private var state: StyleState = StyleState.CLEAN
 
-    fun invalidateBounds() {
-
-        // cache.invalidateBounds()
-        component.repaint()
-    }
-
     fun invalidateStyle() {
         restyle()
+    }
+
+    fun forceRestyle() {
+        forceApplyStyle = true
+        fontStyle = FontStyle.initial
+
+        restyleImmediately()
     }
 
     fun restyle() {
@@ -326,12 +303,14 @@ abstract class AWTComponentElement(val component: Component) : Element {
         return data.styles.primary
     }
 
+    private var forceApplyStyle = false
+
     override fun finishRestyle(context: StyleContext, data: ElementData, elementStyles: ResolvedElementStyles) {
         val oldStyle = data.setStyles(elementStyles)
 
         val primaryStyle = getStyle().unwrap()
 
-        if (oldStyle.primary !is None && primaryStyle == oldStyle.primary()) {
+        if (!forceApplyStyle && oldStyle.primary !is None && primaryStyle == oldStyle.primary()) {
             for ((i, style) in data.styles.pseudos.iter().withIndex()) {
                 if (style is Some) {
                     updatePseudoElement(PseudoElement.fromEagerOrdinal(i), style.value)
@@ -354,6 +333,14 @@ abstract class AWTComponentElement(val component: Component) : Element {
         fontStyle = primaryStyle.font
         component.foreground = primaryStyle.color.color.toAWTColor()
 
+        val background = primaryStyle.background.color.toAWTColor()
+
+        if (component.isOpaque) {
+            component.background = Defaults.COLOR_WHITE
+        } else if (isBackgroundColorApplicable(background)) {
+            component.background = background
+        }
+
         for ((i, style) in data.styles.pseudos.iter().withIndex()) {
             if (style is Some) {
                 updatePseudoElement(PseudoElement.fromEagerOrdinal(i), style.value)
@@ -365,14 +352,15 @@ abstract class AWTComponentElement(val component: Component) : Element {
         component.repaint()
     }
 
-    protected open fun updateStyle(style: ComputedValues) {
+    protected open fun updateStyle(style: ComputedValues) {}
+    protected open fun updatePseudoElement(pseudoElement: PseudoElement, style: ComputedValues) {}
 
+    private fun isBackgroundColorApplicable(color: AWTColor) = when {
+        color.alpha == 255 -> true
+        component is java.awt.Frame -> component.isUndecorated
+        component is Dialog -> component.isUndecorated
+        else -> true
     }
-
-    protected open fun updatePseudoElement(pseudoElement: PseudoElement, style: ComputedValues) {
-
-    }
-
     // ***************************** Render ***************************** //
 
     val cache: RenderCache by lazy { RenderCache() }
@@ -454,6 +442,14 @@ abstract class AWTComponentElement(val component: Component) : Element {
         computeStyle { element, style -> BackgroundShape.computeBackgroundShape(style, element) }
     }
 
+    fun invalidateShape() {
+        this::padding.invalidate()
+        this::margin.invalidate()
+        this::backgroundShape.invalidate()
+        this::borderShape.invalidate()
+        this::backgroundLayers.invalidate()
+    }
+
     val borderShape: BorderShape by property {
         dependsOn(boundsChange) { component.bounds }
         dependsOn(restyle)
@@ -469,122 +465,6 @@ abstract class AWTComponentElement(val component: Component) : Element {
         dependsOn(restyle) { style -> style.background }
 
         computeStyle { style -> BackgroundLayers.computeBackgroundLayers(component, style) }
-    }
-}
-
-open class AWTContainerElement(container: Container) : AWTComponentElement(container) {
-
-    private val children: MutableList<AWTComponentElement> = CopyOnWriteArrayList()
-
-    init {
-        container.addContainerListener(object : ContainerListener {
-            override fun componentAdded(e: ContainerEvent) {
-                childAdded(e.child)
-            }
-
-            override fun componentRemoved(e: ContainerEvent) {
-                childRemoved(e.child)
-            }
-        })
-
-        for (child in container.components) {
-            childAdded(child)
-        }
-    }
-
-    private fun childAdded(child: Component) {
-        val childElement = child.element
-
-        val container = component as Container
-        val index = container.getComponentZOrder(child)
-
-        childElement.frame = frame
-        childElement.parent = Some(this)
-        children.add(index, childElement)
-
-        invalidateStyle()
-    }
-
-    private fun childRemoved(child: Component) {
-        val childElement = child.element
-
-        childElement.frame = None
-        childElement.parent = None
-        children.remove(childElement)
-
-        invalidateStyle()
-    }
-
-    fun addVirtualChild(childElement: AWTComponentElement) {
-        childElement.frame = frame
-        childElement.parent = Some(this)
-    }
-
-    fun removeVirtualChild(childElement: AWTComponentElement) {
-        childElement.frame = None
-        childElement.parent = None
-    }
-
-    final override fun parentChanged(old: Option<Frame>, new: Option<Frame>) {
-        for (child in children) {
-            child.frame = new
-        }
-    }
-
-    override fun children(): List<Element> {
-        return children
-    }
-
-    override fun previousSibling(): Option<Element> {
-        val parent = parent()
-
-        return when (parent) {
-            is Some -> {
-                val children = parent.value.children()
-
-                val index = children.indexOf(this) - 1
-
-                if (index >= 0) {
-                    Some(children[index])
-                } else {
-                    None
-                }
-            }
-            is None -> parent
-        }
-    }
-
-    override fun nextSibling(): Option<Element> {
-        val parent = parent()
-
-        return when (parent) {
-            is Some -> {
-                val children = parent.value.children()
-
-                val index = children.indexOf(this) + 1
-
-                if (index < children.size) {
-                    Some(children[index])
-                } else {
-                    None
-                }
-            }
-            is None -> parent
-        }
-    }
-
-    override fun isEmpty(): Boolean {
-        return children.isEmpty()
-    }
-
-    // ***************************** Matching ***************************** //
-
-    // In theory it is possible to construct a Container meaning that needs a
-    // local name to styled. In practice hopefully no one will try to do it
-    // because even though the element will be considered when it comes to
-    // matching, we have no means to render using its computed styles.
-    override fun localName(): String {
-        return "container"
     }
 }
 
@@ -608,141 +488,6 @@ abstract class ComponentElement(component: JComponent) : AWTContainerElement(com
         })
     }
 }
-
-object SharedHoverHandler : AWTEventListener {
-
-    init {
-        Toolkit.getDefaultToolkit().addAWTEventListener(
-            this,
-            AWTEvent.MOUSE_MOTION_EVENT_MASK
-        )
-    }
-
-    private var component: Component? = null
-
-    override fun eventDispatched(event: AWTEvent) {
-        fun <E> MutableList<E>.removeFirst(): E {
-            return this.removeAt(0)
-        }
-
-        if (event !is MouseEvent || event.id != MouseEvent.MOUSE_MOVED) {
-            return
-        }
-
-        val pick = if (event.source is Container) {
-            val container = event.source as Container
-
-            container.findComponentAt(event.point)
-        } else {
-            event.source as Component
-        }
-
-        if (pick == component) {
-            return
-        }
-
-        val component = component
-        this.component = pick
-
-        val componentStack = component.selfAndAncestorsList()
-        val pickStack = pick.selfAndAncestorsList()
-
-        val maxCommon = componentStack.size.min(pickStack.size)
-
-        for (i in maxCommon until componentStack.size) {
-            val exitedComponent = componentStack.removeFirst()
-
-            exitedComponent.element.hoverHint(false)
-        }
-
-        for (i in maxCommon until pickStack.size) {
-            val enteredComponent = pickStack.removeFirst()
-
-            enteredComponent.element.hoverHint(true)
-        }
-
-        for (i in 0 until maxCommon) {
-            val exitedComponent = componentStack.removeFirst()
-            val enteredComponent = pickStack.removeFirst()
-
-            if (exitedComponent == enteredComponent) {
-                return
-            } else {
-                exitedComponent.element.hoverHint(false)
-                enteredComponent.element.hoverHint(true)
-            }
-        }
-    }
-}
-
-private fun Component?.selfAndAncestorsList(): MutableList<Component> {
-    val stack: MutableList<Component> = mutableListOf()
-
-    if (this == null) {
-        return stack
-    }
-
-    for (component in this.selfAndAncestorsIterator()) {
-        stack.add(component)
-    }
-
-    return stack
-}
-
-private fun Component.selfAndAncestorsIterator(): Iterator<Component> {
-    return SelfAndAncestorIterator(this)
-}
-
-private class SelfAndAncestorIterator(private var component: Component) : Iterator<Component> {
-
-    override fun hasNext(): Boolean {
-        return component.parent != null
-    }
-
-    override fun next(): Component {
-        val current = component
-        component = component.parent
-        return current
-    }
-}
-
-private val elements: MutableMap<Component, AWTComponentElement> = WeakHashMap()
-
-fun registerElement(component: Component, element: AWTComponentElement) {
-    elements[component] = element
-}
-
-fun deregisterElement(component: Component) {
-    elements.remove(component)
-}
-
-private fun ensureElement(component: Component): AWTComponentElement {
-    val element = elements[component]
-
-    return if (element == null) {
-        val new = when (component) {
-            is CellRendererPane -> CellRendererPaneElement(component)
-            is ModernCellRenderPane -> ModernCellRendererPaneElement(component)
-            is JLayeredPane -> LayeredPaneElement(component)
-            is Container -> AWTContainerElement(component)
-            else -> throw IllegalArgumentException("unsupported component ${component.javaClass.name}")
-        }
-
-        elements[component] = new
-
-        new
-    } else {
-        element
-    }
-}
-
-@Deprecated(message = "Element is now a extension attribute")
-fun Component.into(): AWTComponentElement {
-    return ensureElement(this)
-}
-
-val Component.element: AWTComponentElement
-    get() = ensureElement(this)
 
 enum class StyleState {
 

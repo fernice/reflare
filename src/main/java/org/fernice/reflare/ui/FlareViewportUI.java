@@ -7,7 +7,7 @@ import javax.swing.JViewport;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicViewportUI;
 import org.fernice.reflare.element.ComponentElement;
-import org.fernice.reflare.element.ComponentKt;
+import org.fernice.reflare.element.StyleTreeElementLookup;
 import org.fernice.reflare.element.ViewportElement;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
@@ -34,12 +34,12 @@ public class FlareViewportUI extends BasicViewportUI implements FlareUI {
         component.setOpaque(false);
        // component.setBorder(next FlareBorder(this));
 
-        ComponentKt.registerElement(component, element);
+        StyleTreeElementLookup.registerElement(component, this);
     }
 
     @Override
     protected void uninstallDefaults(JComponent component) {
-        ComponentKt.deregisterElement(component);
+        StyleTreeElementLookup.deregisterElement(component);
     }
 
     @Override

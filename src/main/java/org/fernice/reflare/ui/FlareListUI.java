@@ -16,8 +16,9 @@ import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicListUI;
 import org.fernice.reflare.element.AWTComponentElement;
 import org.fernice.reflare.element.ComponentElement;
-import org.fernice.reflare.element.ComponentKt;
 import org.fernice.reflare.element.ListElement;
+import org.fernice.reflare.element.StyleTreeElementLookup;
+import org.fernice.reflare.element.StyleTreeHelper;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
 import org.jetbrains.annotations.NotNull;
@@ -38,13 +39,17 @@ public class FlareListUI extends BasicListUI implements FlareUI {
             element = new ListElement(list);
         }
 
+        list.remove(rendererPane);
+        rendererPane = new org.fernice.reflare.render.CellRendererPane();
+        list.add(rendererPane);
+
         list.setOpaque(false);
         list.setBorder(new FlareBorder(this));
         list.setBackground(FlareConstants.TRANSPARENT);
         list.setFont(FlareConstants.DEFAULT_FONT);
         list.setSelectionBackground(FlareConstants.TRANSPARENT);
 
-        ComponentKt.registerElement(list, element);
+        StyleTreeElementLookup.registerElement(list, this);
 
         if (list.getCellRenderer() == null || (list.getCellRenderer() instanceof UIResource)) {
             list.setCellRenderer(new FlareListCellRenderer());
@@ -55,7 +60,7 @@ public class FlareListUI extends BasicListUI implements FlareUI {
 
     @Override
     protected void uninstallDefaults() {
-        ComponentKt.deregisterElement(list);
+        StyleTreeElementLookup.deregisterElement(list);
 
         if (list.getCellRenderer() instanceof UIResource) {
             list.setCellRenderer(null);
@@ -94,7 +99,7 @@ public class FlareListUI extends BasicListUI implements FlareUI {
 
         Component rendererComponent = cellRenderer.getListCellRendererComponent(list, value, row, isSelected, cellHasFocus);
 
-        AWTComponentElement element = ComponentKt.getElement(rendererComponent);
+        AWTComponentElement element = StyleTreeHelper.getElement(rendererComponent);
 
         element.activeHint(isSelected);
         element.focusHint(cellHasFocus);

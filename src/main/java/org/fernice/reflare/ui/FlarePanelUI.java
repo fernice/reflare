@@ -1,6 +1,5 @@
 package org.fernice.reflare.ui;
 
-import fernice.reflare.FlareLookAndFeel;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
@@ -11,8 +10,8 @@ import javax.swing.JPanel;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicPanelUI;
 import org.fernice.reflare.element.ComponentElement;
-import org.fernice.reflare.element.ComponentKt;
 import org.fernice.reflare.element.PanelElement;
+import org.fernice.reflare.element.StyleTreeElementLookup;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
 import org.jetbrains.annotations.NotNull;
@@ -29,16 +28,13 @@ public class FlarePanelUI extends BasicPanelUI implements FlareUI {
 
     @Override
     protected void installDefaults(JPanel panel) {
-        panel.setFont(FlareLookAndFeel.DEFAULT_FONT);
-
         if (element == null) {
             element = new PanelElement(panel);
         }
 
-        panel.setOpaque(false);
-        panel.setBorder(new FlareBorder(this));
+        FlareUIHelper.installDefaults(this,panel);
 
-        ComponentKt.registerElement(panel, element);
+        StyleTreeElementLookup.registerElement(panel, this);
 
         panel.addMouseListener(new MouseAdapter() {
             @Override
@@ -50,7 +46,7 @@ public class FlarePanelUI extends BasicPanelUI implements FlareUI {
 
     @Override
     protected void uninstallDefaults(JPanel panel) {
-        ComponentKt.deregisterElement(panel);
+        StyleTreeElementLookup.deregisterElement(panel);
     }
 
     @Override

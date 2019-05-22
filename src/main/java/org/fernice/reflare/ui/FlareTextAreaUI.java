@@ -7,7 +7,7 @@ import javax.swing.JTextArea;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicTextAreaUI;
 import org.fernice.reflare.element.ComponentElement;
-import org.fernice.reflare.element.ComponentKt;
+import org.fernice.reflare.element.StyleTreeElementLookup;
 import org.fernice.reflare.element.TextAreaElement;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
@@ -36,12 +36,12 @@ public class FlareTextAreaUI extends BasicTextAreaUI implements FlareUI {
         textField.setBorder(new FlareBorder(this));
         textField.setTabSize(4);
 
-        ComponentKt.registerElement(textField, element);
+        StyleTreeElementLookup.registerElement(textField, this);
     }
 
     @Override
     protected void uninstallDefaults() {
-        ComponentKt.deregisterElement(getComponent());
+        StyleTreeElementLookup.deregisterElement(getComponent());
 
         super.uninstallDefaults();
     }

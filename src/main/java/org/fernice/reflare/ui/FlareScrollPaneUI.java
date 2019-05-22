@@ -7,8 +7,8 @@ import javax.swing.JScrollPane;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicScrollPaneUI;
 import org.fernice.reflare.element.ComponentElement;
-import org.fernice.reflare.element.ComponentKt;
 import org.fernice.reflare.element.ScrollPaneElement;
+import org.fernice.reflare.element.StyleTreeElementLookup;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
 import org.jetbrains.annotations.NotNull;
@@ -34,12 +34,12 @@ public class FlareScrollPaneUI extends BasicScrollPaneUI implements FlareUI {
         scrollPane.setOpaque(false);
         scrollPane.setBorder(new FlareBorder(this));
 
-        ComponentKt.registerElement(scrollPane, element);
+        StyleTreeElementLookup.registerElement(scrollPane, this);
     }
 
     @Override
     protected void uninstallDefaults(JScrollPane scrollPane) {
-        ComponentKt.deregisterElement(scrollPane);
+        StyleTreeElementLookup.deregisterElement(scrollPane);
 
         super.uninstallDefaults(scrollPane);
     }

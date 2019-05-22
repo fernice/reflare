@@ -59,6 +59,7 @@ object CSSEngine {
     init {
         addStylesheet(Source.Resource("/reflare/style/user-agent.css"), Origin.USER_AGENT)
         addStylesheet(Source.Resource("/reflare/style/file_chooser.css"), Origin.USER_AGENT)
+        addStylesheet(Source.Resource("/reflare/style/material.css"), Origin.USER)
     }
 
     fun addStylesheetResource(resource: String) {

@@ -7,7 +7,7 @@ import javax.swing.JTextField;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicTextFieldUI;
 import org.fernice.reflare.element.ComponentElement;
-import org.fernice.reflare.element.ComponentKt;
+import org.fernice.reflare.element.StyleTreeElementLookup;
 import org.fernice.reflare.element.TextFieldElement;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
@@ -36,12 +36,12 @@ public class FlareTextFieldUI extends BasicTextFieldUI implements FlareUI {
         textField.setBorder(new FlareBorder(this));
         textField.addPropertyChangeListener("enabled", evt -> textField.repaint());
 
-        ComponentKt.registerElement(textField, element);
+        StyleTreeElementLookup.registerElement(textField, this);
     }
 
     @Override
     protected void uninstallDefaults() {
-        ComponentKt.deregisterElement(getComponent());
+        StyleTreeElementLookup.deregisterElement(getComponent());
 
         super.uninstallDefaults();
     }

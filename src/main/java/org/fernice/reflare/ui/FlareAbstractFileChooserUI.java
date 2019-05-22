@@ -6,7 +6,6 @@
 
 package org.fernice.reflare.ui;
 
-import fernice.reflare.FlareLookAndFeel;
 import java.awt.Component;
 import java.awt.ComponentOrientation;
 import java.awt.Graphics;
@@ -29,8 +28,8 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicFileChooserUI;
 import org.fernice.reflare.element.ComponentElement;
-import org.fernice.reflare.element.ComponentKt;
 import org.fernice.reflare.element.FileChooserElement;
+import org.fernice.reflare.element.StyleTreeElementLookup;
 import org.fernice.reflare.render.icon.IconHelper;
 import org.jetbrains.annotations.NotNull;
 
@@ -71,19 +70,16 @@ public abstract class FlareAbstractFileChooserUI extends BasicFileChooserUI impl
             element = new FileChooserElement(fileChooser);
         }
 
-        fileChooser.setOpaque(false);
-        fileChooser.setBorder(new FlareBorder(this));
-        fileChooser.setFont(FlareLookAndFeel.DEFAULT_FONT);
-        fileChooser.setBackground(FlareConstants.TRANSPARENT);
+        FlareUIHelper.installDefaults(this, fileChooser);
 
-        ComponentKt.registerElement(fileChooser, element);
+        StyleTreeElementLookup.registerElement(fileChooser, this);
     }
 
     @Override
     public void uninstallUI(JComponent c) {
         super.uninstallUI(c);
 
-        ComponentKt.deregisterElement(c);
+        StyleTreeElementLookup.deregisterElement(c);
     }
 
     public void installComponents(JFileChooser var1) {

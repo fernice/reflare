@@ -1,7 +1,5 @@
 package org.fernice.reflare.ui;
 
-import org.fernice.reflare.element.AWTComponentElement;
-import org.fernice.reflare.element.AWTContainerElement;
 import java.awt.Component;
 import java.awt.Insets;
 import java.beans.PropertyChangeListener;
@@ -10,7 +8,9 @@ import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.Border;
 import javax.swing.plaf.basic.BasicComboPopup;
-import org.fernice.reflare.element.ComponentKt;
+import org.fernice.reflare.element.AWTComponentElement;
+import org.fernice.reflare.element.AWTContainerElement;
+import org.fernice.reflare.element.StyleTreeHelper;
 
 public class FlareComboBoxPopup extends BasicComboPopup {
 
@@ -69,8 +69,8 @@ public class FlareComboBoxPopup extends BasicComboPopup {
 
     @Override
     protected int getPopupHeightForRowCount(int maxRowCount) {
-        AWTComponentElement element = ComponentKt.into(this);
-        AWTContainerElement comboBoxElement = (AWTContainerElement) ComponentKt.into(comboBox);
+        AWTComponentElement element = StyleTreeHelper.getElement(this);
+        AWTContainerElement comboBoxElement = (AWTContainerElement) StyleTreeHelper.getElement(comboBox);
 
         comboBoxElement.addVirtualChild(element);
 

@@ -1,14 +1,13 @@
 package org.fernice.reflare.ui;
 
-import fernice.reflare.FlareLookAndFeel;
 import java.awt.Component;
 import java.awt.Graphics;
 import javax.swing.JComponent;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicProgressBarUI;
 import org.fernice.reflare.element.ComponentElement;
-import org.fernice.reflare.element.ComponentKt;
 import org.fernice.reflare.element.ProgressBarElement;
+import org.fernice.reflare.element.StyleTreeElementLookup;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
 import org.jetbrains.annotations.NotNull;
@@ -29,16 +28,14 @@ public class FlareProgressBarUI extends BasicProgressBarUI implements FlareUI {
             element = new ProgressBarElement(progressBar);
         }
 
-        progressBar.setOpaque(false);
-        progressBar.setBorder(new FlareBorder(this));
-        progressBar.setFont(FlareLookAndFeel.DEFAULT_FONT);
+        FlareUIHelper.installDefaults(this, progressBar);
 
-        ComponentKt.registerElement(progressBar, element);
+        StyleTreeElementLookup.registerElement(progressBar, this);
     }
 
     @Override
     protected void uninstallDefaults() {
-        ComponentKt.deregisterElement(progressBar);
+        StyleTreeElementLookup.deregisterElement(progressBar);
     }
 
     @Override

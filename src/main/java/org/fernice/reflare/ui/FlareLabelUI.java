@@ -1,6 +1,5 @@
 package org.fernice.reflare.ui;
 
-import fernice.reflare.FlareLookAndFeel;
 import java.awt.Component;
 import java.awt.Graphics;
 import javax.swing.JComponent;
@@ -8,8 +7,8 @@ import javax.swing.JLabel;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicLabelUI;
 import org.fernice.reflare.element.ComponentElement;
-import org.fernice.reflare.element.ComponentKt;
 import org.fernice.reflare.element.LabelElement;
+import org.fernice.reflare.element.StyleTreeElementLookup;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
 import org.jetbrains.annotations.NotNull;
@@ -30,16 +29,14 @@ public class FlareLabelUI extends BasicLabelUI implements FlareUI {
             element = new LabelElement(label);
         }
 
-        label.setOpaque(false);
-        label.setBorder(new FlareBorder(this));
+        FlareUIHelper.installDefaults(this, label);
 
-        ComponentKt.registerElement(label, element);
-        label.setFont(FlareLookAndFeel.DEFAULT_FONT);
+        StyleTreeElementLookup.registerElement(label, this);
     }
 
     @Override
     protected void uninstallDefaults(JLabel label) {
-        ComponentKt.deregisterElement(label);
+        StyleTreeElementLookup.deregisterElement(label);
     }
 
     @Override

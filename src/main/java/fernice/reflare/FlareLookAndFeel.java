@@ -1,6 +1,9 @@
 package fernice.reflare;
 
-import java.awt.Font;
+import java.awt.Component;
+import java.awt.KeyboardFocusManager;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.JComponent;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
@@ -15,6 +18,9 @@ import org.fernice.flare.style.properties.module.FontPropertyModule;
 import org.fernice.flare.style.properties.module.MarginPropertyModule;
 import org.fernice.flare.style.properties.module.PaddingPropertyModule;
 import org.fernice.reflare.FlareDefaultLookup;
+import org.fernice.reflare.element.AWTComponentElement;
+import org.fernice.reflare.element.StyleTreeHelper;
+import org.fernice.reflare.element.support.SharedHoverHandler;
 import org.fernice.reflare.internal.AATextInfoHelper;
 import org.fernice.reflare.internal.DefaultLookupHelper;
 import org.fernice.reflare.meta.DefinedBy;
@@ -68,10 +74,39 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
         return true;
     }
 
+    private final PropertyChangeListener focusChangeListener = new PropertyChangeListener() {
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (evt.getOldValue() != null) {
+                Component component = (Component) evt.getOldValue();
+                AWTComponentElement element = StyleTreeHelper.getElement(component);
+
+                element.invalidateStyle();
+            }
+
+            if (evt.getNewValue() != null) {
+                Component component = (Component) evt.getNewValue();
+                AWTComponentElement element = StyleTreeHelper.getElement(component);
+
+                element.invalidateStyle();
+            }
+        }
+    };
+
     @Override
     public void initialize() {
         super.initialize();
         DefaultLookupHelper.setDefaultLookup(new FlareDefaultLookup());
+
+        SharedHoverHandler.initialize();
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addPropertyChangeListener("focusOwner", focusChangeListener);
+    }
+
+    @Override
+    public void uninitialize() {
+        super.uninitialize();
+
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().removePropertyChangeListener("focusOwner", focusChangeListener);
     }
 
     private UIDefaults defaults;
@@ -103,6 +138,9 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
 
             defaults.put("ToolTipUI", kotlinPeer);
 
+            defaults.put("TableUI", kotlinPeer);
+            defaults.put("TableHeaderUI", kotlinPeer);
+
             defaults.put("ScrollPaneUI", basicPackageName + "FlareScrollPaneUI");
             defaults.put("ScrollBarUI", kotlinPeer);
 
@@ -113,6 +151,7 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
             defaults.put("PasswordFieldUI", basicPackageName + "FlarePasswordFieldUI");
             defaults.put("TextAreaUI", basicPackageName + "FlareTextAreaUI");
             defaults.put("EditorPaneUI", kotlinPeer);
+            defaults.put("TextPaneUI", kotlinPeer);
 
             defaults.put("ButtonUI", basicPackageName + "FlareButtonUI");
             defaults.put("ToggleButtonUI", basicPackageName + "FlareToggleButtonUI");
@@ -140,7 +179,4 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
     public static ComponentUI createUI(JComponent c) {
         throw new IllegalArgumentException();
     }
-
-
-    public static final Font DEFAULT_FONT = new Font("serif", java.awt.Font.PLAIN, 12);
 }

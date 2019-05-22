@@ -1,0 +1,39 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+.outlined, .outlined:hover, .outlined:focus, .outlined:active {
+  background: white;
+  margin: 7px 2px 2px;
+  padding: 4px 9px;
+}
+
+.outlined {
+  border: 1px #afb1b4;
+}
+
+.outlined:hover {
+  border-color: #77787a;
+}
+
+.outlined:focus {
+  border: 2px dodgerblue;
+  margin: 6px 1px 1px;
+}
+
+.outlined > label.outlined-placeholder {
+  color: #505050;
+}
+
+.outlined-filled > label.outlined-placeholder {
+  font-size: 10px;
+  background: white;
+  padding: 0 5px;
+  font-weight: bold;
+}
+
+.outlined:focus > label.outlined-placeholder {
+  color: dodgerblue;
+}

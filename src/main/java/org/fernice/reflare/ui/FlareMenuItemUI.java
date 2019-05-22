@@ -1,21 +1,21 @@
 package org.fernice.reflare.ui;
 
-import fernice.reflare.FlareLookAndFeel;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.Insets;
 import java.awt.Rectangle;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicMenuItemUI;
+import org.fernice.reflare.Defaults;
 import org.fernice.reflare.element.ComponentElement;
-import org.fernice.reflare.element.ComponentKt;
 import org.fernice.reflare.element.MenuItemElement;
+import org.fernice.reflare.element.StyleTreeElementLookup;
+import org.fernice.reflare.element.StyleTreeHelper;
 import org.fernice.reflare.internal.SwingUtilitiesHelper;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
@@ -38,12 +38,10 @@ public class FlareMenuItemUI extends BasicMenuItemUI implements FlareUI {
             element = new MenuItemElement(menuItem);
         }
 
-        menuItem.setOpaque(false);
-        menuItem.setBorder(new FlareBorder(this));
-        menuItem.setFont(FlareLookAndFeel.DEFAULT_FONT);
-        menuItem.setMargin(new Insets(0, 0, 0, 0));
+        FlareUIHelper.installDefaults(this, menuItem);
 
-        acceleratorFont = FlareLookAndFeel.DEFAULT_FONT;
+        menuItem.setMargin(Defaults.INSETS_EMPTY);
+        acceleratorFont = Defaults.FONT_SERIF;
 
         defaultTextIconGap = 4;
         acceleratorDelimiter = "+";
@@ -51,20 +49,18 @@ public class FlareMenuItemUI extends BasicMenuItemUI implements FlareUI {
         uninstallKeyboardActions();
         installKeyboardActions();
 
-        ComponentKt.registerElement(menuItem, element);
+        StyleTreeElementLookup.registerElement(menuItem, this);
     }
 
     @Override
     protected void uninstallDefaults() {
-        ComponentKt.deregisterElement(menuItem);
+        StyleTreeElementLookup.deregisterElement(menuItem);
         super.uninstallDefaults();
     }
 
     @Override
     protected Dimension getPreferredMenuItemSize(JComponent c, Icon checkIcon, Icon arrowIcon, int defaultTextIconGap) {
-        if (element.getStyle().isNone()) {
-            element.restyleImmediately();
-        }
+        StyleTreeHelper.getElement(c).restyleImmediately();
 
         return super.getPreferredMenuItemSize(c, checkIcon, arrowIcon, defaultTextIconGap);
     }

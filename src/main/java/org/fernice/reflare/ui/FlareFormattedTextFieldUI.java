@@ -1,16 +1,16 @@
 package org.fernice.reflare.ui;
 
-import org.fernice.reflare.element.ComponentElement;
-import org.fernice.reflare.element.FormattedTextFieldElement;
-import org.fernice.reflare.element.ComponentKt;
-import org.fernice.reflare.meta.DefinedBy;
-import org.fernice.reflare.meta.DefinedBy.Api;
 import java.awt.Component;
 import java.awt.Graphics;
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicFormattedTextFieldUI;
+import org.fernice.reflare.element.ComponentElement;
+import org.fernice.reflare.element.FormattedTextFieldElement;
+import org.fernice.reflare.element.StyleTreeElementLookup;
+import org.fernice.reflare.meta.DefinedBy;
+import org.fernice.reflare.meta.DefinedBy.Api;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
@@ -35,12 +35,12 @@ public class FlareFormattedTextFieldUI extends BasicFormattedTextFieldUI impleme
         textField.setOpaque(false);
         textField.setBorder(new FlareBorder(this));
 
-        ComponentKt.registerElement(textField, element);
+        StyleTreeElementLookup.registerElement(textField, this);
     }
 
     @Override
     protected void uninstallDefaults() {
-        ComponentKt.deregisterElement(getComponent());
+        StyleTreeElementLookup.deregisterElement(getComponent());
 
         super.uninstallDefaults();
     }

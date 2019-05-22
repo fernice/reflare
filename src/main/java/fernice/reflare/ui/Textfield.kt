@@ -11,7 +11,7 @@ import java.awt.BorderLayout
 import javax.swing.JLabel
 import javax.swing.JPanel
 
-class Textfield : JPanel() {
+class InnerTextfield : JPanel() {
 
     private val textfield: PlaceholderTextfield
     val info: JLabel

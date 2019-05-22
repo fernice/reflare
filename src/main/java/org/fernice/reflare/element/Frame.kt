@@ -51,7 +51,7 @@ class Frame(private val frame: Window) : Device {
             System.err.println(" FRAME. PLEASE REPORT THIS BUG.")
         }
 
-        val childElement = child.into()
+        val childElement = child.element
 
         childElement.frame = Some(this@Frame)
         root = Some(childElement)
@@ -60,7 +60,7 @@ class Frame(private val frame: Window) : Device {
     }
 
     private fun childRemoved(child: Component) {
-        val childElement = child.into()
+        val childElement = child.element
 
         childElement.parent = None
 

@@ -1,6 +1,5 @@
 package org.fernice.reflare.ui;
 
-import fernice.reflare.FlareLookAndFeel;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.FontMetrics;
@@ -13,7 +12,7 @@ import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicButtonUI;
 import org.fernice.reflare.element.ButtonElement;
 import org.fernice.reflare.element.ComponentElement;
-import org.fernice.reflare.element.ComponentKt;
+import org.fernice.reflare.element.StyleTreeElementLookup;
 import org.fernice.reflare.internal.SwingUtilitiesHelper;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
@@ -38,20 +37,17 @@ public class FlareButtonUI extends BasicButtonUI implements FlareUI {
             element = createElement(button);
         }
 
-        button.setOpaque(false);
-        button.setBorder(new FlareBorder(this));
-        button.setFont(FlareLookAndFeel.DEFAULT_FONT);
+        FlareUIHelper.installDefaults(this, button);
 
         button.setBorderPainted(true);
-
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        ComponentKt.registerElement(button, element);
+        StyleTreeElementLookup.registerElement(button, this);
     }
 
     @Override
     protected void uninstallDefaults(AbstractButton button) {
-        ComponentKt.deregisterElement(button);
+        StyleTreeElementLookup.deregisterElement(button);
     }
 
     @Override
