@@ -9,14 +9,6 @@ import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicLookAndFeel;
-import org.fernice.flare.style.properties.PropertiesKt;
-import org.fernice.flare.style.properties.module.BackgroundImagePropertyModule;
-import org.fernice.flare.style.properties.module.BackgroundPropertyModule;
-import org.fernice.flare.style.properties.module.BorderPropertyModule;
-import org.fernice.flare.style.properties.module.ColorPropertyModule;
-import org.fernice.flare.style.properties.module.FontPropertyModule;
-import org.fernice.flare.style.properties.module.MarginPropertyModule;
-import org.fernice.flare.style.properties.module.PaddingPropertyModule;
 import org.fernice.reflare.FlareDefaultLookup;
 import org.fernice.reflare.element.AWTComponentElement;
 import org.fernice.reflare.element.StyleTreeHelper;
@@ -30,18 +22,12 @@ import org.fernice.reflare.platform.WindowsKeybindings;
 
 public class FlareLookAndFeel extends BasicLookAndFeel {
 
+    @Deprecated
     public static void init() {
-        PropertiesKt.register( //
-                FontPropertyModule.INSTANCE, //
-                ColorPropertyModule.INSTANCE, //
-                BackgroundPropertyModule.INSTANCE, //
-                BorderPropertyModule.INSTANCE, //
-                MarginPropertyModule.INSTANCE, //
-                PaddingPropertyModule.INSTANCE, //
-                //
-                BackgroundImagePropertyModule.INSTANCE //
-        );
+        install();
+    }
 
+    public static void install() {
         try {
             UIManager.setLookAndFeel(FlareLookAndFeel.class.getName());
         } catch (Exception e) {
@@ -128,7 +114,6 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
             AATextInfoHelper.aaTextInfo(defaults);
 
             final String basicPackageName = "org.fernice.reflare.ui.";
-            final String kotlinPeer = basicPackageName + "FlareKotlinUIPeer";
 
             defaults.put("ComponentUI", FlareLookAndFeel.class.getName());
             defaults.put("RootPaneUI", basicPackageName + "FlareRootPaneUI");
@@ -136,13 +121,13 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
             defaults.put("PanelUI", basicPackageName + "FlarePanelUI");
             defaults.put("TabbedPaneUI", basicPackageName + "FlareTabbedPaneUI");
 
-            defaults.put("ToolTipUI", kotlinPeer);
+            defaults.put("ToolTipUI", basicPackageName + "FlareToolTipUI");
 
-            defaults.put("TableUI", kotlinPeer);
-            defaults.put("TableHeaderUI", kotlinPeer);
+            defaults.put("TableUI", basicPackageName + "FlareTableUI");
+            defaults.put("TableHeaderUI", basicPackageName + "FlareTableHeaderUI");
 
             defaults.put("ScrollPaneUI", basicPackageName + "FlareScrollPaneUI");
-            defaults.put("ScrollBarUI", kotlinPeer);
+            defaults.put("ScrollBarUI", basicPackageName + "FlareScrollBarUI");
 
             defaults.put("LabelUI", basicPackageName + "FlareLabelUI");
 
@@ -150,8 +135,8 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
             defaults.put("FormattedTextFieldUI", basicPackageName + "FlareFormattedTextFieldUI");
             defaults.put("PasswordFieldUI", basicPackageName + "FlarePasswordFieldUI");
             defaults.put("TextAreaUI", basicPackageName + "FlareTextAreaUI");
-            defaults.put("EditorPaneUI", kotlinPeer);
-            defaults.put("TextPaneUI", kotlinPeer);
+            defaults.put("EditorPaneUI", basicPackageName + "FlareEditorPaneUI");
+            defaults.put("TextPaneUI", basicPackageName + "FlareTextPaneUI");
 
             defaults.put("ButtonUI", basicPackageName + "FlareButtonUI");
             defaults.put("ToggleButtonUI", basicPackageName + "FlareToggleButtonUI");

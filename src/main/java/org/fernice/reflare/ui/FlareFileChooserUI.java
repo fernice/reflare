@@ -6,7 +6,7 @@
 
 package org.fernice.reflare.ui;
 
-import fernice.reflare.FlareElement;
+import fernice.reflare.ElementHelper;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
@@ -43,7 +43,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.ListCellRenderer;
@@ -147,7 +146,7 @@ public class FlareFileChooserUI extends FlareAbstractFileChooserUI {
         this.directoryComboBox.setMaximumRowCount(8);
         var3.add(this.directoryComboBox, "Center");
         this.filePane = new FilePane(new SynthFileChooserUIAccessor());
-        FlareElement.getClasses(filePane).add("file-pane");
+        ElementHelper.getClasses(filePane).add("file-pane");
 
         var1.addPropertyChangeListener(this.filePane);
         JPopupMenu var5 = this.filePane.getComponentPopupMenu();
@@ -161,7 +160,7 @@ public class FlareFileChooserUI extends FlareAbstractFileChooserUI {
         FileSystemView var6 = var1.getFileSystemView();
         JButton var7 = new JButton(this.getChangeToParentDirectoryAction());
         var7.setText((String) null);
-        FlareElement.getClasses(var7).add("icn-folder-up");
+        ElementHelper.getClasses(var7).add("icn-folder-up");
         var7.setToolTipText(this.upFolderToolTipText);
         var7.getAccessibleContext().setAccessibleName(this.upFolderAccessibleName);
         var7.setAlignmentX(0.0F);
@@ -176,7 +175,7 @@ public class FlareFileChooserUI extends FlareAbstractFileChooserUI {
         }
 
         JButton var10 = new JButton(this.homeFolderIcon);
-        FlareElement.getClasses(var10).add("icn-folder-home");
+        ElementHelper.getClasses(var10).add("icn-folder-home");
         var10.setToolTipText(var9);
         var10.getAccessibleContext().setAccessibleName(this.homeFolderAccessibleName);
         var10.setAlignmentX(0.0F);
@@ -187,7 +186,7 @@ public class FlareFileChooserUI extends FlareAbstractFileChooserUI {
         var4.add(Box.createRigidArea(hstrut5));
         if (!this.readOnly) {
             var10 = new JButton(this.filePane.getNewFolderAction());
-            FlareElement.getClasses(var10).add("icn-folder-new");
+            ElementHelper.getClasses(var10).add("icn-folder-new");
             var10.setText((String) null);
             var10.setIcon(this.newFolderIcon);
             var10.setToolTipText(this.newFolderToolTipText);

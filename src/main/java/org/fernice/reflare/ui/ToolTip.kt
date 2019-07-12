@@ -14,6 +14,7 @@ import java.awt.Dimension
 import java.awt.Graphics
 import javax.swing.JComponent
 import javax.swing.JToolTip
+import javax.swing.plaf.ComponentUI
 import javax.swing.plaf.basic.BasicToolTipUI
 
 class FlareToolTipUI(tooltip: JToolTip) : BasicToolTipUI(), FlareUI {
@@ -54,5 +55,14 @@ class FlareToolTipUI(tooltip: JToolTip) : BasicToolTipUI(), FlareUI {
         element.restyleImmediately()
 
         return super.getPreferredSize(c)
+    }
+
+    companion object {
+
+        @Suppress("ACCIDENTAL_OVERRIDE")
+        @JvmStatic
+        fun createUI(component: JComponent): ComponentUI {
+            return FlareToolTipUI(component as JToolTip)
+        }
     }
 }

@@ -68,15 +68,15 @@ class SceneRenderer(val sceneLoader: SceneLoader) : JPanel(), Script, SceneRunne
 
     override suspend fun lf() {
         textPanel.mutate {
-            add(ElementPanel(" ", context.palette.primary))
+            add(ElementPanel(" ", context.palette.primary, 12))
         }
     }
 
     override suspend fun ln(text: String, content: Attributable.() -> Unit) {
         textPanel.mutate {
-            val attributes = AttributableImpl(context.palette.primary).apply { content() }
+            val attributes = AttributableImpl(context.palette.primary, 12).apply { content() }
 
-            add(ElementPanel(text, attributes.color))
+            add(ElementPanel(text, attributes.color, attributes.size))
         }
     }
 
@@ -110,11 +110,11 @@ class SceneRenderer(val sceneLoader: SceneLoader) : JPanel(), Script, SceneRunne
     }
 }
 
-private class ElementPanel(content: String, color: Color) : JLabel() {
+private class ElementPanel(content: String, color: Color, size: Int) : JLabel() {
 
     init {
         text = content
-        style = "color: ${color.toHexString()}"
+        style = "color: ${color.toHexString()}; font-size: ${size}px"
     }
 }
 
@@ -132,7 +132,7 @@ private class ActionsPanel(override val context: ScriptContext) : JPanel(), Acti
             val index = parent.components.indexOf(this)
             parent.remove(this)
 
-            val panel = ElementPanel(text, context.palette.primary)
+            val panel = ElementPanel(text, context.palette.primary, 12)
             parent.add(panel, index)
 
             parent.revalidate()
@@ -175,11 +175,18 @@ class SceneRendererScriptContext(
 ) : ScriptContext
 
 class AttributableImpl(
-    override var color: Color
+    override var color: Color,
+    var size: Int
 ) : Attributable {
 
     override fun color(color: Color): Attributable {
         this.color = color
+
+        return this
+    }
+
+    override fun size(size: Int): Attributable {
+        this.size = size
 
         return this
     }

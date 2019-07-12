@@ -10,7 +10,9 @@ import org.fernice.reflare.element.EditorPaneElement
 import org.fernice.reflare.element.StyleTreeElementLookup
 import java.awt.Component
 import java.awt.Graphics
+import javax.swing.JComponent
 import javax.swing.JEditorPane
+import javax.swing.plaf.ComponentUI
 import javax.swing.plaf.basic.BasicEditorPaneUI
 
 open class FlareEditorPaneUI(editorPane: JEditorPane) : BasicEditorPaneUI(), FlareUI {
@@ -45,5 +47,14 @@ open class FlareEditorPaneUI(editorPane: JEditorPane) : BasicEditorPaneUI(), Fla
 
     override fun paintBorder(c: Component, g: Graphics, x: Int, y: Int, width: Int, height: Int) {
         element.paintBorder(c, g)
+    }
+
+    companion object {
+
+        @Suppress("ACCIDENTAL_OVERRIDE")
+        @JvmStatic
+        fun createUI(component: JComponent): ComponentUI {
+            return FlareEditorPaneUI(component as JEditorPane)
+        }
     }
 }

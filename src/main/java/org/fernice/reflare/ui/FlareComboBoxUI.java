@@ -1,11 +1,16 @@
 package org.fernice.reflare.ui;
 
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Insets;
+import java.awt.LayoutManager;
 import java.awt.Rectangle;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -40,8 +45,9 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
 
         element = new ComboBoxElement(comboBox);
 
-        comboBox.setOpaque(false);
-        comboBox.setBorder(new FlareBorder(this));
+        FlareUIHelper.installDefaults(this, comboBox);
+
+        comboBox.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         StyleTreeElementLookup.registerElement(comboBox, this);
     }
@@ -58,6 +64,11 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
         super.installComponents();
 
         arrowButton.setFocusable(false);
+    }
+
+    @Override
+    protected LayoutManager createLayoutManager() {
+        return new FlareComboBoxLayout();
     }
 
     @Override
@@ -184,6 +195,57 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
             }
 
             return this;
+        }
+    }
+
+    private class FlareComboBoxLayout implements LayoutManager {
+
+        @Override
+        public void addLayoutComponent(String name, Component comp) {
+        }
+
+        @Override
+        public void removeLayoutComponent(Component comp) {
+        }
+
+        @Override
+        public Dimension preferredLayoutSize(Container parent) {
+            return parent.getPreferredSize();
+        }
+
+        @Override
+        public Dimension minimumLayoutSize(Container parent) {
+            return parent.getMinimumSize();
+        }
+
+        @Override
+        public void layoutContainer(Container parent) {
+            JComboBox cb = (JComboBox) parent;
+            int width = cb.getWidth();
+            int height = cb.getHeight();
+
+            FlareBorder border = (FlareBorder) cb.getBorder();
+            Insets buttonInsets = border.getMarginAndBorderInsets();
+
+            int buttonHeight = height - (buttonInsets.top + buttonInsets.bottom);
+            int buttonWidth = buttonHeight;
+            if (arrowButton != null) {
+                Insets arrowInsets = arrowButton.getInsets();
+                buttonWidth = squareButton ? buttonHeight : arrowButton.getPreferredSize().width + arrowInsets.left + arrowInsets.right;
+            }
+            Rectangle cvb;
+
+            if (arrowButton != null) {
+                if (comboBox.getComponentOrientation().isLeftToRight()) {
+                    arrowButton.setBounds(width - (buttonInsets.right + buttonWidth), buttonInsets.top, buttonWidth, buttonHeight);
+                } else {
+                    arrowButton.setBounds(buttonInsets.left, buttonInsets.top, buttonWidth, buttonHeight);
+                }
+            }
+            if (editor != null) {
+                cvb = rectangleForCurrentValue();
+                editor.setBounds(cvb);
+            }
         }
     }
 }

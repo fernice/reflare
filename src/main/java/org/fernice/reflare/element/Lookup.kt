@@ -15,6 +15,7 @@ import java.awt.Graphics
 import java.util.WeakHashMap
 import javax.swing.CellRendererPane
 import javax.swing.JLayeredPane
+import javax.swing.JRootPane
 
 object StyleTreeElementLookup {
 
@@ -38,6 +39,7 @@ object StyleTreeElementLookup {
                 is CellRendererPane -> CellRendererPaneElement(component)
                 is org.fernice.reflare.render.CellRendererPane -> ModernCellRendererPaneElement(component)
                 is JLayeredPane -> LayeredPaneElement(component)
+                is JRootPane -> RootPaneElement(component)
                 is Container -> AWTContainerElement(component)
                 else -> throw IllegalArgumentException("unsupported component ${component.javaClass.name}")
             }

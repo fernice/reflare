@@ -14,6 +14,9 @@ import org.fernice.reflare.accommodation.scene.ColorPalette
 import org.fernice.reflare.accommodation.scene.Scene
 import org.fernice.reflare.accommodation.scene.SceneLoader
 import org.fernice.reflare.accommodation.scenes.CreditsScene
+import org.fernice.reflare.accommodation.scenes.introduction.Introduction01
+import org.fernice.reflare.accommodation.scenes.introduction.Introduction02
+import org.fernice.reflare.accommodation.scenes.introduction.Introduction03
 import org.fernice.reflare.accommodation.scenes.opening.Opening01Scene
 import org.fernice.reflare.accommodation.scenes.opening.Opening02Scene
 import org.fernice.reflare.accommodation.scenes.opening.Opening03EmotionalScene
@@ -77,7 +80,7 @@ class AccommodationDialog : JFrame() {
         GlobalScope.launch {
             delay(1000)
 
-            stillRenderer.scene = Opening01Scene()
+            stillRenderer.scene = Introduction01()
         }
     }
 }
@@ -86,6 +89,10 @@ object SceneLoaderImpl : SceneLoader {
 
     override fun load(path: String): Scene {
         return when (path) {
+            "introduction/01" -> Introduction01()
+            "introduction/02" -> Introduction02()
+            "introduction/03" -> Introduction03()
+
             "opening/01" -> Opening01Scene()
             "opening/02" -> Opening02Scene()
             "opening/03" -> Opening03Scene()

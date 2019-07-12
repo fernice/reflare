@@ -15,3 +15,20 @@ suspend fun Script.him() {
 suspend fun Script.her() {
     ln("[Her]") { color = context.palette.accent1 }
 }
+
+suspend fun Script.dlf() {
+    lf()
+    lf()
+}
+
+suspend fun Script.dc(text: String) {
+    ln("*$text*")
+}
+
+suspend fun Script.cm(text: String) {
+    ln("# $text")
+}
+
+suspend fun Script.title(text: String) {
+    ln(text) { size(30) }
+}

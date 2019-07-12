@@ -61,12 +61,13 @@ combobox button:focus, combobox button:active {
   border: 0;
   margin: 0;
   padding: 0;
-  background-color: transparent;
+  background: dodgerblue;
+  border-radius: 0 4px 4px 0;
 }
 
 combobox button::icon {
-  background-image: url("/reflare/icons/combobox-arrow.png");
-  fill: #444444;
+  background-image: url("/reflare/icons/combobox.png");
+  fill: white;
 }
 
 checkbox::icon {

@@ -26,6 +26,7 @@ import javax.swing.RowSorter
 import javax.swing.SortOrder
 import javax.swing.SwingUtilities
 import javax.swing.UIManager
+import javax.swing.plaf.ComponentUI
 import javax.swing.plaf.UIResource
 import javax.swing.plaf.basic.BasicTableHeaderUI
 import javax.swing.plaf.basic.BasicTableUI
@@ -450,6 +451,15 @@ class FlareTableUI(table: JTable) : BasicTableUI(), FlareUI {
     override fun paintBorder(c: Component, g: Graphics, x: Int, y: Int, width: Int, height: Int) {
         element.paintBorder(c, g)
     }
+
+    companion object {
+
+        @Suppress("ACCIDENTAL_OVERRIDE")
+        @JvmStatic
+        fun createUI(component: JComponent): ComponentUI {
+            return FlareTableUI(component as JTable)
+        }
+    }
 }
 
 class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(), FlareUI {
@@ -802,6 +812,13 @@ open class DefaultTableCellHeaderRenderer : DefaultTableCellRenderer(), UIResour
             } else {
                 var2
             }
+        }
+
+
+        @Suppress("ACCIDENTAL_OVERRIDE")
+        @JvmStatic
+        fun createUI(component: JComponent): ComponentUI {
+            return FlareTableHeaderUI(component as JTableHeader)
         }
     }
 }

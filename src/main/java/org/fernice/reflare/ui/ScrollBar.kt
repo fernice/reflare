@@ -23,6 +23,7 @@ import javax.swing.JComponent
 import javax.swing.JScrollBar
 import javax.swing.SwingConstants
 import javax.swing.UIManager
+import javax.swing.plaf.ComponentUI
 import javax.swing.plaf.basic.BasicScrollBarUI
 
 class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentElement = ScrollBarElement(scrollbar)) : BasicScrollBarUI(), FlareUI {
@@ -296,8 +297,16 @@ class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentEle
     }
 
     override fun createIncreaseButton(orientation: Int): JButton = FlareArrowButton(orientation)
-
     override fun createDecreaseButton(orientation: Int): JButton = FlareArrowButton(orientation)
+
+    companion object {
+
+        @Suppress("ACCIDENTAL_OVERRIDE")
+        @JvmStatic
+        fun createUI(component: JComponent): ComponentUI {
+            return FlareScrollBarUI(component as JScrollBar)
+        }
+    }
 }
 
 private class FlareArrowButton(var direction: Int) : JButton(), SwingConstants {

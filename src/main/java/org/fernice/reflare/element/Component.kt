@@ -56,7 +56,6 @@ import javax.swing.JComponent
 import javax.swing.event.AncestorEvent
 import javax.swing.event.AncestorListener
 import org.fernice.flare.style.properties.stylestruct.Font as FontStyle
-import org.fernice.reflare.render.CellRendererPane as ModernCellRenderPane
 import java.awt.Color as AWTColor
 
 abstract class AWTComponentElement(val component: Component) : Element {
@@ -308,7 +307,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
     override fun finishRestyle(context: StyleContext, data: ElementData, elementStyles: ResolvedElementStyles) {
         val oldStyle = data.setStyles(elementStyles)
 
-        val primaryStyle = getStyle().unwrap()
+        val primaryStyle = elementStyles.primary.style()
 
         if (!forceApplyStyle && oldStyle.primary !is None && primaryStyle == oldStyle.primary()) {
             for ((i, style) in data.styles.pseudos.iter().withIndex()) {

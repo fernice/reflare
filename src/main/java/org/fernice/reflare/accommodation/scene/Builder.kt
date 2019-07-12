@@ -91,8 +91,9 @@ interface ActionBuilder {
 interface Attributable {
 
     var color: Color
-
     fun color(color: Color): Attributable
+
+    fun size(size: Int): Attributable
 }
 
 interface ActionContext {
