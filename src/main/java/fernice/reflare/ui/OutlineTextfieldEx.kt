@@ -97,10 +97,10 @@ private fun installPlaceholderHandling(component: JTextComponent) {
     val updateState = {
         if (component.text.isEmpty() && !component.hasFocus()) {
             component.classes.remove("outlined-filled")
-            component.element.restyleImmediately()
+            component.element.reapplyCSS()
         } else {
             component.classes.add("outlined-filled")
-            component.element.restyleImmediately()
+            component.element.reapplyCSS()
         }
     }
 

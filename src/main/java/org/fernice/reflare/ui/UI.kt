@@ -22,7 +22,7 @@ class FlareBorder(private val ui: FlareUI) : AbstractBorder() {
         ui.paintBorder(c!!, g!!, x, y, width, height)
     }
 
-    override fun getBorderInsets(c: Component, insets: AWTInsets?): AWTInsets {
+    override fun getBorderInsets(c: Component?, insets: AWTInsets?): AWTInsets {
         var insets = insets
         if (insets == null) {
             insets = AWTInsets(0, 0, 0, 0)
@@ -37,7 +37,8 @@ class FlareBorder(private val ui: FlareUI) : AbstractBorder() {
 
         if (style is Some) {
             val values = style.value
-            val bounds = c.bounds
+            val component = c ?: ui.element.component
+            val bounds = component.bounds
 
             insets = insets + values.margin.toInsets(bounds) + values.border.toInsets() + values.padding.toInsets(bounds)
         }

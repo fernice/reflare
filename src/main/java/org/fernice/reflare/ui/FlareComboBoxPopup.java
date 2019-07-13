@@ -77,15 +77,13 @@ public class FlareComboBoxPopup extends BasicComboPopup {
         AWTComponentElement element = StyleTreeHelper.getElement(this);
         AWTContainerElement comboBoxElement = (AWTContainerElement) StyleTreeHelper.getElement(comboBox);
 
-        comboBoxElement.addVirtualChild(element);
-
-        element.restyle();
-
-        FlareListUI listUI = (FlareListUI) list.getUI();
-
-        listUI.invalidateHeight();
+       // comboBoxElement.addVirtualChild(element);
 
         try {
+            FlareListUI listUI = (FlareListUI) list.getUI();
+
+            listUI.invalidateHeight();
+
             int minRowCount = Math.min(maxRowCount, comboBox.getItemCount());
             int height = 0;
 
@@ -96,6 +94,8 @@ public class FlareComboBoxPopup extends BasicComboPopup {
                 value = list.getModel().getElementAt(i);
                 Component c = renderer.getListCellRendererComponent(list, value, i, false, false);
                 listUI.getRenderPane().add(c);
+
+                element.applyCSS();
 
                 height += c.getPreferredSize().height;
             }
@@ -120,7 +120,7 @@ public class FlareComboBoxPopup extends BasicComboPopup {
 
             return height;
         } finally {
-            comboBoxElement.removeVirtualChild(element);
+           // comboBoxElement.removeVirtualChild(element);
         }
     }
 }

@@ -31,6 +31,7 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import javax.accessibility.Accessible;
 import javax.swing.JComponent;
+import org.fernice.reflare.element.AWTComponentElement;
 import org.fernice.reflare.element.StyleTreeHelper;
 import org.fernice.reflare.ui.FlareBorder;
 
@@ -66,6 +67,8 @@ import org.fernice.reflare.ui.FlareBorder;
  */
 public class CellRendererPane extends javax.swing.CellRendererPane implements Accessible {
 
+    private Boolean suppressRestyling = false;
+
     /**
      * Construct a CellRendererPane object.
      */
@@ -79,6 +82,7 @@ public class CellRendererPane extends javax.swing.CellRendererPane implements Ac
      * Overridden to avoid propagating a invalidate up the tree when the
      * cell renderer child is configured.
      */
+    @Override
     public void invalidate() {
     }
 
@@ -86,6 +90,7 @@ public class CellRendererPane extends javax.swing.CellRendererPane implements Ac
     /**
      * Shouldn't be called.
      */
+    @Override
     public void paint(Graphics g) {
     }
 
@@ -93,6 +98,7 @@ public class CellRendererPane extends javax.swing.CellRendererPane implements Ac
     /**
      * Shouldn't be called.
      */
+    @Override
     public void update(Graphics g) {
     }
 
@@ -102,9 +108,16 @@ public class CellRendererPane extends javax.swing.CellRendererPane implements Ac
      * bother doing anything - stacking order doesn't matter for cell
      * renderer components (CellRendererPane doesn't paint anyway).
      */
+    @Override
     protected void addImpl(Component x, Object constraints, int index) {
         if (x.getParent() != this) {
             super.addImpl(x, constraints, index);
+
+            if (!suppressRestyling) {
+                AWTComponentElement element = StyleTreeHelper.getElement(x);
+                element.invalidateShape();
+                element.applyCSS();
+            }
         }
     }
 
@@ -120,6 +133,7 @@ public class CellRendererPane extends javax.swing.CellRendererPane implements Ac
      * equal to this.getParent(). If shouldValidate is true the component c will be
      * validated before painted.
      */
+    @Override
     public void paintComponent(Graphics g, Component c, Container p, int x, int y, int w, int h, boolean shouldValidate) {
         if (c == null) {
             if (p != null) {
@@ -131,18 +145,23 @@ public class CellRendererPane extends javax.swing.CellRendererPane implements Ac
             return;
         }
 
-        add(c);
+        suppressRestyling = true;
+        try {
+            add(c);
+        } finally {
+            suppressRestyling = false;
+        }
 
         c.setBounds(x, y, w, h);
-
-        StyleTreeHelper.getElement(c).invalidateShape();
-        StyleTreeHelper.getElement(c).forceRestyle();
 
         if (c instanceof JComponent && !(((JComponent) c).getBorder() instanceof FlareBorder)) {
             ((JComponent) c).setBorder(new FlareBorder(StyleTreeHelper.getUi(c)));
         }
 
         c.validate();
+
+        StyleTreeHelper.getElement(c).invalidateShape();
+        StyleTreeHelper.getElement(c).forceRestyle();
 
         boolean wasDoubleBuffered = false;
         if ((c instanceof JComponent) && c.isDoubleBuffered()) {
@@ -168,6 +187,7 @@ public class CellRendererPane extends javax.swing.CellRendererPane implements Ac
     /**
      * Calls this.paintComponent(g, c, p, x, y, w, h, false).
      */
+    @Override
     public void paintComponent(Graphics g, Component c, Container p, int x, int y, int w, int h) {
         paintComponent(g, c, p, x, y, w, h, false);
     }
@@ -176,6 +196,7 @@ public class CellRendererPane extends javax.swing.CellRendererPane implements Ac
     /**
      * Calls this.paintComponent() with the rectangles x,y,width,height fields.
      */
+    @Override
     public void paintComponent(Graphics g, Component c, Container p, Rectangle r) {
         paintComponent(g, c, p, r.x, r.y, r.width, r.height);
     }

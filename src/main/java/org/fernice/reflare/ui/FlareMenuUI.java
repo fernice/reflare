@@ -86,7 +86,7 @@ public class FlareMenuUI extends BasicMenuUI implements FlareUI {
 
     @Override
     protected Dimension getPreferredMenuItemSize(JComponent c, Icon checkIcon, Icon arrowIcon, int defaultTextIconGap) {
-        StyleTreeHelper.getElement(c).restyleImmediately();
+        StyleTreeHelper.getElement(c).applyCSS();
 
         return super.getPreferredMenuItemSize(c, checkIcon, arrowIcon, defaultTextIconGap);
     }

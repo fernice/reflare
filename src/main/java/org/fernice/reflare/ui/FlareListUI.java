@@ -63,7 +63,6 @@ public class FlareListUI extends BasicListUI implements FlareUI {
         if (list.getCellRenderer() instanceof UIResource) {
             list.setCellRenderer(null);
         }
-
     }
 
     private final static int heightChanged = 1 << 8;

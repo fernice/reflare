@@ -9,6 +9,7 @@ package org.fernice.reflare.element
 import fernice.std.None
 import fernice.std.Option
 import fernice.std.Some
+import org.fernice.flare.EngineContext
 import org.fernice.flare.dom.Element
 import java.awt.Component
 import java.awt.Container
@@ -19,7 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 open class AWTContainerElement(container: Container) : AWTComponentElement(container) {
 
-    private val children: MutableList<AWTComponentElement> = CopyOnWriteArrayList()
+    internal val children: MutableList<AWTComponentElement> = CopyOnWriteArrayList()
 
     init {
         container.addContainerListener(object : ContainerListener {
@@ -44,33 +45,35 @@ open class AWTContainerElement(container: Container) : AWTComponentElement(conta
         val index = container.getComponentZOrder(child)
 
         childElement.frame = frame
-        childElement.parent = Some(this)
+        childElement.parent = this
         children.add(index, childElement)
 
-        invalidateStyle()
+        traceReapplyOrigin("child:added")
+        reapplyCSS()
     }
 
     private fun childRemoved(child: Component) {
         val childElement = child.element
 
-        childElement.frame = None
-        childElement.parent = None
+        childElement.frame = null
+        childElement.parent = null
         children.remove(childElement)
 
-        invalidateStyle()
+        traceReapplyOrigin("child:removed")
+        reapplyCSS()
     }
 
     fun addVirtualChild(childElement: AWTComponentElement) {
         childElement.frame = frame
-        childElement.parent = Some(this)
+        childElement.parent = this
     }
 
     fun removeVirtualChild(childElement: AWTComponentElement) {
-        childElement.frame = None
-        childElement.parent = None
+        childElement.frame = null
+        childElement.parent = null
     }
 
-    final override fun parentChanged(old: Option<Frame>, new: Option<Frame>) {
+    final override fun parentChanged(old: Frame?, new: Frame?) {
         for (child in children) {
             child.frame = new
         }
@@ -81,9 +84,7 @@ open class AWTContainerElement(container: Container) : AWTComponentElement(conta
     }
 
     override fun previousSibling(): Option<Element> {
-        val parent = parent()
-
-        return when (parent) {
+        return when (val parent = parent()) {
             is Some -> {
                 val children = parent.value.children()
 
@@ -100,9 +101,7 @@ open class AWTContainerElement(container: Container) : AWTComponentElement(conta
     }
 
     override fun nextSibling(): Option<Element> {
-        val parent = parent()
-
-        return when (parent) {
+        return when (val parent = parent()) {
             is Some -> {
                 val children = parent.value.children()
 
@@ -120,6 +119,32 @@ open class AWTContainerElement(container: Container) : AWTComponentElement(conta
 
     override fun isEmpty(): Boolean {
         return children.isEmpty()
+    }
+
+    final override fun doProcessCSS(context: EngineContext) {
+        if (cssFlag == StyleState.CLEAN) {
+            return
+        }
+
+        if (cssFlag == StyleState.DIRTY_BRANCH) {
+            super.processCSS(context)
+            return
+        }
+
+        super.doProcessCSS(context)
+
+        if (children.isEmpty()) {
+            return
+        }
+
+        for (child in children.toTypedArray()) {
+            val childParent = child.parent
+            if (childParent != null && childParent != this) {
+                continue
+            }
+
+            child.processCSS(context)
+        }
     }
 
     // ***************************** Matching ***************************** //

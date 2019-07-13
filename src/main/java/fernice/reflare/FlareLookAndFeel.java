@@ -67,14 +67,16 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
                 Component component = (Component) evt.getOldValue();
                 AWTComponentElement element = StyleTreeHelper.getElement(component);
 
-                element.invalidateStyle();
+                element.traceReapplyOrigin("focus:gain");
+                element.reapplyCSS();
             }
 
             if (evt.getNewValue() != null) {
                 Component component = (Component) evt.getNewValue();
                 AWTComponentElement element = StyleTreeHelper.getElement(component);
 
-                element.invalidateStyle();
+                element.traceReapplyOrigin("focus:loss");
+                element.reapplyCSS();
             }
         }
     };

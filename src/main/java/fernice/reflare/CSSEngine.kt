@@ -1,6 +1,7 @@
 package fernice.reflare
 
 import org.fernice.flare.Engine
+import org.fernice.flare.EngineContext
 import org.fernice.flare.SharedEngine
 import org.fernice.flare.dom.Device
 import org.fernice.flare.dom.Element
@@ -40,6 +41,12 @@ object CSSEngine {
         engines.add(WeakReference(engine))
 
         return engine
+    }
+
+    fun createLocalEngineContext(element: Element): EngineContext {
+        val localDevice = LocalDevice((element as AWTComponentElement).component)
+
+        return shared.createEngineContext(localDevice)
     }
 
     fun styleWithLocalContext(element: Element) {

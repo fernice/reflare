@@ -16,7 +16,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
-import javax.swing.UIManager;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicComboBoxUI;
@@ -28,6 +27,7 @@ import org.fernice.reflare.element.StyleTreeElementLookup;
 import org.fernice.reflare.element.StyleTreeHelper;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
+import org.fernice.reflare.render.CellRendererPane;
 import org.jetbrains.annotations.NotNull;
 
 public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
@@ -44,6 +44,9 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
         super.installDefaults();
 
         element = new ComboBoxElement(comboBox);
+
+        currentValuePane = new CellRendererPane();
+        squareButton = false;
 
         UIDefaultsHelper.installDefaultProperties(this, comboBox);
 
@@ -99,7 +102,28 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
         return element;
     }
 
+    @Override
+    public Dimension getMinimumSize( JComponent c ) {
+        if ( !isMinimumSizeDirty ) {
+            return new Dimension(cachedMinimumSize);
+        }
+        Dimension size = getDisplaySize();
+        Insets insets = getInsets();
+        //calculate the width and height of the button
+        int buttonHeight = size.height + insets.top + insets.bottom;
+        int buttonWidth = squareButton ? buttonHeight : arrowButton.getPreferredSize().width;
+        //adjust the size based on the button width
+        size.height += insets.top + insets.bottom;
+        size.width +=  insets.left + insets.right + buttonWidth;
+
+        cachedMinimumSize.setSize( size.width, size.height );
+        isMinimumSizeDirty = false;
+
+        return new Dimension(size);
+    }
+
     // Prevents any background from being painted apart from our CSS Background
+    @Override
     public void paintCurrentValue(Graphics g, Rectangle bounds, boolean hasFocus) {
         ListCellRenderer renderer = getRendererWrapper();
         Component c;
@@ -108,7 +132,6 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
             c = renderer.getListCellRendererComponent(listBox, comboBox.getSelectedItem(), -1, true, false);
         } else {
             c = renderer.getListCellRendererComponent(listBox, comboBox.getSelectedItem(), -1, false, false);
-            c.setBackground(UIManager.getColor("ComboBox.background"));
         }
 
         boolean shouldValidate = false;
@@ -162,7 +185,6 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
 
             element.focusHint(focus);
             element.activeHint(isSelected);
-            //element.getCache().setUncachable();
 
             return component;
         }

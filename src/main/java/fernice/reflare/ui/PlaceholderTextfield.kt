@@ -47,10 +47,10 @@ class PlaceholderTextfield : JTextField() {
             fun checkEmpty() {
                 if (text.isEmpty()) {
                     classes.remove("placeholder-text-filled")
-                    element.restyleImmediately()
+                    element.reapplyCSS()
                 } else {
                     classes.add("placeholder-text-filled")
-                    element.restyleImmediately()
+                    element.reapplyCSS()
                 }
             }
         })

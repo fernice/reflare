@@ -15,7 +15,6 @@ import org.fernice.reflare.element.ButtonElement;
 import org.fernice.reflare.element.CheckBoxElement;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
-import org.fernice.reflare.util.ImageKt;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
