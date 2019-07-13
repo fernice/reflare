@@ -32,8 +32,7 @@ public class FlarePasswordFieldUI extends BasicPasswordFieldUI implements FlareU
             element = new PasswordFieldElement(textField);
         }
 
-        textField.setOpaque(false);
-        textField.setBorder(new FlareBorder(this));
+        UIDefaultsHelper.installDefaultProperties(this,textField);
 
         StyleTreeElementLookup.registerElement(textField, this);
     }

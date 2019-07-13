@@ -32,7 +32,7 @@ public class FlareTabbedPaneUI extends BasicTabbedPaneUI implements FlareUI {
             element = new TabbedPaneElement(tabPane);
         }
 
-        FlareUIHelper.installDefaults(this, tabPane);
+        UIDefaultsHelper.installDefaultProperties(this, tabPane);
 
         tabInsets = new Insets(5, 5, 5, 5);
         selectedTabPadInsets = Defaults.INSETS_EMPTY;

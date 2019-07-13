@@ -29,7 +29,7 @@ public class FlareLabelUI extends BasicLabelUI implements FlareUI {
             element = new LabelElement(label);
         }
 
-        FlareUIHelper.installDefaults(this, label);
+        UIDefaultsHelper.installDefaultProperties(this, label);
 
         StyleTreeElementLookup.registerElement(label, this);
     }

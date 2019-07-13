@@ -38,7 +38,7 @@ public class FlareMenuItemUI extends BasicMenuItemUI implements FlareUI {
             element = new MenuItemElement(menuItem);
         }
 
-        FlareUIHelper.installDefaults(this, menuItem);
+        UIDefaultsHelper.installDefaultProperties(this, menuItem);
 
         menuItem.setMargin(Defaults.INSETS_EMPTY);
         acceleratorFont = Defaults.FONT_SERIF;

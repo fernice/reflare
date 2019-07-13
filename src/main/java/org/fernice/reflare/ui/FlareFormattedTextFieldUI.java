@@ -32,8 +32,7 @@ public class FlareFormattedTextFieldUI extends BasicFormattedTextFieldUI impleme
             element = new FormattedTextFieldElement(textField);
         }
 
-        textField.setOpaque(false);
-        textField.setBorder(new FlareBorder(this));
+        UIDefaultsHelper.installDefaultProperties(this, textField);
 
         StyleTreeElementLookup.registerElement(textField, this);
     }

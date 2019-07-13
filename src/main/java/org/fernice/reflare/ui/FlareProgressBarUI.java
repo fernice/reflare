@@ -28,7 +28,7 @@ public class FlareProgressBarUI extends BasicProgressBarUI implements FlareUI {
             element = new ProgressBarElement(progressBar);
         }
 
-        FlareUIHelper.installDefaults(this, progressBar);
+        UIDefaultsHelper.installDefaultProperties(this, progressBar);
 
         StyleTreeElementLookup.registerElement(progressBar, this);
     }

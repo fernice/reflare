@@ -22,7 +22,7 @@ open class FlareEditorPaneUI(editorPane: JEditorPane) : BasicEditorPaneUI(), Fla
     override fun installDefaults() {
         super.installDefaults()
 
-        installDefaults(component)
+        installDefaultProperties(component)
 
         component.addPropertyChangeListener("enabled") { component.repaint() }
         component.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true)

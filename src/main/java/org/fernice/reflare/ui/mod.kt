@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-@file:JvmName("FlareUIHelper")
+@file:JvmName("UIDefaultsHelper")
 
 package org.fernice.reflare.ui
 
@@ -30,7 +30,7 @@ private val propertyChangeListener = PropertyChangeListener { event ->
     }
 }
 
-fun FlareUI.installDefaults(component: Component) {
+fun FlareUI.installDefaultProperties(component: Component) {
     if (component is JComponent) {
         LookAndFeel.installProperty(component, "opaque", false)
 

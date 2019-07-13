@@ -42,7 +42,7 @@ class FlareTableUI(table: JTable) : BasicTableUI(), FlareUI {
     override fun installDefaults() {
         super.installDefaults()
 
-        installDefaults(table)
+        installDefaultProperties(table)
         table.selectionBackground = Defaults.COLOR_TRANSPARENT
         table.selectionForeground = Defaults.COLOR_TRANSPARENT
 
@@ -467,7 +467,7 @@ class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(), Flar
     override val element = TableHeaderElement(tableHeader)
 
     override fun installDefaults() {
-        installDefaults(header)
+        installDefaultProperties(header)
         header.defaultRenderer = DefaultTableCellHeaderRenderer()
 
         header.remove(rendererPane)

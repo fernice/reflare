@@ -70,7 +70,7 @@ public abstract class FlareAbstractFileChooserUI extends BasicFileChooserUI impl
             element = new FileChooserElement(fileChooser);
         }
 
-        FlareUIHelper.installDefaults(this, fileChooser);
+        UIDefaultsHelper.installDefaultProperties(this, fileChooser);
 
         StyleTreeElementLookup.registerElement(fileChooser, this);
     }

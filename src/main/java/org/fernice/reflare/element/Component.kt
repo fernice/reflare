@@ -89,9 +89,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
     }
 
     fun restyle() {
-        val frame = frame
-
-        when (frame) {
+        when (val frame = frame) {
             is Some -> frame.value.markElementDirty(this)
             else -> invokeLater {
                 CSSEngine.styleWithLocalContext(this)
@@ -100,18 +98,14 @@ abstract class AWTComponentElement(val component: Component) : Element {
     }
 
     fun restyleImmediately() {
-        val frame = frame
-
-        when (frame) {
+        when (val frame = frame) {
             is Some -> frame.value.applyStyles(this)
             else -> CSSEngine.styleWithLocalContext(this)
         }
     }
 
     fun getMatchingStyles(): MatchingResult {
-        val frame = frame
-
-        return when (frame) {
+        return when (val frame = frame) {
             is Some -> frame.value.matchStyle(this)
             else -> CSSEngine.matchStyleWithLocalContext(this)
         }
@@ -201,9 +195,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
     }
 
     override fun hasID(id: String): Boolean {
-        val own = this.id
-
-        return when (own) {
+        return when (val own = this.id) {
             is Some -> own.value == id
             is None -> false
         }
@@ -292,9 +284,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
     }
 
     fun getStyle(): Option<ComputedValues> {
-        val elementData = getData()
-
-        val data = when (elementData) {
+        val data = when (val elementData = getData()) {
             is Some -> elementData.value
             is None -> return None
         }

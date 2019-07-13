@@ -31,8 +31,7 @@ public class FlareScrollPaneUI extends BasicScrollPaneUI implements FlareUI {
             element = new ScrollPaneElement(scrollPane);
         }
 
-        scrollPane.setOpaque(false);
-        scrollPane.setBorder(new FlareBorder(this));
+        UIDefaultsHelper.installDefaultProperties(this, scrollPane);
 
         StyleTreeElementLookup.registerElement(scrollPane, this);
     }

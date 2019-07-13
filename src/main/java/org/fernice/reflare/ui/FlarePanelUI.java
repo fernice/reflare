@@ -32,7 +32,7 @@ public class FlarePanelUI extends BasicPanelUI implements FlareUI {
             element = new PanelElement(panel);
         }
 
-        FlareUIHelper.installDefaults(this,panel);
+        UIDefaultsHelper.installDefaultProperties(this,panel);
 
         StyleTreeElementLookup.registerElement(panel, this);
 

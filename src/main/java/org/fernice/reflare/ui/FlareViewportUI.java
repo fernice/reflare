@@ -31,8 +31,10 @@ public class FlareViewportUI extends BasicViewportUI implements FlareUI {
             element = new ViewportElement(viewport);
         }
 
+        // viewport is a special case in term of defaults as it
+        // primarily draws other components it does not require
+        // and partially does not support the usual defaults
         component.setOpaque(false);
-       // component.setBorder(next FlareBorder(this));
 
         StyleTreeElementLookup.registerElement(component, this);
     }

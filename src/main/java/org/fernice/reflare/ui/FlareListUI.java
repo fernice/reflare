@@ -14,6 +14,7 @@ import javax.swing.border.Border;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicListUI;
+import org.fernice.reflare.Defaults;
 import org.fernice.reflare.element.AWTComponentElement;
 import org.fernice.reflare.element.ComponentElement;
 import org.fernice.reflare.element.ListElement;
@@ -43,11 +44,8 @@ public class FlareListUI extends BasicListUI implements FlareUI {
         rendererPane = new org.fernice.reflare.render.CellRendererPane();
         list.add(rendererPane);
 
-        list.setOpaque(false);
-        list.setBorder(new FlareBorder(this));
-        list.setBackground(FlareConstants.TRANSPARENT);
-        list.setFont(FlareConstants.DEFAULT_FONT);
-        list.setSelectionBackground(FlareConstants.TRANSPARENT);
+        UIDefaultsHelper.installDefaultProperties(this,list);
+        list.setSelectionBackground(Defaults.COLOR_TRANSPARENT);
 
         StyleTreeElementLookup.registerElement(list, this);
 

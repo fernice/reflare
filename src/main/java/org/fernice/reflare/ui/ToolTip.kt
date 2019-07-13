@@ -6,7 +6,6 @@
 
 package org.fernice.reflare.ui
 
-import org.fernice.reflare.Defaults
 import org.fernice.reflare.element.StyleTreeElementLookup
 import org.fernice.reflare.element.ToolTipElement
 import java.awt.Component
@@ -24,9 +23,7 @@ class FlareToolTipUI(tooltip: JToolTip) : BasicToolTipUI(), FlareUI {
     override fun installDefaults(component: JComponent) {
         super.installDefaults(component)
 
-        component.isOpaque = false
-        component.border = FlareBorder(this)
-        component.font = Defaults.FONT_SERIF
+        installDefaultProperties(component)
 
         StyleTreeElementLookup.registerElement(component, this)
     }

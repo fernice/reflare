@@ -31,8 +31,7 @@ public class FlareRootPaneUI extends BasicRootPaneUI implements FlareUI {
             element = new RootPaneElement(rootPane);
         }
 
-        rootPane.setOpaque(false);
-        rootPane.setBorder(new FlareBorder(this));
+        UIDefaultsHelper.installDefaultProperties(this, rootPane);
 
         StyleTreeElementLookup.registerElement(rootPane, this);
     }

@@ -45,7 +45,7 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
 
         element = new ComboBoxElement(comboBox);
 
-        FlareUIHelper.installDefaults(this, comboBox);
+        UIDefaultsHelper.installDefaultProperties(this, comboBox);
 
         comboBox.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 

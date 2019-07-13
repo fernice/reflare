@@ -32,8 +32,7 @@ public class FlareTextFieldUI extends BasicTextFieldUI implements FlareUI {
             element = new TextFieldElement(textField);
         }
 
-        textField.setOpaque(false);
-        textField.setBorder(new FlareBorder(this));
+        UIDefaultsHelper.installDefaultProperties(this, textField);
         textField.addPropertyChangeListener("enabled", evt -> textField.repaint());
 
         StyleTreeElementLookup.registerElement(textField, this);

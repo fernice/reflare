@@ -30,7 +30,7 @@ public class FlareMenuBarUI extends BasicMenuBarUI implements FlareUI {
             element = new MenuBarElement(menuBar);
         }
 
-        FlareUIHelper.installDefaults(this, menuBar);
+        UIDefaultsHelper.installDefaultProperties(this, menuBar);
 
         if (menuBar.getLayout() == null || menuBar.getLayout() instanceof UIResource) {
             menuBar.setLayout(new FlareMenuLayout(menuBar, BoxLayout.LINE_AXIS));

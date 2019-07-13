@@ -26,7 +26,6 @@ public class FlareComboBoxPopupUI extends BasicPopupMenuUI implements FlareUI {
     }
 
     private ComponentElement element;
-    private FlareBorder border;
 
     @Override
     public void installDefaults() {
@@ -36,10 +35,7 @@ public class FlareComboBoxPopupUI extends BasicPopupMenuUI implements FlareUI {
             element = new ComboBoxPopupElement((FlareComboBoxPopup) popupMenu);
         }
 
-        popupMenu.setOpaque(false);
-
-        border = new FlareBorder(this);
-        popupMenu.setBorder(border);
+        UIDefaultsHelper.installDefaultProperties(this, popupMenu);
 
         StyleTreeElementLookup.registerElement(popupMenu, this);
     }

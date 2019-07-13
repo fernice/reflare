@@ -42,7 +42,7 @@ public class FlareButtonUI extends BasicButtonUI implements FlareUI {
             element = createElement(button);
         }
 
-        FlareUIHelper.installDefaults(this, button);
+        UIDefaultsHelper.installDefaultProperties(this, button);
 
         button.setBorderPainted(true);
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
