@@ -1,7 +1,6 @@
 package org.fernice.reflare.element
 
 import fernice.reflare.CSSEngine
-import fernice.reflare.FlareLookAndFeel
 import fernice.std.None
 import fernice.std.Option
 import fernice.std.Some
@@ -47,8 +46,10 @@ import org.fernice.reflare.shape.computeBorderShape
 import org.fernice.reflare.toAWTColor
 import org.fernice.reflare.trace.TraceHelper
 import org.fernice.reflare.util.Broadcast
+import org.fernice.reflare.util.ObservableMutableSet
 import org.fernice.reflare.util.Observables
 import org.fernice.reflare.util.broadcast
+import org.fernice.reflare.util.observableMutableSetOf
 import java.awt.Component
 import java.awt.Dialog
 import java.awt.Font
@@ -395,7 +396,11 @@ abstract class AWTComponentElement(val component: Component) : Element {
         }
     }
 
-    val classes: MutableSet<String> = mutableSetOf()
+    val classes: ObservableMutableSet<String> = observableMutableSetOf()
+
+    init {
+        classes.addInvalidationListener { reapplyCSS() }
+    }
 
     override fun classes(): Set<String> {
         return classes
