@@ -12,7 +12,7 @@ import javax.swing.Icon
 import javax.swing.JButton
 
 @Suppress("UNUSED")
-class Button : JButton {
+open class Button : JButton {
 
     constructor()
     constructor(action: Action) : super(action)

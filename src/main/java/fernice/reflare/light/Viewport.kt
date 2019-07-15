@@ -10,7 +10,7 @@ import org.fernice.reflare.ui.FlareViewportUI
 import javax.swing.JViewport
 
 @Suppress("UNUSED")
-class Viewport : JViewport() {
+open class Viewport : JViewport() {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareViewportUI() })

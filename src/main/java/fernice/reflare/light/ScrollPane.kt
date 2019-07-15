@@ -11,7 +11,7 @@ import java.awt.Component
 import javax.swing.JScrollPane
 
 @Suppress("UNUSED")
-class ScrollPane : JScrollPane {
+open class ScrollPane : JScrollPane {
 
     constructor()
     constructor(component: Component) : super(component)

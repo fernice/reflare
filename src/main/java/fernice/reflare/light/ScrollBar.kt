@@ -10,7 +10,7 @@ import org.fernice.reflare.ui.FlareScrollBarUI
 import javax.swing.JScrollBar
 
 @Suppress("UNUSED")
-class ScrollBar : JScrollBar {
+open class ScrollBar : JScrollBar {
 
     constructor()
     constructor(orientation: Int) : super(orientation)

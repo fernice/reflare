@@ -10,7 +10,7 @@ import org.fernice.reflare.ui.FlareMenuBarUI
 import javax.swing.JMenuBar
 
 @Suppress("UNUSED")
-class MenuBar : JMenuBar() {
+open class MenuBar : JMenuBar() {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareMenuBarUI() })

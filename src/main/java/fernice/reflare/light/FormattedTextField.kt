@@ -11,7 +11,7 @@ import java.text.Format
 import javax.swing.JFormattedTextField
 
 @Suppress("UNUSED")
-class FormattedTextField : JFormattedTextField {
+open class FormattedTextField : JFormattedTextField {
 
     constructor()
     constructor(formatter: AbstractFormatter) : super(formatter)

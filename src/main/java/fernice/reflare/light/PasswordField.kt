@@ -11,7 +11,7 @@ import javax.swing.JPasswordField
 import javax.swing.text.Document
 
 @Suppress("UNUSED")
-class PasswordField : JPasswordField {
+open class PasswordField : JPasswordField {
 
     constructor()
     constructor(document: Document, text: String, columns: Int) : super(document, text, columns)

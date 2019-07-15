@@ -12,7 +12,7 @@ import javax.swing.ComboBoxModel
 import javax.swing.JComboBox
 
 @Suppress("UNUSED")
-class ComboBox<E> : JComboBox<E> {
+open class ComboBox<E> : JComboBox<E> {
 
     constructor()
     constructor(elements: Array<E>) : super(elements)

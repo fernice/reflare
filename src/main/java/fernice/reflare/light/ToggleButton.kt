@@ -12,7 +12,7 @@ import javax.swing.Icon
 import javax.swing.JToggleButton
 
 @Suppress("UNUSED")
-class ToggleButton : JToggleButton {
+open class ToggleButton : JToggleButton {
 
     constructor()
     constructor(action: Action) : super(action)

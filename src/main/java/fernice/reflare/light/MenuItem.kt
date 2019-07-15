@@ -12,7 +12,7 @@ import javax.swing.Icon
 import javax.swing.JMenuItem
 
 @Suppress("UNUSED")
-class MenuItem : JMenuItem {
+open class MenuItem : JMenuItem {
 
     constructor()
     constructor(action: Action) : super(action)

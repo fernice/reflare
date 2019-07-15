@@ -14,7 +14,7 @@ import javax.swing.table.TableColumnModel
 import javax.swing.table.TableModel
 
 @Suppress("UNUSED")
-class Table : JTable {
+open class Table : JTable {
 
     constructor()
     constructor(model: TableModel) : super(model)

@@ -11,7 +11,7 @@ import java.net.URL
 import javax.swing.JEditorPane
 
 @Suppress("UNUSED")
-class EditorPane : JEditorPane {
+open class EditorPane : JEditorPane {
 
     constructor()
     constructor(text: String) : super(text)

@@ -11,7 +11,7 @@ import javax.swing.JTextPane
 import javax.swing.text.StyledDocument
 
 @Suppress("UNUSED")
-class TextPane : JTextPane {
+open class TextPane : JTextPane {
 
     constructor()
     constructor(document: StyledDocument) : super(document)

@@ -10,7 +10,7 @@ import org.fernice.reflare.ui.FlareRootPaneUI
 import javax.swing.JRootPane
 
 @Suppress("UNUSED")
-class RootPane : JRootPane() {
+open class RootPane : JRootPane() {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareRootPaneUI() })

@@ -11,7 +11,7 @@ import javax.swing.BoundedRangeModel
 import javax.swing.JProgressBar
 
 @Suppress("UNUSED")
-class ProgressBar : JProgressBar {
+open class ProgressBar : JProgressBar {
 
     constructor()
     constructor(model: BoundedRangeModel) : super(model)

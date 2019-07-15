@@ -11,7 +11,7 @@ import java.awt.LayoutManager
 import javax.swing.JPanel
 
 @Suppress("UNUSED")
-class Panel : JPanel {
+open class Panel : JPanel {
 
     constructor()
     constructor(doubleBuffered: Boolean) : super(doubleBuffered)

@@ -12,7 +12,7 @@ import javax.swing.JList
 import javax.swing.ListModel
 
 @Suppress("UNUSED")
-class List<E> : JList<E> {
+open class List<E> : JList<E> {
 
     constructor()
     constructor(elements: Array<E>) : super(elements)

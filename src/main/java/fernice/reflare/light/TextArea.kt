@@ -11,7 +11,7 @@ import javax.swing.JTextArea
 import javax.swing.text.Document
 
 @Suppress("UNUSED")
-class TextArea : JTextArea {
+open class TextArea : JTextArea {
 
     constructor()
     constructor(document: Document) : super(document)

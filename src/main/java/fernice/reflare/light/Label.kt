@@ -11,7 +11,7 @@ import javax.swing.Icon
 import javax.swing.JLabel
 
 @Suppress("UNUSED")
-class Label : JLabel {
+open class Label : JLabel {
 
     constructor()
     constructor(icon: Icon) : super(icon)

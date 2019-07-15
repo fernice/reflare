@@ -12,7 +12,7 @@ import javax.swing.Icon
 import javax.swing.JRadioButton
 
 @Suppress("UNUSED")
-class RadioButton : JRadioButton {
+open class RadioButton : JRadioButton {
 
     constructor()
     constructor(action: Action) : super(action)

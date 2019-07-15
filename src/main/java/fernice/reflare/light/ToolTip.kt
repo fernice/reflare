@@ -10,7 +10,7 @@ import org.fernice.reflare.ui.FlareToolTipUI
 import javax.swing.JToolTip
 
 @Suppress("UNUSED")
-class ToolTip : JToolTip() {
+open class ToolTip : JToolTip() {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareToolTipUI(this) })

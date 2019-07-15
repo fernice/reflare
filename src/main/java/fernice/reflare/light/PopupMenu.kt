@@ -10,7 +10,7 @@ import org.fernice.reflare.ui.FlarePopupMenuUI
 import javax.swing.JPopupMenu
 
 @Suppress("UNUSED")
-class PopupMenu : JPopupMenu {
+open class PopupMenu : JPopupMenu {
 
     constructor()
     constructor(label: String) : super(label)

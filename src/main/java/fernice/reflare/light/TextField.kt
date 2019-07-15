@@ -11,7 +11,7 @@ import javax.swing.JTextField
 import javax.swing.text.Document
 
 @Suppress("UNUSED")
-class TextField : JTextField {
+open class TextField : JTextField {
 
     constructor()
     constructor(document: Document, text: String, columns: Int) : super(document, text, columns)

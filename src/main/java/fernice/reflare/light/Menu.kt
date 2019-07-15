@@ -11,7 +11,7 @@ import javax.swing.Action
 import javax.swing.JMenu
 
 @Suppress("UNUSED")
-class Menu : JMenu {
+open class Menu : JMenu {
 
     constructor()
     constructor(action: Action) : super(action)

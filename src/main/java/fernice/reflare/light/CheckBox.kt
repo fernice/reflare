@@ -12,7 +12,7 @@ import javax.swing.Icon
 import javax.swing.JCheckBox
 
 @Suppress("UNUSED")
-class CheckBox : JCheckBox {
+open class CheckBox : JCheckBox {
 
     constructor()
     constructor(action: Action) : super(action)
