@@ -99,6 +99,8 @@ checkbox::icon {
 }
 
 combobox-popup -flr-renderer > label {
+  font-size: 12px;
+  font-family: sans-serif;
   color: black;
   padding: 5px;
 }

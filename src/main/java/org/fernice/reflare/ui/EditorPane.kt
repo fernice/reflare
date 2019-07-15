@@ -9,6 +9,7 @@ package org.fernice.reflare.ui
 import org.fernice.reflare.element.EditorPaneElement
 import org.fernice.reflare.element.StyleTreeElementLookup
 import java.awt.Component
+import java.awt.Dimension
 import java.awt.Graphics
 import javax.swing.JComponent
 import javax.swing.JEditorPane
@@ -34,6 +35,21 @@ open class FlareEditorPaneUI(editorPane: JEditorPane) : BasicEditorPaneUI(), Fla
         super.uninstallDefaults()
 
         StyleTreeElementLookup.deregisterElement(component)
+    }
+
+    override fun getMinimumSize(c: JComponent): Dimension {
+        element.pulseForComputation()
+        return super.getMinimumSize(c)
+    }
+
+    override fun getPreferredSize(c: JComponent): Dimension {
+        element.pulseForComputation()
+        return super.getPreferredSize(c)
+    }
+
+    override fun getMaximumSize(c: JComponent): Dimension {
+        element.pulseForComputation()
+        return super.getMaximumSize(c)
     }
 
     override fun paintSafely(graphics: Graphics) {

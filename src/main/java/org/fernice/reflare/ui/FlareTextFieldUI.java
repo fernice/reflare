@@ -1,6 +1,7 @@
 package org.fernice.reflare.ui;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
@@ -43,6 +44,24 @@ public class FlareTextFieldUI extends BasicTextFieldUI implements FlareUI {
         StyleTreeElementLookup.deregisterElement(getComponent());
 
         super.uninstallDefaults();
+    }
+
+    @Override
+    public Dimension getMinimumSize(final JComponent c) {
+        element.pulseForComputation();
+        return super.getMinimumSize(c);
+    }
+
+    @Override
+    public Dimension getPreferredSize(final JComponent c) {
+        element.pulseForComputation();
+        return super.getPreferredSize(c);
+    }
+
+    @Override
+    public Dimension getMaximumSize(final JComponent c) {
+        element.pulseForComputation();
+        return super.getMaximumSize(c);
     }
 
     @Override

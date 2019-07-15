@@ -1,6 +1,7 @@
 package org.fernice.reflare.ui;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import javax.swing.CellRendererPane;
@@ -44,6 +45,8 @@ public class FlareListUI extends BasicListUI implements FlareUI {
         rendererPane = new org.fernice.reflare.render.CellRendererPane();
         list.add(rendererPane);
 
+        list.setOpaque(false);
+        list.setBorder(new FlareBorder(this));
         UIDefaultsHelper.installDefaultProperties(this,list);
         list.setSelectionBackground(Defaults.COLOR_TRANSPARENT);
 
@@ -73,6 +76,24 @@ public class FlareListUI extends BasicListUI implements FlareUI {
 
     public CellRendererPane getRenderPane() {
         return rendererPane;
+    }
+
+    @Override
+    public Dimension getMinimumSize(final JComponent c) {
+        element.pulseForComputation();
+        return super.getMinimumSize(c);
+    }
+
+    @Override
+    public Dimension getPreferredSize(final JComponent c) {
+        element.pulseForComputation();
+        return super.getPreferredSize(c);
+    }
+
+    @Override
+    public Dimension getMaximumSize(final JComponent c) {
+        element.pulseForComputation();
+        return super.getMaximumSize(c);
     }
 
     @Override

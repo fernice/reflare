@@ -1,6 +1,7 @@
 package org.fernice.reflare.element
 
 import fernice.reflare.CSSEngine
+import fernice.reflare.FlareLookAndFeel
 import fernice.std.None
 import fernice.std.Option
 import fernice.std.Some
@@ -131,6 +132,10 @@ abstract class AWTComponentElement(val component: Component) : Element {
         }
     }
 
+    private fun forcePulseForDeferredRendering() {
+        component.repaint()
+    }
+
     /**
      * Marks the element's css dirty.
      */
@@ -162,6 +167,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
         } else {
             markBranchAsReapplyCSS()
             notifyParentOfInvalidatedCSS()
+            forcePulseForDeferredRendering()
         }
     }
 
@@ -185,6 +191,10 @@ abstract class AWTComponentElement(val component: Component) : Element {
      * it will cascade this call down to all children.
      */
     internal fun processCSS(context: EngineContext) {
+        if (cssFlag != StyleState.CLEAN) {
+            clearDirty(DirtyBits.NODE_CSS)
+        }
+
         when (cssFlag) {
             StyleState.CLEAN -> return
             StyleState.DIRTY_BRANCH -> {
@@ -207,7 +217,8 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
         if (frame != null) {
             traceReapplyOrigin("apply")
-            reapplyCSS()
+            markBranchAsReapplyCSS()
+            notifyParentOfInvalidatedCSS()
 
             pulseForComputation()
         } else {
@@ -521,8 +532,6 @@ abstract class AWTComponentElement(val component: Component) : Element {
         }
 
         restyle.fire(primaryStyle)
-
-        component.repaint()
     }
 
     protected open fun updateStyle(style: ComputedValues) {}

@@ -625,8 +625,6 @@ class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(), Flar
 
                 rendererPane.add(comp)
 
-                comp.element.reapplyCSS()
-
                 val rendererHeight = comp.preferredSize.height
                 height = Math.max(height, rendererHeight)
 

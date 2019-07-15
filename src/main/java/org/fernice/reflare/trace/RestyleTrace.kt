@@ -8,7 +8,7 @@ package org.fernice.reflare.trace
 
 import org.fernice.reflare.element.AWTComponentElement
 
-interface Trace {
+interface RestyleTrace {
 
     fun beginCSSPass()
 

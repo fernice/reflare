@@ -9,7 +9,7 @@ package org.fernice.reflare.trace
 import mu.KotlinLogging
 import org.fernice.reflare.element.AWTComponentElement
 
-class CountingTrace(val pass: Int) : Trace {
+class CountingTrace(val pass: Int) : RestyleTrace {
 
     private var count: Int = 0
 

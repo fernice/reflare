@@ -1,6 +1,7 @@
 package org.fernice.reflare.ui;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
@@ -49,6 +50,24 @@ public class FlareFormattedTextFieldUI extends BasicFormattedTextFieldUI impleme
         element.paintBackground(getComponent(), graphics);
 
         super.paintSafely(graphics);
+    }
+
+    @Override
+    public Dimension getMinimumSize(final JComponent c) {
+        element.pulseForComputation();
+        return super.getMinimumSize(c);
+    }
+
+    @Override
+    public Dimension getPreferredSize(final JComponent c) {
+        element.pulseForComputation();
+        return super.getPreferredSize(c);
+    }
+
+    @Override
+    public Dimension getMaximumSize(final JComponent c) {
+        element.pulseForComputation();
+        return super.getMaximumSize(c);
     }
 
     @Override

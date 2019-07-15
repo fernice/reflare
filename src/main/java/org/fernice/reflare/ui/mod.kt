@@ -30,7 +30,7 @@ private val propertyChangeListener = PropertyChangeListener { event ->
     }
 }
 
-fun FlareUI.installDefaultProperties(component: Component) {
+fun FlareUI.installBasicDefaultProperties(component: Component) {
     if (component is JComponent) {
         LookAndFeel.installProperty(component, "opaque", false)
 
@@ -40,6 +40,10 @@ fun FlareUI.installDefaultProperties(component: Component) {
             component.addPropertyChangeListener("border", propertyChangeListener)
         }
     }
+}
+
+fun FlareUI.installDefaultProperties(component: Component) {
+    installBasicDefaultProperties(component)
     component.font = Defaults.FONT_SERIF
     component.background = Defaults.COLOR_TRANSPARENT
     component.foreground = Defaults.COLOR_BLACK

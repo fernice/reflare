@@ -7,6 +7,7 @@ package org.fernice.reflare.ui;
 
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Rectangle;
@@ -53,6 +54,24 @@ public class FlareButtonUI extends BasicButtonUI implements FlareUI {
     @Override
     protected void uninstallDefaults(AbstractButton button) {
         StyleTreeElementLookup.deregisterElement(button);
+    }
+
+    @Override
+    public Dimension getMinimumSize(final JComponent c) {
+        element.pulseForComputation();
+        return super.getMinimumSize(c);
+    }
+
+    @Override
+    public Dimension getPreferredSize(final JComponent c) {
+        element.pulseForComputation();
+        return super.getPreferredSize(c);
+    }
+
+    @Override
+    public Dimension getMaximumSize(final JComponent c) {
+        element.pulseForComputation();
+        return super.getMaximumSize(c);
     }
 
     @Override

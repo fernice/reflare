@@ -2,6 +2,7 @@ package org.fernice.reflare.ui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Rectangle;
@@ -45,6 +46,24 @@ public class FlareTabbedPaneUI extends BasicTabbedPaneUI implements FlareUI {
     @Override
     protected void uninstallDefaults() {
         StyleTreeElementLookup.deregisterElement(tabPane);
+    }
+
+    @Override
+    public Dimension getMinimumSize(final JComponent c) {
+        element.pulseForComputation();
+        return super.getMinimumSize(c);
+    }
+
+    @Override
+    public Dimension getPreferredSize(final JComponent c) {
+        element.pulseForComputation();
+        return super.getPreferredSize(c);
+    }
+
+    @Override
+    public Dimension getMaximumSize(final JComponent c) {
+        element.pulseForComputation();
+        return super.getMaximumSize(c);
     }
 
     @Override

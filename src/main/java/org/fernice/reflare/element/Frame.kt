@@ -7,7 +7,7 @@ import org.fernice.flare.style.MatchingResult
 import org.fernice.flare.style.value.computed.Au
 import org.fernice.flare.style.value.generic.Size2D
 import org.fernice.reflare.trace.CountingTrace
-import org.fernice.reflare.trace.Trace
+import org.fernice.reflare.trace.RestyleTrace
 import java.awt.Component
 import java.awt.Window
 import java.awt.event.ContainerEvent
@@ -129,9 +129,9 @@ class Frame(private val frame: Window) : Device {
         }
     }
 
-    internal fun requestNextPulse(component: AWTComponentElement) {
+    internal fun requestNextPulse(element: AWTComponentElement) {
         if (!pulseRequested.getAndSet(true)) {
-            component.component.repaint()
+            element.component.repaint()
         }
     }
 
@@ -142,10 +142,10 @@ class Frame(private val frame: Window) : Device {
 
 class TracingContext(
     delegate: EngineContext,
-    val trace: Trace
+    val trace: RestyleTrace
 ) : EngineContext by delegate
 
-private fun EngineContext.trace(): Trace? {
+private fun EngineContext.trace(): RestyleTrace? {
     return (this as? TracingContext)?.trace
 }
 

@@ -16,7 +16,6 @@ import org.fernice.reflare.Defaults;
 import org.fernice.reflare.element.ComponentElement;
 import org.fernice.reflare.element.MenuElement;
 import org.fernice.reflare.element.StyleTreeElementLookup;
-import org.fernice.reflare.element.StyleTreeHelper;
 import org.fernice.reflare.internal.SwingUtilitiesHelper;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
@@ -62,6 +61,24 @@ public class FlareMenuUI extends BasicMenuUI implements FlareUI {
     }
 
     @Override
+    public Dimension getMinimumSize(final JComponent c) {
+        // element.pulseForComputation();
+        return super.getMinimumSize(c);
+    }
+
+    @Override
+    public Dimension getPreferredSize(final JComponent c) {
+        // element.pulseForComputation();
+        return super.getPreferredSize(c);
+    }
+
+    @Override
+    public Dimension getMaximumSize(final JComponent c) {
+        // element.pulseForComputation();
+        return super.getMaximumSize(c);
+    }
+
+    @Override
     protected void paintBackground(Graphics g, JMenuItem menuItem, Color bgColor) {
         JMenu menu = (JMenu) menuItem;
 
@@ -86,7 +103,7 @@ public class FlareMenuUI extends BasicMenuUI implements FlareUI {
 
     @Override
     protected Dimension getPreferredMenuItemSize(JComponent c, Icon checkIcon, Icon arrowIcon, int defaultTextIconGap) {
-        StyleTreeHelper.getElement(c).applyCSS();
+        // StyleTreeHelper.getElement(c).applyCSS();
 
         return super.getPreferredMenuItemSize(c, checkIcon, arrowIcon, defaultTextIconGap);
     }

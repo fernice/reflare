@@ -47,6 +47,21 @@ class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentEle
         StyleTreeElementLookup.deregisterElement(scrollbar)
     }
 
+    override fun getMinimumSize(c: JComponent): Dimension {
+        element.pulseForComputation()
+        return super.getMinimumSize(c)
+    }
+
+    override fun getPreferredSize(c: JComponent): Dimension {
+        element.pulseForComputation()
+        return super.getPreferredSize(c)
+    }
+
+    override fun getMaximumSize(c: JComponent): Dimension {
+        element.pulseForComputation()
+        return super.getMaximumSize(c)
+    }
+
     override fun paint(graphics: Graphics, component: JComponent) {
         paintBackground(component, graphics)
 

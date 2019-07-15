@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.KeyboardFocusManager;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.JComponent;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
@@ -27,8 +28,18 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
         install();
     }
 
+    private static final AtomicBoolean integrationInstalled = new AtomicBoolean();
+
+    public static void installIntegration() {
+        if (!integrationInstalled.getAndSet(true)) {
+            SharedHoverHandler.initialize();
+            KeyboardFocusManager.getCurrentKeyboardFocusManager().addPropertyChangeListener("focusOwner", focusChangeListener);
+        }
+    }
+
     public static void install() {
         try {
+
             UIManager.setLookAndFeel(FlareLookAndFeel.class.getName());
         } catch (Exception e) {
             e.printStackTrace();
@@ -60,7 +71,7 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
         return true;
     }
 
-    private final PropertyChangeListener focusChangeListener = new PropertyChangeListener() {
+    private static final PropertyChangeListener focusChangeListener = new PropertyChangeListener() {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             if (evt.getOldValue() != null) {
@@ -88,6 +99,7 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
 
         SharedHoverHandler.initialize();
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addPropertyChangeListener("focusOwner", focusChangeListener);
+        integrationInstalled.set(true);
     }
 
     @Override
@@ -95,6 +107,7 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
         super.uninitialize();
 
         KeyboardFocusManager.getCurrentKeyboardFocusManager().removePropertyChangeListener("focusOwner", focusChangeListener);
+        integrationInstalled.set(false);
     }
 
     private UIDefaults defaults;

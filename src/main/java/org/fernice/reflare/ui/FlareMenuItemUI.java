@@ -15,7 +15,6 @@ import org.fernice.reflare.Defaults;
 import org.fernice.reflare.element.ComponentElement;
 import org.fernice.reflare.element.MenuItemElement;
 import org.fernice.reflare.element.StyleTreeElementLookup;
-import org.fernice.reflare.element.StyleTreeHelper;
 import org.fernice.reflare.internal.SwingUtilitiesHelper;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
@@ -60,7 +59,7 @@ public class FlareMenuItemUI extends BasicMenuItemUI implements FlareUI {
 
     @Override
     protected Dimension getPreferredMenuItemSize(JComponent c, Icon checkIcon, Icon arrowIcon, int defaultTextIconGap) {
-        StyleTreeHelper.getElement(c).applyCSS();
+       // StyleTreeHelper.getElement(c).applyCSS();
 
         return super.getPreferredMenuItemSize(c, checkIcon, arrowIcon, defaultTextIconGap);
     }
@@ -68,6 +67,24 @@ public class FlareMenuItemUI extends BasicMenuItemUI implements FlareUI {
     @Override
     protected void paintBackground(Graphics g, JMenuItem menuItem, Color bgColor) {
         element.paintBackground(menuItem, g);
+    }
+
+    @Override
+    public Dimension getMinimumSize(final JComponent c) {
+        //element.pulseForComputation();
+        return super.getMinimumSize(c);
+    }
+
+    @Override
+    public Dimension getPreferredSize(final JComponent c) {
+       // element.pulseForComputation();
+        return super.getPreferredSize(c);
+    }
+
+    @Override
+    public Dimension getMaximumSize(final JComponent c) {
+        //element.pulseForComputation();
+        return super.getMaximumSize(c);
     }
 
     @Override

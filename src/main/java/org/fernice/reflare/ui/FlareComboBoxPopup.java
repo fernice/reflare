@@ -75,52 +75,45 @@ public class FlareComboBoxPopup extends BasicComboPopup {
     @Override
     protected int getPopupHeightForRowCount(int maxRowCount) {
         AWTComponentElement element = StyleTreeHelper.getElement(this);
-        AWTContainerElement comboBoxElement = (AWTContainerElement) StyleTreeHelper.getElement(comboBox);
 
-       // comboBoxElement.addVirtualChild(element);
+        FlareListUI listUI = (FlareListUI) list.getUI();
 
-        try {
-            FlareListUI listUI = (FlareListUI) list.getUI();
+        listUI.invalidateHeight();
 
-            listUI.invalidateHeight();
+        int minRowCount = Math.min(maxRowCount, comboBox.getItemCount());
+        int height = 0;
 
-            int minRowCount = Math.min(maxRowCount, comboBox.getItemCount());
-            int height = 0;
+        ListCellRenderer renderer = list.getCellRenderer();
+        Object value;
 
-            ListCellRenderer renderer = list.getCellRenderer();
-            Object value;
+        for (int i = 0; i < minRowCount; ++i) {
+            value = list.getModel().getElementAt(i);
+            Component c = renderer.getListCellRendererComponent(list, value, i, false, false);
+            listUI.getRenderPane().add(c);
 
-            for (int i = 0; i < minRowCount; ++i) {
-                value = list.getModel().getElementAt(i);
-                Component c = renderer.getListCellRendererComponent(list, value, i, false, false);
-                listUI.getRenderPane().add(c);
+            element.applyCSS();
 
-                element.applyCSS();
-
-                height += c.getPreferredSize().height;
-            }
-
-            listUI.getRenderPane().removeAll();
-
-            if (height == 0) {
-                height = comboBox.getHeight();
-            }
-
-            Border border = scroller.getViewportBorder();
-            if (border != null) {
-                Insets insets = border.getBorderInsets(null);
-                height += insets.top + insets.bottom;
-            }
-
-            border = scroller.getBorder();
-            if (border != null) {
-                Insets insets = border.getBorderInsets(null);
-                height += insets.top + insets.bottom;
-            }
-
-            return height;
-        } finally {
-           // comboBoxElement.removeVirtualChild(element);
+            height += c.getPreferredSize().height;
         }
+
+        listUI.getRenderPane().removeAll();
+
+        if (height == 0) {
+            height = comboBox.getHeight();
+        }
+
+        Border border = scroller.getViewportBorder();
+        if (border != null) {
+            Insets insets = border.getBorderInsets(null);
+            height += insets.top + insets.bottom;
+        }
+
+        border = scroller.getBorder();
+        if (border != null) {
+            Insets insets = border.getBorderInsets(null);
+            height += insets.top + insets.bottom;
+        }
+
+        return height;
     }
 }

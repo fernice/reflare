@@ -12,6 +12,8 @@ import javax.swing.UIManager
 import javax.swing.plaf.ComponentUI
 
 internal inline fun integrationDependent(component: JComponent, block: () -> ComponentUI): ComponentUI {
+    FlareLookAndFeel.installIntegration()
+
     return if (UIManager.getLookAndFeel() is FlareLookAndFeel) {
         UIManager.getUI(component)
     } else {
