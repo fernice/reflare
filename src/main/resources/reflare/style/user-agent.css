@@ -98,14 +98,14 @@ checkbox::icon {
   fill: #aaaaaa;
 }
 
-combobox-popup -flr-renderer > label {
+combobox-popup -flr-renderer > label, .list-cell {
   font-size: 12px;
   font-family: sans-serif;
   color: black;
   padding: 5px;
 }
 
-combobox-popup -flr-renderer > label:active {
+combobox-popup -flr-renderer > label:active, .list-cell:active {
   background-color: dodgerblue;
   color: white;
 }

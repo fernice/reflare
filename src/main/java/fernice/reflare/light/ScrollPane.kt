@@ -6,8 +6,10 @@
 
 package fernice.reflare.light
 
+import org.fernice.reflare.ui.FlareScrollBarUI
 import org.fernice.reflare.ui.FlareScrollPaneUI
 import java.awt.Component
+import javax.swing.JScrollBar
 import javax.swing.JScrollPane
 
 @Suppress("UNUSED")
@@ -20,5 +22,20 @@ open class ScrollPane : JScrollPane {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareScrollPaneUI() })
+    }
+
+    override fun createVerticalScrollBar(): JScrollBar {
+        return ScrollBar(JScrollBar.VERTICAL)
+    }
+
+    override fun createHorizontalScrollBar(): JScrollBar {
+        return ScrollBar(JScrollBar.HORIZONTAL)
+    }
+
+    protected inner class ScrollBar(orientation: Int) : JScrollPane.ScrollBar(orientation) {
+
+        override fun updateUI() {
+            super.setUI(integrationDependent(this) { FlareScrollBarUI(this) })
+        }
     }
 }

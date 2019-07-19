@@ -6,6 +6,7 @@
 
 package org.fernice.reflare.ui
 
+import fernice.reflare.light.Button
 import org.fernice.reflare.Defaults
 import org.fernice.reflare.element.ComponentElement
 import org.fernice.reflare.element.ScrollBarElement
@@ -324,7 +325,7 @@ class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentEle
     }
 }
 
-private class FlareArrowButton(var direction: Int) : JButton(), SwingConstants {
+private class FlareArrowButton(var direction: Int) : Button(), SwingConstants {
 
     init {
         isRequestFocusEnabled = false

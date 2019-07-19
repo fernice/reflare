@@ -5,16 +5,21 @@
  */
 package org.fernice.reflare.ui;
 
+import fernice.reflare.light.IntegrationHelper;
+import fernice.reflare.light.List;
 import java.awt.Component;
 import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.JComboBox;
+import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.Border;
 import javax.swing.plaf.basic.BasicComboPopup;
+import javax.swing.plaf.basic.BasicGraphicsUtils;
 import org.fernice.reflare.element.AWTComponentElement;
-import org.fernice.reflare.element.AWTContainerElement;
 import org.fernice.reflare.element.StyleTreeHelper;
 
 public class FlareComboBoxPopup extends BasicComboPopup {
@@ -28,6 +33,32 @@ public class FlareComboBoxPopup extends BasicComboPopup {
     @Override
     public String getUIClassID() {
         return "ComboBoxPopupUI";
+    }
+
+    @Override
+    public void updateUI() {
+        super.setUI(IntegrationHelper.getIntegrationDependentUI(this, FlareComboBoxPopupUI::new));
+    }
+
+    @Override
+    protected JList createList() {
+        return new List( comboBox.getModel() ) {
+            public void processMouseEvent(MouseEvent e)  {
+                if ((e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0)  {
+                    // Fix for 4234053. Filter out the Control Key from the list.
+                    // ie., don't allow CTRL key deselection.
+                    Toolkit toolkit = Toolkit.getDefaultToolkit();
+                    e = new MouseEvent((Component)e.getSource(), e.getID(), e.getWhen(),
+                            e.getModifiers() ^ toolkit.getMenuShortcutKeyMask(),
+                            e.getX(), e.getY(),
+                            e.getXOnScreen(), e.getYOnScreen(),
+                            e.getClickCount(),
+                            e.isPopupTrigger(),
+                            MouseEvent.NOBUTTON);
+                }
+                super.processMouseEvent(e);
+            }
+        };
     }
 
     @Override

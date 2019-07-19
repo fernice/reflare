@@ -6,6 +6,7 @@
 
 package org.fernice.reflare.ui
 
+import fernice.reflare.light.DefaultTableCellRenderer
 import org.fernice.reflare.Defaults
 import org.fernice.reflare.element.StyleTreeElementLookup
 import org.fernice.reflare.element.TableElement
@@ -27,10 +28,8 @@ import javax.swing.SortOrder
 import javax.swing.SwingUtilities
 import javax.swing.UIManager
 import javax.swing.plaf.ComponentUI
-import javax.swing.plaf.UIResource
 import javax.swing.plaf.basic.BasicTableHeaderUI
 import javax.swing.plaf.basic.BasicTableUI
-import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.JTableHeader
 import javax.swing.table.TableCellRenderer
 import javax.swing.table.TableColumn
@@ -708,7 +707,7 @@ class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(), Flar
     }
 }
 
-open class DefaultTableCellHeaderRenderer : DefaultTableCellRenderer(), UIResource {
+open class DefaultTableCellHeaderRenderer : DefaultTableCellRenderer.UIResource() {
     private var horizontalTextPositionSet: Boolean = false
     private var sortArrow: Icon? = null
     private val emptyIcon = EmptyIcon()
@@ -720,16 +719,6 @@ open class DefaultTableCellHeaderRenderer : DefaultTableCellRenderer(), UIResour
     override fun setHorizontalTextPosition(var1: Int) {
         this.horizontalTextPositionSet = true
         super.setHorizontalTextPosition(var1)
-    }
-
-    override fun getTableCellRendererComponent(table: JTable?, value: Any?, isSelected: Boolean, isFocus: Boolean, row: Int, column: Int): Component {
-        if (table == null) {
-            return this
-        }
-
-        setValue(value)
-
-        return this
     }
 
     public override fun paintComponent(var1: Graphics) {

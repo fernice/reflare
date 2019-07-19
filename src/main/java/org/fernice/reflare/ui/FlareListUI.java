@@ -1,11 +1,17 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package org.fernice.reflare.ui;
 
+import fernice.reflare.ElementHelper;
+import fernice.reflare.light.DefaultListCellRenderer;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import javax.swing.CellRendererPane;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
@@ -55,8 +61,6 @@ public class FlareListUI extends BasicListUI implements FlareUI {
         if (list.getCellRenderer() == null || (list.getCellRenderer() instanceof UIResource)) {
             list.setCellRenderer(new FlareListCellRenderer());
         }
-
-        //rendererPane = next CellRendererPane();
     }
 
     @Override
@@ -138,15 +142,8 @@ public class FlareListUI extends BasicListUI implements FlareUI {
 
     private static class FlareListCellRenderer extends DefaultListCellRenderer.UIResource {
 
-        @Override
-        public void setBorder(Border b) {
-        }
-
-        @Override
-        public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean focus) {
-            super.getListCellRendererComponent(list, value, index, isSelected, focus);
-
-            return this;
+        {
+            ElementHelper.getClasses(this).add("list-cell");
         }
     }
 }

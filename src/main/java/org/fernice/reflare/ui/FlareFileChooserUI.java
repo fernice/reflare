@@ -7,6 +7,12 @@
 package org.fernice.reflare.ui;
 
 import fernice.reflare.ElementHelper;
+import fernice.reflare.light.Button;
+import fernice.reflare.light.ComboBox;
+import fernice.reflare.light.Label;
+import fernice.reflare.light.Panel;
+import fernice.reflare.light.TextField;
+import fernice.reflare.light.ToggleButton;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
@@ -35,7 +41,6 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.ComboBoxModel;
 import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -43,8 +48,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JTextField;
-import javax.swing.JToggleButton;
 import javax.swing.ListCellRenderer;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionListener;
@@ -58,19 +61,19 @@ import sun.swing.FilePane.FileChooserUIAccessor;
 
 public class FlareFileChooserUI extends FlareAbstractFileChooserUI {
 
-    private JLabel lookInLabel;
-    private JComboBox<File> directoryComboBox;
+    private Label lookInLabel;
+    private ComboBox<File> directoryComboBox;
     private DirectoryComboBoxModel directoryComboBoxModel;
     private Action directoryComboBoxAction = new DirectoryComboBoxAction();
     private FilterComboBoxModel filterComboBoxModel;
-    private JTextField fileNameTextField;
+    private TextField fileNameTextField;
     private FilePane filePane;
-    private JToggleButton listViewButton;
-    private JToggleButton detailsViewButton;
+    private ToggleButton listViewButton;
+    private ToggleButton detailsViewButton;
     private boolean readOnly;
-    private JPanel buttonPanel;
-    private JPanel bottomPanel;
-    private JComboBox<FileFilter> filterComboBox;
+    private Panel buttonPanel;
+    private Panel bottomPanel;
+    private ComboBox<FileFilter> filterComboBox;
     private static final Dimension hstrut5 = new Dimension(5, 1);
     private static final Insets shrinkwrap = new Insets(0, 0, 0, 0);
     private static Dimension LIST_PREF_SIZE = new Dimension(405, 135);
@@ -124,16 +127,16 @@ public class FlareFileChooserUI extends FlareAbstractFileChooserUI {
     public void installComponents(JFileChooser var1) {
         super.installComponents(var1);
         var1.setLayout(new BorderLayout(0, 11));
-        JPanel var3 = new JPanel(new BorderLayout(11, 0));
-        JPanel var4 = new JPanel();
+        Panel var3 = new Panel(new BorderLayout(11, 0));
+        Panel var4 = new Panel();
         var4.setLayout(new BoxLayout(var4, 2));
         var3.add(var4, "After");
         var1.add(var3, "North");
-        this.lookInLabel = new JLabel(this.lookInLabelText);
+        this.lookInLabel = new Label(this.lookInLabelText);
         this.lookInLabel.setDisplayedMnemonic(this.lookInLabelMnemonic);
         this.lookInLabel.setText("Look in:");
         var3.add(this.lookInLabel, "Before");
-        this.directoryComboBox = new JComboBox();
+        this.directoryComboBox = new ComboBox<>();
         this.directoryComboBox.getAccessibleContext().setAccessibleDescription(this.lookInLabelText);
         this.directoryComboBox.putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE);
         this.lookInLabel.setLabelFor(this.directoryComboBox);
@@ -158,7 +161,7 @@ public class FlareFileChooserUI extends FlareAbstractFileChooserUI {
         }
 
         FileSystemView var6 = var1.getFileSystemView();
-        JButton var7 = new JButton(this.getChangeToParentDirectoryAction());
+        Button var7 = new Button(this.getChangeToParentDirectoryAction());
         var7.setText((String) null);
         ElementHelper.getClasses(var7).add("icn-folder-up");
         var7.setToolTipText(this.upFolderToolTipText);
@@ -174,7 +177,7 @@ public class FlareFileChooserUI extends FlareAbstractFileChooserUI {
             var9 = this.getFileView(var1).getName(var8);
         }
 
-        JButton var10 = new JButton(this.homeFolderIcon);
+        Button var10 = new Button(this.homeFolderIcon);
         ElementHelper.getClasses(var10).add("icn-folder-home");
         var10.setToolTipText(var9);
         var10.getAccessibleContext().setAccessibleName(this.homeFolderAccessibleName);
@@ -185,7 +188,7 @@ public class FlareFileChooserUI extends FlareAbstractFileChooserUI {
         var4.add(var10);
         var4.add(Box.createRigidArea(hstrut5));
         if (!this.readOnly) {
-            var10 = new JButton(this.filePane.getNewFolderAction());
+            var10 = new Button(this.filePane.getNewFolderAction());
             ElementHelper.getClasses(var10).add("icn-folder-new");
             var10.setText((String) null);
             var10.setIcon(this.newFolderIcon);
@@ -199,7 +202,7 @@ public class FlareFileChooserUI extends FlareAbstractFileChooserUI {
         }
 
         ButtonGroup var11 = new ButtonGroup();
-        this.listViewButton = new JToggleButton(this.listViewIcon);
+        this.listViewButton = new ToggleButton(this.listViewIcon);
         this.listViewButton.setToolTipText(this.listViewButtonToolTipText);
         this.listViewButton.getAccessibleContext().setAccessibleName(this.listViewButtonAccessibleName);
         this.listViewButton.setSelected(true);
@@ -209,7 +212,7 @@ public class FlareFileChooserUI extends FlareAbstractFileChooserUI {
         this.listViewButton.addActionListener(this.filePane.getViewTypeAction(0));
         var4.add(this.listViewButton);
         var11.add(this.listViewButton);
-        this.detailsViewButton = new JToggleButton(this.detailsViewIcon);
+        this.detailsViewButton = new ToggleButton(this.detailsViewIcon);
         this.detailsViewButton.setToolTipText(this.detailsViewButtonToolTipText);
         this.detailsViewButton.getAccessibleContext().setAccessibleName(this.detailsViewButtonAccessibleName);
         this.detailsViewButton.setAlignmentX(0.0F);
@@ -241,17 +244,17 @@ public class FlareFileChooserUI extends FlareAbstractFileChooserUI {
 
         this.filePane.setPreferredSize(LIST_PREF_SIZE);
         var1.add(this.filePane, "Center");
-        this.bottomPanel = new JPanel();
+        this.bottomPanel = new Panel();
         this.bottomPanel.setLayout(new BoxLayout(this.bottomPanel, 1));
         var1.add(this.bottomPanel, "South");
-        JPanel var13 = new JPanel();
+        Panel var13 = new Panel();
         var13.setLayout(new BoxLayout(var13, 2));
         this.bottomPanel.add(var13);
         this.bottomPanel.add(Box.createRigidArea(new Dimension(1, 5)));
         this.fileNameLabel = new AlignedLabel();
         this.populateFileNameLabel();
         var13.add(this.fileNameLabel);
-        this.fileNameTextField = new JTextField(35) {
+        this.fileNameTextField = new TextField(35) {
             public Dimension getMaximumSize() {
                 return new Dimension(32767, super.getPreferredSize().height);
             }
@@ -271,7 +274,7 @@ public class FlareFileChooserUI extends FlareAbstractFileChooserUI {
             this.setFileName(this.fileNameString(var1.getSelectedFile()));
         }
 
-        JPanel var14 = new JPanel();
+        Panel var14 = new Panel();
         var14.setLayout(new BoxLayout(var14, 2));
         this.bottomPanel.add(var14);
         AlignedLabel var15 = new AlignedLabel(this.filesOfTypeLabelText);
@@ -279,12 +282,12 @@ public class FlareFileChooserUI extends FlareAbstractFileChooserUI {
         var14.add(var15);
         this.filterComboBoxModel = this.createFilterComboBoxModel();
         var1.addPropertyChangeListener(this.filterComboBoxModel);
-        this.filterComboBox = new JComboBox(this.filterComboBoxModel);
+        this.filterComboBox = new ComboBox<>(this.filterComboBoxModel);
         this.filterComboBox.getAccessibleContext().setAccessibleDescription(this.filesOfTypeLabelText);
         var15.setLabelFor(this.filterComboBox);
         this.filterComboBox.setRenderer(this.createFilterComboBoxRenderer());
         var14.add(this.filterComboBox);
-        this.buttonPanel = new JPanel();
+        this.buttonPanel = new Panel();
         this.buttonPanel.setLayout(new ButtonAreaLayout());
         this.buttonPanel.add(this.getApproveButton(var1));
         this.buttonPanel.add(this.getCancelButton(var1));
@@ -579,7 +582,7 @@ public class FlareFileChooserUI extends FlareAbstractFileChooserUI {
 
     }
 
-    private class AlignedLabel extends JLabel {
+    private class AlignedLabel extends Label {
 
         private AlignedLabel[] group;
         private int maxWidth = 0;

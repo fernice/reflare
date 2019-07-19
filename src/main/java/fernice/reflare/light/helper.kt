@@ -20,3 +20,11 @@ internal inline fun integrationDependent(component: JComponent, block: () -> Com
         block()
     }
 }
+
+object IntegrationHelper {
+
+    @JvmStatic
+    fun getIntegrationDependentUI(component: JComponent, block: () -> ComponentUI): ComponentUI {
+         return integrationDependent(component, block)
+    }
+}

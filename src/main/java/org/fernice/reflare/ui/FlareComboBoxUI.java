@@ -1,5 +1,7 @@
 package org.fernice.reflare.ui;
 
+import fernice.reflare.light.Button;
+import fernice.reflare.light.Label;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
@@ -9,10 +11,8 @@ import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
 import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
@@ -75,8 +75,8 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
     }
 
     @Override
-    protected JButton createArrowButton() {
-        JButton button = new JButton();
+    protected Button createArrowButton() {
+        Button button = new Button();
         button.setCursor(Cursor.getDefaultCursor());
         return button;
     }
@@ -190,7 +190,7 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
         }
     }
 
-    private class FlareComboBoxRenderer extends JLabel implements ListCellRenderer<Object>, UIResource {
+    private class FlareComboBoxRenderer extends Label implements ListCellRenderer<Object>, UIResource {
 
         public FlareComboBoxRenderer() {
             super();
