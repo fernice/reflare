@@ -7,6 +7,7 @@
 package fernice.reflare.light
 
 import org.fernice.reflare.ui.FlareMenuUI
+import org.fernice.reflare.ui.FlarePopupMenuUI
 import javax.swing.Action
 import javax.swing.JMenu
 
@@ -17,6 +18,12 @@ open class Menu : JMenu {
     constructor(action: Action) : super(action)
     constructor(text: String) : super(text)
     constructor(text: String, b: Boolean) : super(text, b)
+
+    init {
+        computeIntegrationDependent {
+            PopupMenu.setUI(popupMenu, FlarePopupMenuUI())
+        }
+    }
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareMenuUI() })

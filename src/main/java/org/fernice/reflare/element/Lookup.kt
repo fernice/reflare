@@ -40,7 +40,7 @@ object StyleTreeElementLookup {
                 is org.fernice.reflare.render.CellRendererPane -> ModernCellRendererPaneElement(component)
                 is JLayeredPane -> LayeredPaneElement(component)
                 is JRootPane -> RootPaneElement(component)
-                is Container -> AWTContainerElement(component)
+                is Container -> AWTContainerElement(component, artificial = component::class != Container::class)
                 else -> throw IllegalArgumentException("unsupported component ${component.javaClass.name}")
             }
 

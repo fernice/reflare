@@ -5,7 +5,7 @@
  */
 package org.fernice.reflare.ui;
 
-import fernice.reflare.ElementHelper;
+import fernice.reflare.StyleHelper;
 import fernice.reflare.light.DefaultListCellRenderer;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -13,11 +13,9 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import javax.swing.CellRendererPane;
 import javax.swing.JComponent;
-import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
-import javax.swing.border.Border;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicListUI;
@@ -143,7 +141,7 @@ public class FlareListUI extends BasicListUI implements FlareUI {
     private static class FlareListCellRenderer extends DefaultListCellRenderer.UIResource {
 
         {
-            ElementHelper.getClasses(this).add("list-cell");
+            StyleHelper.getClasses(this).add("list-cell");
         }
     }
 }

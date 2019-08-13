@@ -24,7 +24,7 @@ import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 import javax.swing.text.JTextComponent
 
-class TextField : JTextField() {
+class FTextField : JTextField() {
 
     var placeholder: String
         get() = placeholderLabel.text
@@ -47,7 +47,7 @@ class TextField : JTextField() {
     }
 }
 
-class PasswordField : JPasswordField() {
+class FPasswordField : JPasswordField() {
 
     var placeholder: String
         get() = placeholderLabel.text
@@ -70,7 +70,7 @@ class PasswordField : JPasswordField() {
     }
 }
 
-class TextArea : JTextArea() {
+class FTextArea : JTextArea() {
 
     var placeholder: String
         get() = placeholderLabel.text

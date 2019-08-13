@@ -29,6 +29,7 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
     }
 
     private static final AtomicBoolean integrationInstalled = new AtomicBoolean();
+    private static final AtomicBoolean lightweightMode = new AtomicBoolean(true);
 
     public static void installIntegration() {
         if (!integrationInstalled.getAndSet(true)) {
@@ -39,11 +40,14 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
 
     public static void install() {
         try {
-
             UIManager.setLookAndFeel(FlareLookAndFeel.class.getName());
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static boolean isLightweightMode() {
+        return lightweightMode.get();
     }
 
     @Override
@@ -97,9 +101,8 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
         super.initialize();
         DefaultLookupHelper.setDefaultLookup(new FlareDefaultLookup());
 
-        SharedHoverHandler.initialize();
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addPropertyChangeListener("focusOwner", focusChangeListener);
-        integrationInstalled.set(true);
+        installIntegration();
+        lightweightMode.set(false);
     }
 
     @Override
@@ -108,6 +111,7 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
 
         KeyboardFocusManager.getCurrentKeyboardFocusManager().removePropertyChangeListener("focusOwner", focusChangeListener);
         integrationInstalled.set(false);
+        lightweightMode.set(true);
     }
 
     private UIDefaults defaults;

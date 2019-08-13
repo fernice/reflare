@@ -6,7 +6,7 @@
 
 package org.fernice.reflare.ui;
 
-import fernice.reflare.ElementHelper;
+import fernice.reflare.StyleHelper;
 import fernice.reflare.light.Button;
 import fernice.reflare.light.ComboBox;
 import fernice.reflare.light.Label;
@@ -149,7 +149,7 @@ public class FlareFileChooserUI extends FlareAbstractFileChooserUI {
         this.directoryComboBox.setMaximumRowCount(8);
         var3.add(this.directoryComboBox, "Center");
         this.filePane = new FilePane(new SynthFileChooserUIAccessor());
-        ElementHelper.getClasses(filePane).add("file-pane");
+        StyleHelper.getClasses(filePane).add("file-pane");
 
         var1.addPropertyChangeListener(this.filePane);
         JPopupMenu var5 = this.filePane.getComponentPopupMenu();
@@ -163,7 +163,7 @@ public class FlareFileChooserUI extends FlareAbstractFileChooserUI {
         FileSystemView var6 = var1.getFileSystemView();
         Button var7 = new Button(this.getChangeToParentDirectoryAction());
         var7.setText((String) null);
-        ElementHelper.getClasses(var7).add("icn-folder-up");
+        StyleHelper.getClasses(var7).add("icn-folder-up");
         var7.setToolTipText(this.upFolderToolTipText);
         var7.getAccessibleContext().setAccessibleName(this.upFolderAccessibleName);
         var7.setAlignmentX(0.0F);
@@ -178,7 +178,7 @@ public class FlareFileChooserUI extends FlareAbstractFileChooserUI {
         }
 
         Button var10 = new Button(this.homeFolderIcon);
-        ElementHelper.getClasses(var10).add("icn-folder-home");
+        StyleHelper.getClasses(var10).add("icn-folder-home");
         var10.setToolTipText(var9);
         var10.getAccessibleContext().setAccessibleName(this.homeFolderAccessibleName);
         var10.setAlignmentX(0.0F);
@@ -189,7 +189,7 @@ public class FlareFileChooserUI extends FlareAbstractFileChooserUI {
         var4.add(Box.createRigidArea(hstrut5));
         if (!this.readOnly) {
             var10 = new Button(this.filePane.getNewFolderAction());
-            ElementHelper.getClasses(var10).add("icn-folder-new");
+            StyleHelper.getClasses(var10).add("icn-folder-new");
             var10.setText((String) null);
             var10.setIcon(this.newFolderIcon);
             var10.setToolTipText(this.newFolderToolTipText);

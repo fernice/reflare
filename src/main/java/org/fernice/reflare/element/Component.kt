@@ -1,6 +1,7 @@
 package org.fernice.reflare.element
 
 import fernice.reflare.CSSEngine
+import fernice.reflare.FlareLookAndFeel
 import fernice.std.None
 import fernice.std.Option
 import fernice.std.Some

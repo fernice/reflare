@@ -20,6 +20,7 @@ import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 import javax.swing.plaf.basic.ComboPopup;
+import org.fernice.reflare.Defaults;
 import org.fernice.reflare.element.AWTComponentElement;
 import org.fernice.reflare.element.ComboBoxElement;
 import org.fernice.reflare.element.ComponentElement;
@@ -47,6 +48,7 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
 
         currentValuePane = new CellRendererPane();
         squareButton = false;
+        padding = Defaults.INSETS_EMPTY;
 
         UIDefaultsHelper.installDefaultProperties(this, comboBox);
 

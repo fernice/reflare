@@ -21,10 +21,16 @@ internal inline fun integrationDependent(component: JComponent, block: () -> Com
     }
 }
 
+internal inline fun computeIntegrationDependent(block: () -> Unit) {
+    if (UIManager.getLookAndFeel() !is FlareLookAndFeel) {
+        block()
+    }
+}
+
 object IntegrationHelper {
 
     @JvmStatic
     fun getIntegrationDependentUI(component: JComponent, block: () -> ComponentUI): ComponentUI {
-         return integrationDependent(component, block)
+        return integrationDependent(component, block)
     }
 }

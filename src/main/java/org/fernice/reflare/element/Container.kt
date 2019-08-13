@@ -6,11 +6,15 @@
 
 package org.fernice.reflare.element
 
+import fernice.reflare.FlareLookAndFeel
 import fernice.std.None
 import fernice.std.Option
 import fernice.std.Some
 import org.fernice.flare.EngineContext
 import org.fernice.flare.dom.Element
+import org.fernice.flare.dom.ElementData
+import org.fernice.flare.style.ResolvedElementStyles
+import org.fernice.flare.style.context.StyleContext
 import java.awt.Component
 import java.awt.Container
 import java.awt.event.ContainerEvent
@@ -18,7 +22,7 @@ import java.awt.event.ContainerListener
 import java.util.concurrent.CopyOnWriteArrayList
 
 
-open class AWTContainerElement(container: Container) : AWTComponentElement(container) {
+open class AWTContainerElement(container: Container, val artificial: Boolean = false) : AWTComponentElement(container) {
 
     internal val children: MutableList<AWTComponentElement> = CopyOnWriteArrayList()
 
@@ -148,6 +152,14 @@ open class AWTContainerElement(container: Container) : AWTComponentElement(conta
     }
 
     // ***************************** Matching ***************************** //
+
+    override fun finishRestyle(context: StyleContext, data: ElementData, elementStyles: ResolvedElementStyles) {
+        if (artificial && FlareLookAndFeel.isLightweightMode()) {
+            data.setStyles(elementStyles)
+        } else {
+            super.finishRestyle(context, data, elementStyles)
+        }
+    }
 
     // In theory it is possible to construct a Container meaning that needs a
     // local name to styled. In practice hopefully no one will try to do it

@@ -10,6 +10,7 @@ import org.fernice.reflare.ui.FlareTableUI
 import java.util.Vector
 import javax.swing.JTable
 import javax.swing.ListSelectionModel
+import javax.swing.table.JTableHeader
 import javax.swing.table.TableColumnModel
 import javax.swing.table.TableModel
 
@@ -22,9 +23,13 @@ open class Table : JTable {
     constructor(model: TableModel, columnModel: TableColumnModel, selectionModel: ListSelectionModel) : super(model, columnModel, selectionModel)
     constructor(rows: Int, columns: Int) : super(rows, columns)
     constructor(rowData: Vector<*>, columnNames: Vector<*>) : super(rowData, columnNames)
-    constructor(rowData: Array<Array<Any>>, columnNames: Array<Any>) : super(rowData, columnNames)
+    constructor(rowData: Array<out Array<out Any>>, columnNames: Array<out Any>) : super(rowData, columnNames)
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareTableUI(this) })
+    }
+
+    override fun createDefaultTableHeader(): JTableHeader {
+        return TableHeader(columnModel)
     }
 }

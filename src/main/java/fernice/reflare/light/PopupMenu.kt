@@ -8,6 +8,7 @@ package fernice.reflare.light
 
 import org.fernice.reflare.ui.FlarePopupMenuUI
 import javax.swing.JPopupMenu
+import javax.swing.plaf.PopupMenuUI
 
 @Suppress("UNUSED")
 open class PopupMenu : JPopupMenu {
@@ -17,5 +18,12 @@ open class PopupMenu : JPopupMenu {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlarePopupMenuUI() })
+    }
+
+    companion object {
+
+        internal fun setUI(popupMenu: JPopupMenu, ui: PopupMenuUI) {
+            popupMenu.ui = ui
+        }
     }
 }

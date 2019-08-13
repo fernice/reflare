@@ -19,7 +19,6 @@ open class DefaultTableCellRenderer : Label(), TableCellRenderer, Serializable {
      * Creates a default table cell renderer.
      */
     init {
-        isOpaque = true
         name = "Table.cellRenderer"
     }
 

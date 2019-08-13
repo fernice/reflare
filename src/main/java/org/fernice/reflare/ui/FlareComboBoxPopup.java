@@ -5,8 +5,10 @@
  */
 package org.fernice.reflare.ui;
 
+import fernice.reflare.StyleHelper;
 import fernice.reflare.light.IntegrationHelper;
 import fernice.reflare.light.List;
+import fernice.reflare.light.ScrollPane;
 import java.awt.Component;
 import java.awt.Insets;
 import java.awt.Toolkit;
@@ -14,11 +16,12 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.JComboBox;
 import javax.swing.JList;
+import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.border.Border;
 import javax.swing.plaf.basic.BasicComboPopup;
-import javax.swing.plaf.basic.BasicGraphicsUtils;
 import org.fernice.reflare.element.AWTComponentElement;
 import org.fernice.reflare.element.StyleTreeHelper;
 
@@ -65,6 +68,7 @@ public class FlareComboBoxPopup extends BasicComboPopup {
     protected void configureList() {
         FlareComboBoxUI comboBoxUI = (FlareComboBoxUI) comboBox.getUI();
 
+        StyleHelper.getClasses(list).add("combobox-list");
         list.setCellRenderer(comboBoxUI.getRendererWrapper());
         list.setFocusable(false);
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -76,6 +80,15 @@ public class FlareComboBoxPopup extends BasicComboPopup {
             list.ensureIndexIsVisible(selectedIndex);
         }
         installListListeners();
+    }
+
+    @Override
+    protected JScrollPane createScroller() {
+        ScrollPane sp = new ScrollPane( list,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER );
+        sp.setHorizontalScrollBar(null);
+        return sp;
     }
 
     @Override

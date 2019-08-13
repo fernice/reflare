@@ -1,4 +1,4 @@
-@file:JvmName("ElementHelper")
+@file:JvmName("StyleHelper")
 
 package fernice.reflare
 
