@@ -1,0 +1,14 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+scrollbar {
+  background: #99999933;
+  color: #99999977;
+}
+
+scrollbar:hover {
+  color: #99999999;
+}

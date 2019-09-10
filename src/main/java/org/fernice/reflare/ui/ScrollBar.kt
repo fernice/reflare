@@ -29,7 +29,7 @@ import javax.swing.plaf.basic.BasicScrollBarUI
 
 class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentElement = ScrollBarElement(scrollbar)) : BasicScrollBarUI(), FlareUI {
 
-    private val showButtons = Platform.operatingSystem == OperatingSystem.Windows
+    private val showButtons = Platform.isWindows()
 
     override fun installDefaults() {
         super.installDefaults()
@@ -72,7 +72,7 @@ class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentEle
     override fun paintTrack(g: Graphics, c: JComponent, trackBounds: Rectangle) {
         if (showButtons) {
             g.color = c.background
-            g.fillRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height)
+            //g.fillRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height)
         }
     }
 
@@ -91,7 +91,7 @@ class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentEle
         val hp = if (vertical) 0 else padding
 
         val radii = when {
-            showButtons -> 3
+            showButtons -> 0
             scrollbar.orientation == JScrollBar.VERTICAL -> w - 2
             scrollbar.orientation == JScrollBar.HORIZONTAL -> h - 2
             else -> 0

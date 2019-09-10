@@ -105,8 +105,8 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
     }
 
     @Override
-    public Dimension getMinimumSize( JComponent c ) {
-        if ( !isMinimumSizeDirty ) {
+    public Dimension getMinimumSize(JComponent c) {
+        if (!isMinimumSizeDirty) {
             return new Dimension(cachedMinimumSize);
         }
         Dimension size = getDisplaySize();
@@ -116,9 +116,9 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
         int buttonWidth = squareButton ? buttonHeight : arrowButton.getPreferredSize().width;
         //adjust the size based on the button width
         size.height += insets.top + insets.bottom;
-        size.width +=  insets.left + insets.right + buttonWidth;
+        size.width += insets.left + insets.right + buttonWidth;
 
-        cachedMinimumSize.setSize( size.width, size.height );
+        cachedMinimumSize.setSize(size.width, size.height);
         isMinimumSizeDirty = false;
 
         return new Dimension(size);
@@ -245,29 +245,25 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
         @Override
         public void layoutContainer(Container parent) {
             JComboBox cb = (JComboBox) parent;
-            int width = cb.getWidth();
-            int height = cb.getHeight();
-
-            FlareBorder border = (FlareBorder) cb.getBorder();
-            Insets buttonInsets = border.getMarginAndBorderInsets();
-
-            int buttonHeight = height - (buttonInsets.top + buttonInsets.bottom);
-            int buttonWidth = buttonHeight;
-            if (arrowButton != null) {
-                Insets arrowInsets = arrowButton.getInsets();
-                buttonWidth = squareButton ? buttonHeight : arrowButton.getPreferredSize().width + arrowInsets.left + arrowInsets.right;
-            }
-            Rectangle cvb;
 
             if (arrowButton != null) {
+                int width = cb.getWidth();
+                int height = cb.getHeight();
+
+                FlareBorder border = (FlareBorder) cb.getBorder();
+                Insets adjustedInsets = border.getMarginAndBorderInsets();
+
+                int buttonHeight = height - (adjustedInsets.top + adjustedInsets.bottom);
+                int buttonWidth = squareButton ? buttonHeight : arrowButton.getPreferredSize().width;
+
                 if (comboBox.getComponentOrientation().isLeftToRight()) {
-                    arrowButton.setBounds(width - (buttonInsets.right + buttonWidth), buttonInsets.top, buttonWidth, buttonHeight);
+                    arrowButton.setBounds(width - (adjustedInsets.right + buttonWidth), adjustedInsets.top, buttonWidth, buttonHeight);
                 } else {
-                    arrowButton.setBounds(buttonInsets.left, buttonInsets.top, buttonWidth, buttonHeight);
+                    arrowButton.setBounds(adjustedInsets.left, adjustedInsets.top, buttonWidth, buttonHeight);
                 }
             }
             if (editor != null) {
-                cvb = rectangleForCurrentValue();
+                Rectangle cvb = rectangleForCurrentValue();
                 editor.setBounds(cvb);
             }
         }

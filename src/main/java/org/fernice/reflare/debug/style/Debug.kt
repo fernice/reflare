@@ -18,7 +18,6 @@ import org.fernice.flare.style.ruletree.CascadeLevel
 import org.fernice.flare.style.ruletree.StyleSource
 import org.fernice.reflare.element.AWTComponentElement
 import org.fernice.reflare.element.element
-import org.fernice.reflare.element.into
 import org.fernice.reflare.layout.VerticalLayout
 import java.awt.AWTEvent
 import java.awt.BorderLayout
@@ -167,8 +166,8 @@ private class MatchingStylesPanel : JPanel() {
 
             for (node in result.ruleNode.selfAndAncestors()) {
                 val source = node.source
-                if (source is Some) {
-                    add(StylesPanel(source.value, node.level))
+                if (source != null) {
+                    add(StylesPanel(source, node.level))
                 }
             }
         }
@@ -209,7 +208,7 @@ private class StylesPanel(source: StyleSource, level: CascadeLevel) : JPanel() {
             selectorLabel.text = "element.style"
         }
 
-        for ((declaration, importance) in declarations.declarationImportanceIter()) {
+        for ((declaration, importance) in declarations.declarationImportanceSequence()) {
             val declarationLabel = JLabel()
             declarationLabel.text = declaration.toCssString().wrappable()
             declarationLabel.classes.add("dbg-declaration")

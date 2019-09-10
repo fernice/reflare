@@ -14,6 +14,8 @@ import org.fernice.flare.style.stylesheet.Stylesheet
 import org.fernice.flare.style.value.computed.Au
 import org.fernice.flare.style.value.generic.Size2D
 import org.fernice.reflare.element.AWTComponentElement
+import org.fernice.reflare.platform.OperatingSystem
+import org.fernice.reflare.platform.Platform
 import java.awt.Component
 import java.io.File
 import java.io.InputStream
@@ -65,6 +67,15 @@ object CSSEngine {
 
     init {
         addStylesheet(Source.Resource("/reflare/style/user-agent.css"), Origin.USER_AGENT)
+
+        val platformStylesheet = when (Platform.operatingSystem) {
+            OperatingSystem.Windows -> "/reflare/style/user-agent-windows.css"
+            OperatingSystem.Mac -> "/reflare/style/user-agent-macos.css"
+            OperatingSystem.Linux -> "/reflare/style/user-agent-linux.css"
+        }
+
+        addStylesheet(Source.Resource(platformStylesheet), Origin.USER_AGENT)
+
         addStylesheet(Source.Resource("/reflare/style/file_chooser.css"), Origin.USER_AGENT)
         addStylesheet(Source.Resource("/reflare/style/material.css"), Origin.USER)
     }
@@ -138,8 +149,8 @@ sealed class Source {
 
     fun inputStream(): InputStream {
         return when (this) {
-            is Source.Resource -> FlareLookAndFeel::class.java.getResourceAsStream(path)
-            is Source.File -> path.inputStream()
+            is Resource -> FlareLookAndFeel::class.java.getResourceAsStream(path)
+            is File -> path.inputStream()
         }
     }
 }

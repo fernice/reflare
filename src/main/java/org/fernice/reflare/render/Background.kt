@@ -57,8 +57,7 @@ fun BackgroundLayers.Companion.computeBackgroundLayers(
 
     loop@
     for (layer in background.reversedImageLayerIterator()) {
-        val image = layer.image
-        when (image) {
+        when (val image = layer.image) {
             is Image.Url -> {
                 val url = when (image.url) {
                     is ComputedUrl.Valid -> (image.url as ComputedUrl.Valid).url

@@ -11,6 +11,7 @@ import org.fernice.reflare.ui.FlareScrollPaneUI
 import java.awt.Component
 import javax.swing.JScrollBar
 import javax.swing.JScrollPane
+import javax.swing.JViewport
 
 @Suppress("UNUSED")
 open class ScrollPane : JScrollPane {
@@ -30,6 +31,10 @@ open class ScrollPane : JScrollPane {
 
     override fun createHorizontalScrollBar(): JScrollBar {
         return ScrollBar(JScrollBar.HORIZONTAL)
+    }
+
+    override fun createViewport(): JViewport {
+        return Viewport()
     }
 
     protected inner class ScrollBar(orientation: Int) : JScrollPane.ScrollBar(orientation) {

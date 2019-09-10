@@ -1,11 +1,17 @@
 package org.fernice.reflare.ui
 
-import fernice.std.Some
+import org.fernice.flare.style.ComputedValues
 import org.fernice.reflare.element.AWTComponentElement
-import org.fernice.reflare.geom.Insets
-import org.fernice.reflare.geom.toInsets
+import org.fernice.reflare.resource.RequiresResourceContext
+import org.fernice.reflare.resource.ResourceContext
+import org.fernice.reflare.resource.TInsets
+import org.fernice.reflare.resource.plus
+import org.fernice.reflare.resource.toAWTInsets
+import org.fernice.reflare.resource.toTInsets
+import org.fernice.reflare.resource.withResourceContext
 import java.awt.Component
 import java.awt.Graphics
+import java.awt.Rectangle
 import javax.swing.border.AbstractBorder
 import java.awt.Insets as AWTInsets
 
@@ -23,78 +29,31 @@ class FlareBorder(private val ui: FlareUI) : AbstractBorder() {
     }
 
     override fun getBorderInsets(c: Component?, insets: AWTInsets?): AWTInsets {
-        var insets = insets
-        if (insets == null) {
-            insets = AWTInsets(0, 0, 0, 0)
-        } else {
-            insets.top = 0
-            insets.right = 0
-            insets.bottom = 0
-            insets.left = 0
-        }
+        return withResourceContext { computeInsets { bounds -> margin.toTInsets(bounds) + border.toTInsets() + padding.toTInsets(bounds) }.toAWTInsets(insets) }
+    }
 
+    @RequiresResourceContext
+    internal fun getMarginAndBorderTInsets(): TInsets {
+        return computeInsets { bounds -> margin.toTInsets(bounds) + border.toTInsets() }
+    }
+
+    fun getMarginAndBorderInsets(): AWTInsets = withResourceContext { getMarginAndBorderTInsets().toAWTInsets() }
+    fun getMarginInsets(): AWTInsets = withResourceContext { computeInsets { bounds -> margin.toTInsets(bounds) }.toAWTInsets() }
+    fun getPaddingInsets(): AWTInsets = withResourceContext { computeInsets { bounds -> padding.toTInsets(bounds) }.toAWTInsets() }
+
+    @RequiresResourceContext
+    private inline fun computeInsets(block: ComputedValues.(Rectangle) -> TInsets): TInsets {
         val style = ui.element.getStyle()
+        return if (style != null) {
+            val bounds = ui.element.component.getBounds(ResourceContext.Rectangle())
 
-        if (style is Some) {
-            val values = style.value
-            val component = c ?: ui.element.component
-            val bounds = component.bounds
-
-            insets = insets + values.margin.toInsets(bounds) + values.border.toInsets() + values.padding.toInsets(bounds)
+            style.block(bounds)
+        } else {
+            ResourceContext.TInsets()
         }
-
-        return insets
     }
 
     override fun isBorderOpaque(): Boolean {
         return false
     }
-
-    fun getMarginAndBorderInsets(): AWTInsets {
-        val style = ui.element.getStyle()
-
-        return if (style is Some) {
-            val values = style.value
-            val bounds = ui.element.component.bounds
-
-            AWTInsets(0, 0, 0, 0) + values.margin.toInsets(bounds) + values.border.toInsets()
-        } else {
-            AWTInsets(0, 0, 0, 0)
-        }
-    }
-
-    fun getMarginInsets(): AWTInsets {
-        val style = ui.element.getStyle()
-
-        return if (style is Some) {
-            val values = style.value
-            val bounds = ui.element.component.bounds
-
-            AWTInsets(0, 0, 0, 0) + values.margin.toInsets(bounds)
-        } else {
-            AWTInsets(0, 0, 0, 0)
-        }
-    }
-
-    fun getPaddingInsets(): AWTInsets {
-        val style = ui.element.getStyle()
-
-        return if (style is Some) {
-            val values = style.value
-            val bounds = ui.element.component.bounds
-
-            AWTInsets(0, 0, 0, 0) + values.padding.toInsets(bounds)
-        } else {
-            AWTInsets(0, 0, 0, 0)
-        }
-    }
-}
-
-operator fun AWTInsets.plus(insets: Insets): AWTInsets {
-    this.top += insets.top.toInt()
-    this.right += insets.right.toInt()
-    this.bottom += insets.bottom.toInt()
-    this.left += insets.left.toInt()
-
-    return this
 }

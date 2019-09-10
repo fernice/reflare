@@ -19,6 +19,7 @@ import javax.swing.JRootPane
 
 object StyleTreeElementLookup {
 
+    @JvmStatic
     private val elements: MutableMap<Component, FlareUI> = WeakHashMap()
 
     @JvmStatic
@@ -31,10 +32,9 @@ object StyleTreeElementLookup {
         elements.remove(component)
     }
 
+    @JvmStatic
     internal fun ensureElement(component: Component): FlareUI {
-        val element = elements[component]
-
-        return if (element == null) {
+        return elements.getOrPut(component) {
             val new = when (component) {
                 is CellRendererPane -> CellRendererPaneElement(component)
                 is org.fernice.reflare.render.CellRendererPane -> ModernCellRendererPaneElement(component)
@@ -44,26 +44,18 @@ object StyleTreeElementLookup {
                 else -> throw IllegalArgumentException("unsupported component ${component.javaClass.name}")
             }
 
-            val ui = ComponentUIWrapper(new)
-
-            elements[component] = ui
-
-            ui
-        } else {
-            element
+            ComponentUIWrapper(new)
         }
     }
 }
 
-private class ComponentUIWrapper(
-    override val element: AWTComponentElement
-) : FlareUI {
+private class ComponentUIWrapper(override val element: AWTComponentElement) : FlareUI {
 
     override fun paintBorder(c: Component, g: Graphics, x: Int, y: Int, width: Int, height: Int) {
     }
 }
 
-@Deprecated(message = "Element is now a extension attribute", level = DeprecationLevel.ERROR, replaceWith = ReplaceWith("element"))
+@Deprecated(message = "Element is now a extension attribute", level = DeprecationLevel.HIDDEN, replaceWith = ReplaceWith("element"))
 fun Component.into(): AWTComponentElement {
     return StyleTreeElementLookup.ensureElement(this).element
 }

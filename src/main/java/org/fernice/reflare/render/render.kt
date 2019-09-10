@@ -1,12 +1,12 @@
 package org.fernice.reflare.render
 
-import fernice.std.Option
-import fernice.std.Some
 import org.fernice.flare.style.ComputedValues
 import org.fernice.flare.style.properties.longhand.background.Attachment
 import org.fernice.flare.style.properties.longhand.background.Clip
+import org.fernice.flare.style.properties.stylestruct.Border
 import org.fernice.flare.style.value.computed.Au
 import org.fernice.flare.style.value.computed.BackgroundSize
+import org.fernice.flare.style.value.computed.Style
 import org.fernice.reflare.element.AWTComponentElement
 import org.fernice.reflare.geom.Insets
 import org.fernice.reflare.geom.Point
@@ -18,15 +18,13 @@ import java.awt.Graphics
 import java.awt.Graphics2D
 import java.awt.Image
 import java.awt.Rectangle
-import java.awt.RenderingHints
 import javax.swing.SwingUtilities
 import java.awt.Color as AWTColor
-import java.awt.Insets as AWTInsets
 
-fun renderBackground(g: Graphics, component: Component, element: AWTComponentElement, style: Option<ComputedValues>) {
-    if (style is Some) {
+fun renderBackground(g: Graphics, component: Component, element: AWTComponentElement, style: ComputedValues?) {
+    if (style != null) {
         g.use { g2 ->
-            paintBackground(g2, component, element, style.value)
+            paintBackground(g2, component, element, style)
         }
     } else {
         val bounds = component.bounds
@@ -36,29 +34,16 @@ fun renderBackground(g: Graphics, component: Component, element: AWTComponentEle
     }
 }
 
-fun renderBorder(g: Graphics, component: Component, element: AWTComponentElement, style: Option<ComputedValues>) {
-    if (style is Some) {
+fun renderBorder(g: Graphics, component: Component, element: AWTComponentElement, style: ComputedValues?) {
+    if (style != null) {
         g.use { g2 ->
-            paintBorder(g2, component, element, style.value)
+            paintBorder(g2, component, element, style)
         }
     } else {
         val bounds = component.bounds
 
         g.color = AWTColor.LIGHT_GRAY
         g.drawRect(0, 0, bounds.width, bounds.height)
-    }
-}
-
-inline fun Graphics.use(renderer: (Graphics2D) -> Unit) {
-    val g2 = this.create() as Graphics2D
-    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-    g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
-    g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
-
-    try {
-        renderer(g2)
-    } finally {
-        g2.dispose()
     }
 }
 
@@ -176,15 +161,13 @@ fun paintBorder(g2: Graphics2D, component: Component, element: AWTComponentEleme
 
     val borderWidth = border.toInsets()
 
-    if (borderWidth.isZero()) {
+    if (borderWidth.isZero() || border.isNone()) {
         return
     }
 
     val borderColor = border.toColors(computedValues.color.color)
 
-    val borderShape = element.borderShape
-
-    when (borderShape) {
+    when (val borderShape = element.borderShape) {
         is BorderShape.Simple -> {
             g2.color = borderColor.top
             g2.fill(borderShape.shape)
@@ -203,6 +186,10 @@ fun paintBorder(g2: Graphics2D, component: Component, element: AWTComponentEleme
             g2.fill(borderShape.left)
         }
     }
+}
+
+private fun Border.isNone(): Boolean {
+    return topStyle == Style.None && rightStyle == Style.None && bottomStyle == Style.None && leftStyle == Style.None
 }
 
 fun Rectangle.reduce(clip: Clip, padding: Insets, borderInsets: Insets, margin: Insets): Rectangle {

@@ -31,6 +31,10 @@ object ImageCache {
         val cachedRequest = images[url]
 
         if (cachedRequest != null) {
+            if (!cachedRequest.isDone) {
+                cachedRequest.thenRun(invoker)
+            }
+
             return cachedRequest
         }
 

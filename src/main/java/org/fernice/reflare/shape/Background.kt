@@ -6,47 +6,53 @@ import org.fernice.reflare.element.AWTComponentElement
 import org.fernice.reflare.geom.Bounds
 import org.fernice.reflare.geom.Insets
 import org.fernice.reflare.geom.Radii
-import org.fernice.reflare.geom.toInsets
-import org.fernice.reflare.geom.toRadii
+import org.fernice.reflare.resource.ResourceContext
+import org.fernice.reflare.resource.TBounds
+import org.fernice.reflare.resource.TInsets
+import org.fernice.reflare.resource.TRadii
+import org.fernice.reflare.resource.minus
+import org.fernice.reflare.resource.plus
+import org.fernice.reflare.resource.toTInsets
+import org.fernice.reflare.resource.toTRadii
 import java.awt.Dimension
 import java.awt.Shape
 import java.awt.geom.Path2D
 
-fun BackgroundShape.Companion.computeBackgroundShape(computedValues: ComputedValues, element: AWTComponentElement): BackgroundShape {
-    val background = computedValues.background
-    val border = computedValues.border
-
-    val component = element.component
-
-    val bounds = component.bounds
-    val size = component.size
-
-    val borderWidth = border.toInsets()
-    val borderRadius = border.toRadii(bounds)
-
-    val margin = element.margin
-    val padding = element.padding
-
-    val backgroundClip = background.clip
-
-    return BackgroundShape.from(backgroundClip, size, borderWidth, borderRadius, margin, padding)
-}
-
-class BackgroundShape(val shape: Shape) {
+internal class BackgroundShape(val shape: Shape) {
 
     companion object {
 
-        fun from(
+        internal fun from(
             clip: Clip,
             size: Dimension,
-            borderWidth: Insets,
-            borderRadius: Radii,
-            margin: Insets,
-            padding: Insets
+            borderWidth: TInsets,
+            borderRadius: TRadii,
+            margin: TInsets,
+            padding: TInsets
         ): BackgroundShape {
             return BackgroundShape(
                 computeBackgroundClip(clip, size, borderWidth, borderRadius, margin, padding)
             )
+        }
+
+        fun computeBackgroundShape(computedValues: ComputedValues, element: AWTComponentElement): BackgroundShape {
+            val background = computedValues.background
+            val border = computedValues.border
+
+            val component = element.component
+
+            val bounds = component.getBounds(ResourceContext.Rectangle())
+            val size = component.size
+
+            val borderWidth = border.toTInsets()
+            val borderRadius = border.toTRadii(bounds)
+
+            val margin = computedValues.margin.toTInsets(bounds)
+            val padding = computedValues.padding.toTInsets(bounds)
+
+            val backgroundClip = background.clip
+
+            return from(backgroundClip, size, borderWidth, borderRadius, margin, padding)
         }
     }
 }
@@ -54,29 +60,29 @@ class BackgroundShape(val shape: Shape) {
 internal fun computeBackgroundClip(
     clip: Clip,
     size: Dimension,
-    borderWidth: Insets,
-    borderRadius: Radii,
-    margin: Insets,
-    padding: Insets
+    borderWidth: TInsets,
+    borderRadius: TRadii,
+    margin: TInsets,
+    padding: TInsets
 ): Shape {
 
     val (width, bounds) = when (clip) {
         Clip.ContentBox -> {
             Pair(
                 padding + borderWidth,
-                Bounds.fromDimension(size) - padding - borderWidth - margin
+                TBounds.fromDimension(size) - (padding + borderWidth + margin)
             )
         }
         Clip.PaddingBox -> {
             Pair(
                 borderWidth,
-                Bounds.fromDimension(size) - borderWidth - margin
+                TBounds.fromDimension(size) - (borderWidth + margin)
             )
         }
         Clip.BorderBox -> {
             Pair(
-                Insets.empty(),
-                Bounds.fromDimension(size) - margin
+                ResourceContext.TInsets(),
+                TBounds.fromDimension(size) - (margin)
             )
         }
     }
@@ -93,7 +99,7 @@ internal fun computeBackgroundClip(
  * @param width the width that define the virtual space together with the rectangle
  * @return the rounded rectangle
  */
-private fun computeRoundedRectangle(rect: Bounds, radii: Radii, width: Insets): Path2D {
+private fun computeRoundedRectangle(rect: TBounds, radii: TRadii, width: TInsets): Path2D {
     val path = Path2D.Float()
 
     val tls = if (width.top < radii.topLeftHeight) radii.topLeftHeight - width.top else 0f

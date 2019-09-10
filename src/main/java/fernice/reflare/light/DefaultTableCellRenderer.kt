@@ -46,7 +46,7 @@ open class DefaultTableCellRenderer : Label(), TableCellRenderer, Serializable {
      * @see javax.swing.JComponent.isPaintingForPrint
      */
     override fun getTableCellRendererComponent(
-        table: JTable?, value: Any,
+        table: JTable?, value: Any?,
         isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int
     ): Component {
         var isSelected = isSelected

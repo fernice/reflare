@@ -1,7 +1,5 @@
 package org.fernice.reflare.element
 
-import fernice.std.None
-import fernice.std.Some
 import org.fernice.flare.dom.Element
 import org.fernice.flare.style.ComputedValues
 import org.fernice.reflare.util.Broadcast
@@ -16,15 +14,7 @@ inline fun <T> PropertyBuilder<*, T>.computeStyle(crossinline computation: (Comp
 inline fun <E : Element, T> PropertyBuilder<E, T>.computeStyle(crossinline computation: (E, ComputedValues) -> T) {
     compute { element ->
         val data = element.getData()
-        val styles = when (data) {
-            is Some -> data.value
-            is None -> return@compute null
-        }.styles.primary
-
-        val values = when (styles) {
-            is Some -> styles.value
-            is None -> return@compute null
-        }
+        val values = data?.styles?.primary ?: return@compute null
 
         computation(element, values)
     }
