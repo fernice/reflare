@@ -9,18 +9,18 @@ package org.fernice.reflare.render
 import org.fernice.flare.style.ComputedValues
 import org.fernice.flare.style.properties.longhand.background.Attachment
 import org.fernice.flare.style.properties.longhand.background.Clip
+import org.fernice.flare.style.properties.longhand.background.Origin
 import org.fernice.flare.style.value.computed.BackgroundSize
 import org.fernice.flare.style.value.computed.ComputedUrl
 import org.fernice.flare.style.value.computed.HorizontalPosition
 import org.fernice.flare.style.value.computed.Image
 import org.fernice.flare.style.value.computed.VerticalPosition
 import org.fernice.reflare.cache.ImageCache
-import org.fernice.reflare.element.element
-import org.fernice.reflare.element.invalidate
 import org.fernice.reflare.toAWTColor
 import java.awt.Color
 import java.awt.Component
 import java.awt.MultipleGradientPaint
+import java.util.concurrent.CompletableFuture
 import java.awt.Image as AWTImage
 
 class BackgroundLayers(
@@ -34,11 +34,12 @@ class BackgroundLayers(
 sealed class BackgroundLayer {
 
     data class Image(
-        val image: AWTImage,
+        val image: CompletableFuture<out AWTImage>,
         val attachment: Attachment,
         val size: BackgroundSize,
         val positionX: HorizontalPosition,
-        val positionY: VerticalPosition
+        val positionY: VerticalPosition,
+        val origin: Origin
     ) : BackgroundLayer() {
         companion object
     }
@@ -65,15 +66,12 @@ fun BackgroundLayers.Companion.computeBackgroundLayers(
                 }
 
                 val future = ImageCache.image(url) {
-                    component.element::backgroundLayers.invalidate()
                     component.repaint()
                 }
 
-                if (future.isDone && !future.isCompletedExceptionally) {
-                    layers.add(
-                        BackgroundLayer.Image(future.get(), layer.attachment, layer.size, layer.positionX, layer.positionY)
-                    )
-                }
+                layers.add(
+                    BackgroundLayer.Image(future, layer.attachment, layer.size, layer.positionX, layer.positionY, layer.origin)
+                )
             }
             is Image.Gradient -> {
                 layers.add(

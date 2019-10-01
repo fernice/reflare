@@ -7,10 +7,14 @@
 package org.fernice.reflare.resource
 
 import org.fernice.flare.panic
+import org.fernice.flare.std.systemFlag
 import java.awt.Color
+import java.awt.Dimension
 import java.awt.Rectangle
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.concurrent.thread
+
+private val DUMP_RESOURCE_ALLOCATIONS = systemFlag("fernice.reflare.dumpResourceAllocations")
 
 internal object ResourceAllocator {
 
@@ -175,6 +179,21 @@ internal object ResourceAllocator {
         rectangles.offer(rectangle)
     }
 
+    private val dimensions = ConcurrentLinkedQueue<Dimension>()
+
+    fun allocateDimension(width: Int, height: Int, owner: Owner): Dimension {
+        val dimension = dimensions.poll() ?: Dimension()
+
+        dimension.width = width
+        dimension.height = height
+
+        return dimension
+    }
+
+    private fun deallocateDimension(dimension: Dimension) {
+        dimensions.offer(dimension)
+    }
+
     fun deallocate(resource: Any, owner: Owner) {
         require(resource !is Owned || resource.owner == owner) { "cannot deallocate resource that is owned by a different context" }
 
@@ -184,16 +203,17 @@ internal object ResourceAllocator {
             is TRadii -> deallocateTRadii(resource)
             is TBounds -> deallocateTBounds(resource)
             is Rectangle -> deallocateRectangle(resource)
+            is Dimension -> deallocateDimension(resource)
             else -> error("cannot deallocate unknown resource: $resource")
         }
     }
 
     init {
-        thread(start = true) {
+        thread(start = DUMP_RESOURCE_ALLOCATIONS) {
             while (true) {
                 Thread.sleep(5000)
 
-                println("TInsets: ${tInsets.size}  TColors: ${tColors.size}  TRadii: ${tRadii.size}  TBounds: ${tBounds.size}  Rectangle: ${rectangles.size}")
+                println("TInsets: ${tInsets.size}  TColors: ${tColors.size}  TRadii: ${tRadii.size}  TBounds: ${tBounds.size}  Rectangle: ${rectangles.size}  Dimension: ${dimensions.size}")
             }
         }
     }

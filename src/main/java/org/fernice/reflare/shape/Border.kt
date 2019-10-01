@@ -2,7 +2,7 @@ package org.fernice.reflare.shape
 
 import org.fernice.flare.style.ComputedValues
 import org.fernice.flare.style.properties.longhand.background.Clip
-import org.fernice.reflare.element.AWTComponentElement
+import org.fernice.reflare.render.merlin.MerlinRenderer
 import org.fernice.reflare.resource.ResourceContext
 import org.fernice.reflare.resource.TBounds
 import org.fernice.reflare.resource.TColors
@@ -12,6 +12,7 @@ import org.fernice.reflare.resource.minus
 import org.fernice.reflare.resource.toTColors
 import org.fernice.reflare.resource.toTInsets
 import org.fernice.reflare.resource.toTRadii
+import java.awt.Component
 import java.awt.Dimension
 import java.awt.Shape
 import java.awt.geom.Arc2D
@@ -36,15 +37,13 @@ internal sealed class BorderShape {
 
     companion object {
 
-        fun computeBorderShape(computedValues: ComputedValues, element: AWTComponentElement): BorderShape {
+        fun computeBorderShape(computedValues: ComputedValues, component: Component, renderer: MerlinRenderer? = null): BorderShape {
             val border = computedValues.border
 
             val borderWidth = border.toTInsets()
 
-            val component = element.component
-
             val bounds = component.getBounds(ResourceContext.Rectangle())
-            val size = component.size
+            val size = component.getSize(ResourceContext.Dimension())
 
             val borderRadius = border.toTRadii(bounds)
             val borderColor = border.toTColors(computedValues.color.color)
@@ -53,10 +52,20 @@ internal sealed class BorderShape {
             val padding = computedValues.padding.toTInsets(bounds)
 
             return if (hasOnlyOneColor(borderColor)) {
-                simple(size, borderWidth, borderRadius, margin, padding)
+                if (renderer != null) simple(computedValues, renderer) else simple(size, borderWidth, borderRadius, margin, padding)
             } else {
                 complex(size, borderWidth, borderRadius, margin)
             }
+        }
+
+        internal fun simple(computedValues: ComputedValues, renderer: MerlinRenderer): BorderShape {
+            val borderClip = renderer.getBackgroundShape(computedValues, Clip.BorderBox)
+            val paddingClip = renderer.getBackgroundShape(computedValues, Clip.PaddingBox)
+
+            val clip = Area(borderClip.shape)
+            clip.subtract(Area(paddingClip.shape))
+
+            return Simple(clip)
         }
 
         fun simple(
@@ -72,7 +81,7 @@ internal sealed class BorderShape {
             val clip = Area(borderClip)
             clip.subtract(Area(paddingClip))
 
-            return BorderShape.Simple(clip)
+            return Simple(clip)
         }
 
         fun complex(
@@ -83,7 +92,7 @@ internal sealed class BorderShape {
         ): BorderShape {
             val bounds = TBounds.fromDimension(size) - margin
 
-            return BorderShape.Complex(
+            return Complex(
                 computeTopBorder(bounds, borderRadius, borderWidth),
                 computeRightBorder(bounds, borderRadius, borderWidth),
                 computeBottomBorder(bounds, borderRadius, borderWidth),

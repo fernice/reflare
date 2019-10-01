@@ -8,6 +8,7 @@ package org.fernice.reflare.resource
 
 import org.fernice.flare.panic
 import java.awt.Color
+import java.awt.Dimension
 import java.awt.Rectangle
 
 internal class ResourceContext {
@@ -123,6 +124,12 @@ internal class ResourceContext {
         internal fun Rectangle(x: Int = 0, y: Int = 0, width: Int = 0, height: Int = 0): Rectangle {
             return getCurrentContext().allocate { owner ->
                 ResourceAllocator.allocateRectangle(x, y, width, height, owner)
+            }
+        }
+
+        internal fun Dimension(width: Int = 0, height: Int = 0): Dimension {
+            return getCurrentContext().allocate { owner ->
+                ResourceAllocator.allocateDimension(width, height, owner)
             }
         }
     }

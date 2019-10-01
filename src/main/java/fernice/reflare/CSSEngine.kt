@@ -7,6 +7,7 @@ import org.fernice.flare.dom.Device
 import org.fernice.flare.dom.Element
 import org.fernice.flare.font.FontMetricsProvider
 import org.fernice.flare.font.FontMetricsQueryResult
+import org.fernice.flare.std.systemFlag
 import org.fernice.flare.style.MatchingResult
 import org.fernice.flare.style.properties.stylestruct.Font
 import org.fernice.flare.style.stylesheet.Origin
@@ -21,6 +22,8 @@ import java.io.File
 import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.nio.charset.StandardCharsets
+
+private val SUPPRESS_USER_AGENT_STYLESHEETS = systemFlag("fernice.reflare.suppressUserAgentStylesheet")
 
 object CSSEngine {
 
@@ -66,18 +69,20 @@ object CSSEngine {
     private val stylesheets: MutableMap<Source, Stylesheet> = mutableMapOf()
 
     init {
-        addStylesheet(Source.Resource("/reflare/style/user-agent.css"), Origin.USER_AGENT)
+        if (!SUPPRESS_USER_AGENT_STYLESHEETS) {
+            addStylesheet(Source.Resource("/reflare/style/user-agent.css"), Origin.USER_AGENT)
 
-        val platformStylesheet = when (Platform.operatingSystem) {
-            OperatingSystem.Windows -> "/reflare/style/user-agent-windows.css"
-            OperatingSystem.Mac -> "/reflare/style/user-agent-macos.css"
-            OperatingSystem.Linux -> "/reflare/style/user-agent-linux.css"
+            val platformStylesheet = when (Platform.operatingSystem) {
+                OperatingSystem.Windows -> "/reflare/style/user-agent-windows.css"
+                OperatingSystem.Mac -> "/reflare/style/user-agent-macos.css"
+                OperatingSystem.Linux -> "/reflare/style/user-agent-linux.css"
+            }
+
+            addStylesheet(Source.Resource(platformStylesheet), Origin.USER_AGENT)
+
+            addStylesheet(Source.Resource("/reflare/style/file_chooser.css"), Origin.USER_AGENT)
+            addStylesheet(Source.Resource("/reflare/style/material.css"), Origin.USER)
         }
-
-        addStylesheet(Source.Resource(platformStylesheet), Origin.USER_AGENT)
-
-        addStylesheet(Source.Resource("/reflare/style/file_chooser.css"), Origin.USER_AGENT)
-        addStylesheet(Source.Resource("/reflare/style/material.css"), Origin.USER)
     }
 
     fun addStylesheetResource(resource: String) {

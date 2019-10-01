@@ -82,6 +82,9 @@ private fun paintBackgroundImage(
     borderInsets: Insets,
     margin: Insets
 ) {
+    if (!layer.image.isDone || layer.image.isCompletedExceptionally) return
+
+    val image = layer.image.get()
 
     val (componentBounds, correction) = when (layer.attachment) {
         is Attachment.Scroll,
@@ -99,7 +102,6 @@ private fun paintBackgroundImage(
     }
 
     val backgroundSize = layer.size
-    val image = layer.image
 
     val (width, height) = when (backgroundSize) {
         is BackgroundSize.Cover -> {
@@ -151,7 +153,7 @@ private fun paintBackgroundImage(
 
     g2.clip(bounds.reduce(backgroundClip, padding, borderInsets, margin))
 
-    g2.drawImage(layer.image, correction.x.toInt() + positionX.toInt(), correction.y.toInt() + positionY.toInt(), width.toInt(), height.toInt(), null)
+    g2.drawImage(image, correction.x.toInt() + positionX.toInt(), correction.y.toInt() + positionY.toInt(), width.toInt(), height.toInt(), null)
 
     g2.clip = clip
 }
@@ -196,14 +198,14 @@ fun Rectangle.reduce(clip: Clip, padding: Insets, borderInsets: Insets, margin: 
     val rectangle = Rectangle(this)
 
     when (clip) {
-        is Clip.BorderBox -> {
+        Clip.BorderBox -> {
             rectangle -= margin
         }
-        is Clip.PaddingBox -> {
+        Clip.PaddingBox -> {
             rectangle -= margin
             rectangle -= borderInsets
         }
-        is Clip.ContentBox -> {
+        Clip.ContentBox -> {
             rectangle -= margin
             rectangle -= borderInsets
             rectangle -= padding

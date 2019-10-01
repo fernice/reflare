@@ -607,7 +607,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
         dependsOn(boundsChange) { component.bounds }
         dependsOn(restyle)
 
-        computeStyle { element, style -> BackgroundShape.computeBackgroundShape(style, element) }
+        computeStyle { element, style -> BackgroundShape.computeBackgroundShape(style, component) }
     }
 
     fun invalidateShape() {
@@ -622,7 +622,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
         dependsOn(boundsChange) { component.bounds }
         dependsOn(restyle)
 
-        computeStyle { element, style -> BorderShape.computeBorderShape(style, element) }
+        computeStyle { element, style -> BorderShape.computeBorderShape(style, component) }
     }
 
     val backgroundLayers: BackgroundLayers by property {
