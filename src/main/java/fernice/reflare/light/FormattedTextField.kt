@@ -16,9 +16,9 @@ open class FormattedTextField : JFormattedTextField {
     constructor()
     constructor(formatter: AbstractFormatter) : super(formatter)
     constructor(formatterFactory: AbstractFormatterFactory) : super(formatterFactory)
-    constructor(formatterFactory: AbstractFormatterFactory, value: Any) : super(formatterFactory, value)
+    constructor(formatterFactory: AbstractFormatterFactory, value: Any?) : super(formatterFactory, value)
     constructor(format: Format) : super(format)
-    constructor(value: Any) : super(value)
+    constructor(value: Any?) : super(value)
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareFormattedTextFieldUI() })

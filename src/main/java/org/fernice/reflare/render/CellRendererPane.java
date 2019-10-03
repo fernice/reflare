@@ -32,7 +32,9 @@ import java.awt.Rectangle;
 import javax.accessibility.Accessible;
 import javax.swing.JComponent;
 import org.fernice.reflare.element.AWTComponentElement;
+import org.fernice.reflare.element.StyleState;
 import org.fernice.reflare.element.StyleTreeHelper;
+import org.fernice.reflare.statistics.Statistics;
 import org.fernice.reflare.ui.FlareBorder;
 
 /**
@@ -113,10 +115,11 @@ public class CellRendererPane extends javax.swing.CellRendererPane implements Ac
         if (x.getParent() != this) {
             super.addImpl(x, constraints, index);
 
+            // fixme(kralli) most likely redundant, but could be used in
+            //  case the component is already part of the parent
             if (!suppressRestyling) {
                 AWTComponentElement element = StyleTreeHelper.getElement(x);
-                element.invalidateShape();
-                element.applyCSS();
+                element.applyCSSFrom("renderer:cell");
             }
         }
     }
@@ -160,8 +163,9 @@ public class CellRendererPane extends javax.swing.CellRendererPane implements Ac
 
         c.validate();
 
-        StyleTreeHelper.getElement(c).invalidateShape();
-        StyleTreeHelper.getElement(c).forceRestyle();
+        if (StyleTreeHelper.getElement(c).getCssFlag$fernice_reflare() != StyleState.CLEAN) {
+            StyleTreeHelper.getElement(c).forceRestyle();
+        }
 
         boolean wasDoubleBuffered = false;
         if ((c instanceof JComponent) && c.isDoubleBuffered()) {

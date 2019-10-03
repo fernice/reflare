@@ -14,7 +14,7 @@ import javax.swing.plaf.PopupMenuUI
 open class PopupMenu : JPopupMenu {
 
     constructor()
-    constructor(label: String) : super(label)
+    constructor(label: String?) : super(label)
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlarePopupMenuUI() })

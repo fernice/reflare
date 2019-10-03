@@ -14,8 +14,8 @@ import javax.swing.JEditorPane
 open class EditorPane : JEditorPane {
 
     constructor()
-    constructor(text: String) : super(text)
-    constructor(type: String, text: String) : super(type, text)
+    constructor(url: String) : super(url)
+    constructor(type: String, text: String?) : super(type, text)
     constructor(url: URL) : super(url)
 
     override fun updateUI() {

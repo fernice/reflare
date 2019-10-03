@@ -24,7 +24,7 @@ class TraceHelper private constructor() {
     companion object {
 
         @JvmStatic
-        val TRACE_ENABLED = systemFlag("fernice.reflare.trace")
+        val TRACE_ENABLED = systemFlag("fernice.reflare.traceRestyle")
 
         fun createTraceHelper(): TraceHelper? {
             return if (TRACE_ENABLED) TraceHelper() else null

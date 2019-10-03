@@ -12,6 +12,7 @@ import org.fernice.reflare.ui.FlareUI
 import java.awt.Component
 import java.awt.Container
 import java.awt.Graphics
+import java.awt.Window
 import java.util.WeakHashMap
 import javax.swing.CellRendererPane
 import javax.swing.JLayeredPane
@@ -34,6 +35,7 @@ object StyleTreeElementLookup {
 
     @JvmStatic
     internal fun ensureElement(component: Component): FlareUI {
+        require(component !is Window) { "windows cannot be elements" }
         return elements.getOrPut(component) {
             val new = when (component) {
                 is CellRendererPane -> CellRendererPaneElement(component)

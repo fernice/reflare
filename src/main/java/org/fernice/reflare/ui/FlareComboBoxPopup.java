@@ -135,7 +135,7 @@ public class FlareComboBoxPopup extends BasicComboPopup {
             Component c = renderer.getListCellRendererComponent(list, value, i, false, false);
             listUI.getRenderPane().add(c);
 
-            element.applyCSS();
+            element.applyCSSFrom("renderer:combobox");
 
             height += c.getPreferredSize().height;
         }

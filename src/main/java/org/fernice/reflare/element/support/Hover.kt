@@ -12,6 +12,7 @@ import java.awt.AWTEvent
 import java.awt.Component
 import java.awt.Container
 import java.awt.Toolkit
+import java.awt.Window
 import java.awt.event.AWTEventListener
 import java.awt.event.MouseEvent
 
@@ -106,7 +107,7 @@ private fun Component.selfAndAncestorsIterator(): Iterator<Component> {
 private class SelfAndAncestorIterator(private var component: Component) : Iterator<Component> {
 
     override fun hasNext(): Boolean {
-        return component.parent != null
+        return component.parent != null && component.parent !is Window
     }
 
     override fun next(): Component {

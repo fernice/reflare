@@ -15,11 +15,11 @@ import javax.swing.JMenuItem
 open class MenuItem : JMenuItem {
 
     constructor()
-    constructor(action: Action) : super(action)
-    constructor(text: String) : super(text)
-    constructor(icon: Icon) : super(icon)
-    constructor(text: String, icon: Icon) : super(text, icon)
-    constructor(text: String, mnemonic: Int) : super(text, mnemonic)
+    constructor(action: Action?) : super(action)
+    constructor(text: String?) : super(text)
+    constructor(icon: Icon?) : super(icon)
+    constructor(text: String?, icon: Icon?) : super(text, icon)
+    constructor(text: String?, mnemonic: Int) : super(text, mnemonic)
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareMenuItemUI() })

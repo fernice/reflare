@@ -33,13 +33,16 @@ import org.fernice.reflare.geom.toInsets
 import org.fernice.reflare.internal.SunFontHelper
 import org.fernice.reflare.platform.Platform
 import org.fernice.reflare.render.BackgroundLayers
-import org.fernice.reflare.render.RenderCache
 import org.fernice.reflare.render.computeBackgroundLayers
 import org.fernice.reflare.render.merlin.MerlinRenderer
 import org.fernice.reflare.shape.BackgroundShape
 import org.fernice.reflare.shape.BorderShape
+import org.fernice.reflare.statistics.Statistics
 import org.fernice.reflare.toAWTColor
 import org.fernice.reflare.trace.TraceHelper
+import org.fernice.reflare.trace.trace
+import org.fernice.reflare.trace.traceElement
+import org.fernice.reflare.trace.traceRoot
 import org.fernice.reflare.util.Broadcast
 import org.fernice.reflare.util.ObservableMutableSet
 import org.fernice.reflare.util.Observables
@@ -50,12 +53,11 @@ import java.awt.Dialog
 import java.awt.Font
 import java.awt.Graphics
 import java.awt.Rectangle
-import java.awt.Window
 import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
+import java.awt.event.HierarchyEvent
 import javax.swing.JComponent
-import javax.swing.event.AncestorEvent
-import javax.swing.event.AncestorListener
+import javax.swing.SwingUtilities
 import org.fernice.flare.style.properties.stylestruct.Font as FontStyle
 import java.awt.Color as AWTColor
 
@@ -128,43 +130,34 @@ abstract class AWTComponentElement(val component: Component) : Element {
         }
     }
 
+    private fun isNextPulseRequested(): Boolean {
+        return frame?.root?.isDirty(DirtyBits.NODE_CSS) ?: false
+    }
+
     private fun forcePulseForDeferredRendering() {
-        component.repaint()
+        if (frame != null) {
+            component.repaint()
+        }
     }
 
     /**
      * Marks the element's css dirty.
      */
     fun reapplyCSS() {
+        reapplyCSS(origin = "reapply:external")
+    }
+
+    @JvmName(name = "reapplyCSSFrom")
+    internal fun reapplyCSS(origin: String) {
+        traceReapplyOrigin(origin)
+
         if (cssFlag == StyleState.REAPPLY) {
             return
         }
 
-        // if the element has no frame find the root and restyle the element
-        // immediately to allow for size calculation off the scene graph
-        if (frame == null) {
-            var parent = this
-            while (parent.parent != null) {
-                parent = parent.parent!!
-            }
-
-            // Make sure this element and its children is suitable for restyling
-            parent.markBranchAsReapplyCSS()
-
-            // Without a frame we are unable to process a few cases correctly namely
-            // viewport relative sizes root font size and more. Because in HTML no elements
-            // exists without being in a view hierarchy and because there is only one view
-            // hierarchy this edge case does not exist. We're solving it by providing means
-            // to at least get it right most cases.
-            val localContext = CSSEngine.createLocalEngineContext(parent)
-
-            // Immediately apply the styles
-            parent.processCSS(localContext)
-        } else {
-            markBranchAsReapplyCSS()
-            notifyParentOfInvalidatedCSS()
-            forcePulseForDeferredRendering()
-        }
+        markBranchAsReapplyCSS()
+        notifyParentOfInvalidatedCSS()
+        forcePulseForDeferredRendering()
     }
 
     /**
@@ -209,22 +202,32 @@ abstract class AWTComponentElement(val component: Component) : Element {
      * Applies the CSS immediately.
      */
     fun applyCSS() {
+        applyCSS(origin = "apply:external")
+    }
+
+    @JvmName(name = "applyCSSFrom")
+    internal fun applyCSS(origin: String) {
+        traceReapplyOrigin("apply:$origin")
+
         val frame = frame
 
         if (frame != null) {
-            traceReapplyOrigin("apply")
+            //traceReapplyOrigin("apply[${javaClass.simpleName}]")
             markBranchAsReapplyCSS()
             notifyParentOfInvalidatedCSS()
 
             pulseForComputation()
         } else {
+            markBranchAsReapplyCSS()
+            notifyParentOfInvalidatedCSS()
+
             var parent = this
             while (parent.parent != null) {
                 parent = parent.parent!!
             }
 
             // Make sure this element and its children is suitable for restyling
-            parent.markBranchAsReapplyCSS()
+            //parent.markBranchAsReapplyCSS()
 
             // Without a frame we are unable to process a few cases correctly namely
             // viewport relative sizes root font size and more. Because in HTML no elements
@@ -234,7 +237,10 @@ abstract class AWTComponentElement(val component: Component) : Element {
             val localContext = CSSEngine.createLocalEngineContext(parent)
 
             // Immediately apply the styles
-            parent.processCSS(localContext)
+            trace(localContext, name = "apply") { traceContext ->
+                traceContext.traceRoot(parent)
+                parent.processCSS(traceContext)
+            }
         }
     }
 
@@ -252,6 +258,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
         if (cssFlag == StyleState.REAPPLY) {
             context.traceElement(this)
             TraceHelper.resetReapplyOrigins(debug_traceHelper)
+            Statistics.increment("process")
 
             context.styleContext.bloomFilter.insertParent(this)
 
@@ -268,17 +275,19 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
     internal val debug_traceHelper: TraceHelper? = TraceHelper.createTraceHelper()
 
-    fun traceReapplyOrigin(origin: String) {
+    private fun traceReapplyOrigin(origin: String) {
         TraceHelper.traceReapplyOrigin(debug_traceHelper, origin)
     }
 
     // ***************************** Old Dirty ***************************** //
 
     fun forceRestyle() {
+        Statistics.increment("force-restyle")
+
         forceApplyStyle = true
         fontStyle = FontStyle.initial
 
-        applyCSS()
+        applyCSS(origin = "force")
     }
 
     fun getMatchingStyles(): MatchingResult {
@@ -312,10 +321,11 @@ abstract class AWTComponentElement(val component: Component) : Element {
         internal set(parent) {
             field = parent
 
+            /*
             if (parent != null) {
-                traceReapplyOrigin("parent")
-                reapplyCSS()
+                reapplyCSS(origin = "parent")
             }
+             */
         }
 
     final override val traversalParent: Element? get() = inheritanceParent
@@ -343,7 +353,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
         get() = localName()
 
     init {
-        classes.addInvalidationListener { reapplyCSS() }
+        classes.addInvalidationListener { reapplyCSS(origin = "classes") }
     }
 
     override fun namespace(): Option<NamespaceUrl> = namespace.into()
@@ -395,8 +405,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
                 null
             }
 
-            traceReapplyOrigin("style-attribute")
-            reapplyCSS()
+            reapplyCSS(origin = "style-attribute")
         }
 
 
@@ -545,8 +554,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
         this.hover = hover
 
         if (old != hover) {
-            traceReapplyOrigin("hover:hint")
-            reapplyCSS()
+            reapplyCSS(origin = "hover:hint")
         }
 
         return old
@@ -557,8 +565,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
         this.focus = focus
 
         if (old != focus) {
-            traceReapplyOrigin("focus:hint")
-            reapplyCSS()
+            reapplyCSS(origin = "focus:hint")
         }
 
         return old
@@ -571,8 +578,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
         this.active = active
 
         if (old != active) {
-            traceReapplyOrigin("active:hint")
-            reapplyCSS()
+            reapplyCSS(origin = "active:hint")
         }
 
         return old
@@ -639,12 +645,18 @@ abstract class AWTComponentElement(val component: Component) : Element {
 abstract class ComponentElement(component: JComponent) : AWTContainerElement(component) {
 
     init {
+        component.addHierarchyListener { event ->
+            if (event.id == HierarchyEvent.HIERARCHY_CHANGED && (event.changeFlags and HierarchyEvent.PARENT_CHANGED.toLong()) != 0L) {
+                // println("idem: $event. this: ${component.javaClass.simpleName} changed: ${event.changed.javaClass.simpleName} parent: ${event.changedParent.javaClass.simpleName}")
+                SwingUtilities.getWindowAncestor(event.changedParent)?.frame
+            }
+        }
+        /*
         component.addAncestorListener(object : AncestorListener {
             override fun ancestorAdded(event: AncestorEvent) {
-                if (event.ancestor is Window) {
-                    val frame = event.ancestor as Window
-
-                    frame.frame
+                val ancestor = event.ancestor
+                if (ancestor is Window) {
+                    ancestor.frame
                 }
             }
 
@@ -654,6 +666,7 @@ abstract class ComponentElement(component: JComponent) : AWTContainerElement(com
             override fun ancestorRemoved(event: AncestorEvent) {
             }
         })
+         */
     }
 }
 

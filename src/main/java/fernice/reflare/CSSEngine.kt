@@ -108,7 +108,7 @@ object CSSEngine {
 
         shared.stylist.addStylesheet(stylesheet)
 
-        for (engine in engines.toStrongList()) {
+        for (engine in engines.toDereferencedList()) {
             engine.device.invalidate()
         }
     }
@@ -123,7 +123,7 @@ object CSSEngine {
         if (stylesheet != null) {
             shared.stylist.removeStylesheet(stylesheet)
 
-            for (engine in engines.toStrongList()) {
+            for (engine in engines.toDereferencedList()) {
                 engine.device.invalidate()
             }
         }
@@ -177,7 +177,7 @@ private class LocalDevice(val component: Component) : Device {
     }
 }
 
-private fun <E> MutableList<WeakReference<E>>.toStrongList(): List<E> {
+private fun <E> MutableList<WeakReference<E>>.toDereferencedList(): List<E> {
     val strong: MutableList<E> = mutableListOf()
 
     val iter = this.iterator()

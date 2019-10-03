@@ -14,11 +14,11 @@ import javax.swing.JLabel
 open class Label : JLabel {
 
     constructor()
-    constructor(icon: Icon) : super(icon)
-    constructor(icon: Icon, horizontalAlignment: Int) : super(icon, horizontalAlignment)
-    constructor(text: String) : super(text)
-    constructor(text: String, horizontalAlignment: Int) : super(text, horizontalAlignment)
-    constructor(text: String, icon: Icon, horizontalAlignment: Int) : super(text, icon, horizontalAlignment)
+    constructor(icon: Icon?) : super(icon)
+    constructor(icon: Icon?, horizontalAlignment: Int) : super(icon, horizontalAlignment)
+    constructor(text: String?) : super(text)
+    constructor(text: String?, horizontalAlignment: Int) : super(text, horizontalAlignment)
+    constructor(text: String?, icon: Icon?, horizontalAlignment: Int) : super(text, icon, horizontalAlignment)
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareLabelUI() })

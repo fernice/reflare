@@ -15,13 +15,13 @@ import javax.swing.JRadioButton
 open class RadioButton : JRadioButton {
 
     constructor()
-    constructor(action: Action) : super(action)
-    constructor(icon: Icon) : super(icon)
-    constructor(icon: Icon, selected: Boolean) : super(icon, selected)
-    constructor(text: String) : super(text)
-    constructor(text: String, selected: Boolean) : super(text, selected)
-    constructor(text: String, icon: Icon) : super(text, icon)
-    constructor(text: String, icon: Icon, selected: Boolean) : super(text, icon, selected)
+    constructor(action: Action?) : super(action)
+    constructor(icon: Icon?) : super(icon)
+    constructor(icon: Icon?, selected: Boolean) : super(icon, selected)
+    constructor(text: String?) : super(text)
+    constructor(text: String?, selected: Boolean) : super(text, selected)
+    constructor(text: String?, icon: Icon?) : super(text, icon)
+    constructor(text: String?, icon: Icon?, selected: Boolean) : super(text, icon, selected)
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareRadioButtonUI() })

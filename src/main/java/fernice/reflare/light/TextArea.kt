@@ -15,10 +15,10 @@ open class TextArea : JTextArea {
 
     constructor()
     constructor(document: Document) : super(document)
-    constructor(document: Document, text: String, columns: Int, rows: Int) : super(document, text, columns, rows)
+    constructor(document: Document, text: String?, columns: Int, rows: Int) : super(document, text, columns, rows)
     constructor(columns: Int, rows: Int) : super(columns, rows)
-    constructor(text: String) : super(text)
-    constructor(text: String, columns: Int, rows: Int) : super(text, columns, rows)
+    constructor(text: String?) : super(text)
+    constructor(text: String?, columns: Int, rows: Int) : super(text, columns, rows)
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareTextAreaUI() })

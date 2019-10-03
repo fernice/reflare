@@ -14,10 +14,10 @@ import javax.swing.text.Document
 open class TextField : JTextField {
 
     constructor()
-    constructor(document: Document, text: String, columns: Int) : super(document, text, columns)
+    constructor(document: Document, text: String?, columns: Int) : super(document, text, columns)
     constructor(columns: Int) : super(columns)
-    constructor(text: String) : super(text)
-    constructor(text: String, columns: Int) : super(text, columns)
+    constructor(text: String?) : super(text)
+    constructor(text: String?, columns: Int) : super(text, columns)
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareTextFieldUI() })

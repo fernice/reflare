@@ -15,10 +15,10 @@ import javax.swing.JButton
 open class Button : JButton {
 
     constructor()
-    constructor(action: Action) : super(action)
-    constructor(text: String) : super(text)
-    constructor(icon: Icon) : super(icon)
-    constructor(text: String, icon: Icon) : super(text, icon)
+    constructor(action: Action?) : super(action)
+    constructor(text: String?) : super(text)
+    constructor(icon: Icon?) : super(icon)
+    constructor(text: String?, icon: Icon?) : super(text, icon)
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareButtonUI() })

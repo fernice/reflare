@@ -15,8 +15,7 @@ open class ButtonElement(button: AbstractButton) : ComponentElement(button) {
 
     init {
         button.model.addChangeListener {
-            traceReapplyOrigin("active")
-            reapplyCSS()
+            reapplyCSS(origin = "active")
         }
     }
 

@@ -1,9 +1,9 @@
 # reflare
 
-reflare is a Look-and-Feel for Java Swing that introduces styling with CSS. reflare makes styling of components using stylesheet possible. Like in browser one
+reflare is a Look-and-Feel for Java Swing that introduces styling with CSS. reflare makes styling of components using stylesheets possible. Like in browser one
 or more stylesheets can be defined to style the whole application. With the help of Kotlin, reflare integrates into any application even deeper.
 
-reflare supports both being the primary Look-and-Feel as well as being a integrated into a already existing Look-and-Feel, making migrations even easier.
+reflare supports both being the primary Look-and-Feel as well as being a integrated into an already existing Look-and-Feel, making migrations even easier.
 Support for integration is provided through the components under `fernice.reflare.light`.
 
 # Example

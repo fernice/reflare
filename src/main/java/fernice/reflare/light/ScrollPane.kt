@@ -17,8 +17,8 @@ import javax.swing.JViewport
 open class ScrollPane : JScrollPane {
 
     constructor()
-    constructor(component: Component) : super(component)
-    constructor(component: Component, vsbPolicy: Int, hsbPolicy: Int) : super(component, vsbPolicy, hsbPolicy)
+    constructor(component: Component?) : super(component)
+    constructor(component: Component?, vsbPolicy: Int, hsbPolicy: Int) : super(component, vsbPolicy, hsbPolicy)
     constructor(vsbPolicy: Int, hsbPolicy: Int) : super(vsbPolicy, hsbPolicy)
 
     override fun updateUI() {

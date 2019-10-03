@@ -15,8 +15,8 @@ open class Panel : JPanel {
 
     constructor()
     constructor(doubleBuffered: Boolean) : super(doubleBuffered)
-    constructor(layout: LayoutManager) : super(layout)
-    constructor(layout: LayoutManager, doubleBuffered: Boolean) : super(layout, doubleBuffered)
+    constructor(layout: LayoutManager?) : super(layout)
+    constructor(layout: LayoutManager?, doubleBuffered: Boolean) : super(layout, doubleBuffered)
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlarePanelUI() })
