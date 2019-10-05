@@ -13,7 +13,9 @@ import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicMenuItemUI;
 import org.fernice.reflare.Defaults;
 import org.fernice.reflare.element.ComponentElement;
+import org.fernice.reflare.element.Frame;
 import org.fernice.reflare.element.MenuItemElement;
+import org.fernice.reflare.element.StyleState;
 import org.fernice.reflare.element.StyleTreeElementLookup;
 import org.fernice.reflare.internal.SwingUtilitiesHelper;
 import org.fernice.reflare.meta.DefinedBy;
@@ -59,7 +61,7 @@ public class FlareMenuItemUI extends BasicMenuItemUI implements FlareUI {
 
     @Override
     protected Dimension getPreferredMenuItemSize(JComponent c, Icon checkIcon, Icon arrowIcon, int defaultTextIconGap) {
-       // StyleTreeHelper.getElement(c).applyCSS();
+        // StyleTreeHelper.getElement(c).applyCSS();
 
         return super.getPreferredMenuItemSize(c, checkIcon, arrowIcon, defaultTextIconGap);
     }
@@ -71,20 +73,27 @@ public class FlareMenuItemUI extends BasicMenuItemUI implements FlareUI {
 
     @Override
     public Dimension getMinimumSize(final JComponent c) {
-        //element.pulseForComputation();
+        applyCSSIfOrphanAndDirty();
         return super.getMinimumSize(c);
     }
 
     @Override
     public Dimension getPreferredSize(final JComponent c) {
-       // element.pulseForComputation();
+        applyCSSIfOrphanAndDirty();
         return super.getPreferredSize(c);
     }
 
     @Override
     public Dimension getMaximumSize(final JComponent c) {
-        //element.pulseForComputation();
+        applyCSSIfOrphanAndDirty();
         return super.getMaximumSize(c);
+    }
+
+    private void applyCSSIfOrphanAndDirty() {
+        Frame frame = element.getFrame();
+        if (frame == null && element.getCssFlag$fernice_reflare() != StyleState.CLEAN) {
+            element.applyCSSFrom("menu:orphan");
+        }
     }
 
     @Override

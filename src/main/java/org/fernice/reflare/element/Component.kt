@@ -130,10 +130,6 @@ abstract class AWTComponentElement(val component: Component) : Element {
         }
     }
 
-    private fun isNextPulseRequested(): Boolean {
-        return frame?.root?.isDirty(DirtyBits.NODE_CSS) ?: false
-    }
-
     private fun forcePulseForDeferredRendering() {
         if (frame != null) {
             component.repaint()

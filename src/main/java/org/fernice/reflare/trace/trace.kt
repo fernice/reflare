@@ -8,9 +8,10 @@ package org.fernice.reflare.trace
 
 import org.fernice.flare.EngineContext
 import org.fernice.reflare.element.AWTComponentElement
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
-private val totalTracesCount = AtomicInteger()
+private val traceCountHolder = ConcurrentHashMap<String, Int>()
 
 internal inline fun trace(context: EngineContext, name: String = "unknown", block: (EngineContext) -> Unit) {
     if (!TraceHelper.TRACE_ENABLED) {
@@ -19,7 +20,7 @@ internal inline fun trace(context: EngineContext, name: String = "unknown", bloc
 
     val traceContext = when (context) {
         is TracingContext -> context
-        else -> TracingContext(context, CountingTrace(name, totalTracesCount.getAndIncrement()))
+        else -> TracingContext(context, CountingTrace(name, traceCountHolder.merge(name, 1, Int::plus) ?: -1))
     }
 
     traceContext.trace.beginCSSPass()

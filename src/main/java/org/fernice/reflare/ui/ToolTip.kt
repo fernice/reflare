@@ -6,6 +6,8 @@
 
 package org.fernice.reflare.ui
 
+import org.fernice.reflare.element.AWTComponentElement
+import org.fernice.reflare.element.StyleState
 import org.fernice.reflare.element.StyleTreeElementLookup
 import org.fernice.reflare.element.ToolTipElement
 import java.awt.Component
@@ -35,18 +37,27 @@ class FlareToolTipUI(tooltip: JToolTip) : BasicToolTipUI(), FlareUI {
     }
 
     override fun getMinimumSize(c: JComponent): Dimension {
-        element.pulseForComputation()
+        element.pulseOrApplyCSS()
         return super.getMinimumSize(c)
     }
 
     override fun getPreferredSize(c: JComponent): Dimension {
-        element.pulseForComputation()
+        element.pulseOrApplyCSS()
         return super.getPreferredSize(c)
     }
 
     override fun getMaximumSize(c: JComponent): Dimension {
-        element.pulseForComputation()
+        element.pulseOrApplyCSS()
         return super.getMaximumSize(c)
+    }
+
+    private fun AWTComponentElement.pulseOrApplyCSS() {
+        val frame = frame
+        if (frame != null) {
+            frame.pulse()
+        } else if (cssFlag != StyleState.CLEAN) {
+            applyCSS(origin = "tooltip:orphan")
+        }
     }
 
     override fun paint(g: Graphics, component: JComponent) {

@@ -5,8 +5,6 @@ import org.fernice.flare.dom.Device
 import org.fernice.flare.style.MatchingResult
 import org.fernice.flare.style.value.computed.Au
 import org.fernice.flare.style.value.generic.Size2D
-import org.fernice.reflare.trace.CountingTrace
-import org.fernice.reflare.trace.TracingContext
 import org.fernice.reflare.trace.trace
 import org.fernice.reflare.trace.traceRoot
 import java.awt.Component
@@ -15,7 +13,9 @@ import java.awt.event.ContainerEvent
 import java.awt.event.ContainerListener
 import java.util.WeakHashMap
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 
+private val FRAME_COUNT = AtomicInteger(0)
 internal val frames: MutableMap<Window, Frame> = WeakHashMap()
 
 val Window.frame: Frame
@@ -102,16 +102,15 @@ class Frame(private val frame: Window) : Device {
         dirtyElements.add(element)
     }
 
-    private var count: Int = 0
+    private val debug_frameCount = FRAME_COUNT.get()
 
     private fun doCSSPass() {
         val root = root
 
         if (root != null && root.cssFlag != StyleState.CLEAN) {
             val engineContext = cssEngine.createEngineContext()
-            val context = TracingContext(engineContext, CountingTrace(name = "frame", pass = count++))
 
-            trace(context) { traceContext ->
+            trace(engineContext, name = "frame $debug_frameCount") { traceContext ->
                 traceContext.traceRoot(root)
                 root.clearDirty(DirtyBits.NODE_CSS)
                 root.processCSS(traceContext)

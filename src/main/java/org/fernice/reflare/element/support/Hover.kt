@@ -15,6 +15,7 @@ import java.awt.Toolkit
 import java.awt.Window
 import java.awt.event.AWTEventListener
 import java.awt.event.MouseEvent
+import javax.swing.SwingUtilities
 
 object SharedHoverHandler : AWTEventListener {
 
@@ -25,7 +26,7 @@ object SharedHoverHandler : AWTEventListener {
     init {
         Toolkit.getDefaultToolkit().addAWTEventListener(
             this,
-            AWTEvent.MOUSE_MOTION_EVENT_MASK
+            AWTEvent.MOUSE_MOTION_EVENT_MASK or AWTEvent.MOUSE_EVENT_MASK
         )
     }
 
@@ -34,6 +35,17 @@ object SharedHoverHandler : AWTEventListener {
     override fun eventDispatched(event: AWTEvent) {
         fun <E> MutableList<E>.removeFirst(): E {
             return this.removeAt(0)
+        }
+
+        if (event.id == MouseEvent.MOUSE_EXITED && event is MouseEvent) {
+            val component = event.component
+            val window = SwingUtilities.getWindowAncestor(component)
+            if (window != null && !window.contains(event.locationOnScreen)) {
+                for (exitedComponent in component.selfAndAncestorsIterator()) {
+                    exitedComponent.element.hoverHint(false)
+                }
+            }
+            return
         }
 
         if (event !is MouseEvent || event.id != MouseEvent.MOUSE_MOVED) {

@@ -37,12 +37,11 @@ class CountingTrace(private val name: String, private val pass: Int) : RestyleTr
 
     override fun endCSSPass() {
         if (TraceHelper.TRACE_ENABLED) {
-            val totalRestyledElements = totalElementRestyleCount.get()
-            val origins = originCounts.entries.joinToString { (name, count) -> "$name=$count" }
+            val totalRestyledElements = totalElementRestyleCount.addAndGet(count)
+            val origins = originCounts.entries.joinToString { (name, count) -> "$name ($count times)" }
             val rootElementName = rootElement?.javaClass?.simpleName ?: "none"
-            LOG.debug { "[$name $pass] $totalRestyledElements+$count restyled from $rootElementName: origins $origins" }
+            LOG.debug { "[$name] pass $pass:  $totalRestyledElements (+$count) restyled from $rootElementName:  origins $origins" }
         }
-        totalElementRestyleCount.getAndAdd(count)
         count = 0
         originCounts.clear()
         rootElement = null

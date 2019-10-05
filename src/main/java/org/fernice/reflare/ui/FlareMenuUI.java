@@ -14,7 +14,9 @@ import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicMenuUI;
 import org.fernice.reflare.Defaults;
 import org.fernice.reflare.element.ComponentElement;
+import org.fernice.reflare.element.Frame;
 import org.fernice.reflare.element.MenuElement;
+import org.fernice.reflare.element.StyleState;
 import org.fernice.reflare.element.StyleTreeElementLookup;
 import org.fernice.reflare.internal.SwingUtilitiesHelper;
 import org.fernice.reflare.meta.DefinedBy;
@@ -62,20 +64,27 @@ public class FlareMenuUI extends BasicMenuUI implements FlareUI {
 
     @Override
     public Dimension getMinimumSize(final JComponent c) {
-        // element.pulseForComputation();
+        applyCSSIfOrphanAndDirty();
         return super.getMinimumSize(c);
     }
 
     @Override
     public Dimension getPreferredSize(final JComponent c) {
-        // element.pulseForComputation();
+        applyCSSIfOrphanAndDirty();
         return super.getPreferredSize(c);
     }
 
     @Override
     public Dimension getMaximumSize(final JComponent c) {
-        // element.pulseForComputation();
+        applyCSSIfOrphanAndDirty();
         return super.getMaximumSize(c);
+    }
+
+    private void applyCSSIfOrphanAndDirty() {
+        Frame frame = element.getFrame();
+        if (frame == null && element.getCssFlag$fernice_reflare() != StyleState.CLEAN) {
+            element.applyCSSFrom("menu:orphan");
+        }
     }
 
     @Override
