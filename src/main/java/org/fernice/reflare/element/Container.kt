@@ -20,6 +20,7 @@ import java.awt.Container
 import java.awt.event.ContainerEvent
 import java.awt.event.ContainerListener
 import java.util.concurrent.CopyOnWriteArrayList
+import javax.swing.JMenuItem
 
 
 open class AWTContainerElement(container: Container, val artificial: Boolean = false) : AWTComponentElement(container) {
@@ -59,7 +60,10 @@ open class AWTContainerElement(container: Container, val artificial: Boolean = f
         // If it has already been marked as dirty, apply the styles
         // immediately, because calls to reapplyCss() won't request next
         // pulse, as it is only done if the style state is clean.
-        if (oldFrame == null && frame != null && childElement.cssFlag != StyleState.CLEAN) {
+        //
+        // Also if the child is a JMenuItem apply style immediately
+        // independently of the current style state.
+        if (oldFrame == null && frame != null && childElement.cssFlag != StyleState.CLEAN || child is JMenuItem) {
             childElement.applyCSS(origin = "child:added")
         } else {
             childElement.reapplyCSS(origin = "child:added")

@@ -9,6 +9,7 @@ package fernice.reflare.light
 import org.fernice.reflare.ui.FlareListUI
 import java.util.Vector
 import javax.swing.JList
+import javax.swing.JToolTip
 import javax.swing.ListModel
 
 @Suppress("UNUSED")
@@ -21,5 +22,11 @@ open class List<E> : JList<E> {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareListUI() })
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }

@@ -9,6 +9,7 @@ package fernice.reflare.light
 import org.fernice.reflare.ui.FlarePanelUI
 import java.awt.LayoutManager
 import javax.swing.JPanel
+import javax.swing.JToolTip
 
 @Suppress("UNUSED")
 open class Panel : JPanel {
@@ -20,5 +21,11 @@ open class Panel : JPanel {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlarePanelUI() })
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }

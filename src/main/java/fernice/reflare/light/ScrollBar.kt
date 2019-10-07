@@ -8,6 +8,7 @@ package fernice.reflare.light
 
 import org.fernice.reflare.ui.FlareScrollBarUI
 import javax.swing.JScrollBar
+import javax.swing.JToolTip
 
 @Suppress("UNUSED")
 open class ScrollBar : JScrollBar {
@@ -18,5 +19,11 @@ open class ScrollBar : JScrollBar {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareScrollBarUI(this) })
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }

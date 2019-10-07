@@ -8,6 +8,7 @@ package fernice.reflare.light
 
 import org.fernice.reflare.ui.FlareTabbedPaneUI
 import javax.swing.JTabbedPane
+import javax.swing.JToolTip
 
 @Suppress("UNUSED")
 class TabbedPane : JTabbedPane {
@@ -18,5 +19,11 @@ class TabbedPane : JTabbedPane {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareTabbedPaneUI() })
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }

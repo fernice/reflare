@@ -9,6 +9,7 @@ package fernice.reflare.light
 import org.fernice.reflare.ui.FlareLabelUI
 import javax.swing.Icon
 import javax.swing.JLabel
+import javax.swing.JToolTip
 
 @Suppress("UNUSED")
 open class Label : JLabel {
@@ -22,5 +23,11 @@ open class Label : JLabel {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareLabelUI() })
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }

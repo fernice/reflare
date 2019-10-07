@@ -8,6 +8,7 @@ package fernice.reflare.light
 
 import org.fernice.reflare.ui.FlareTextPaneUI
 import javax.swing.JTextPane
+import javax.swing.JToolTip
 import javax.swing.text.StyledDocument
 
 @Suppress("UNUSED")
@@ -18,5 +19,11 @@ open class TextPane : JTextPane {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareTextPaneUI(this) })
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }

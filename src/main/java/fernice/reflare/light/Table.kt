@@ -9,6 +9,7 @@ package fernice.reflare.light
 import org.fernice.reflare.ui.FlareTableUI
 import java.util.Vector
 import javax.swing.JTable
+import javax.swing.JToolTip
 import javax.swing.ListSelectionModel
 import javax.swing.table.JTableHeader
 import javax.swing.table.TableColumnModel
@@ -31,5 +32,11 @@ open class Table : JTable {
 
     override fun createDefaultTableHeader(): JTableHeader {
         return TableHeader(columnModel)
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }

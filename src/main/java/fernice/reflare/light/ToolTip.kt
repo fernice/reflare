@@ -15,4 +15,10 @@ open class ToolTip : JToolTip() {
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareToolTipUI(this) })
     }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
+    }
 }

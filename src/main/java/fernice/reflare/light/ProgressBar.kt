@@ -9,6 +9,7 @@ package fernice.reflare.light
 import org.fernice.reflare.ui.FlareProgressBarUI
 import javax.swing.BoundedRangeModel
 import javax.swing.JProgressBar
+import javax.swing.JToolTip
 
 @Suppress("UNUSED")
 open class ProgressBar : JProgressBar {
@@ -21,5 +22,11 @@ open class ProgressBar : JProgressBar {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareProgressBarUI() })
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }

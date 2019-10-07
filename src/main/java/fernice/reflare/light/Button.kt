@@ -10,6 +10,7 @@ import org.fernice.reflare.ui.FlareButtonUI
 import javax.swing.Action
 import javax.swing.Icon
 import javax.swing.JButton
+import javax.swing.JToolTip
 
 @Suppress("UNUSED")
 open class Button : JButton {
@@ -22,5 +23,11 @@ open class Button : JButton {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareButtonUI() })
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }

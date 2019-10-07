@@ -8,11 +8,18 @@ package fernice.reflare.light
 
 import org.fernice.reflare.ui.FlareRootPaneUI
 import javax.swing.JRootPane
+import javax.swing.JToolTip
 
 @Suppress("UNUSED")
 open class RootPane : JRootPane() {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareRootPaneUI() })
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }

@@ -8,6 +8,7 @@ package fernice.reflare.light
 
 import org.fernice.reflare.ui.FlarePopupMenuUI
 import javax.swing.JPopupMenu
+import javax.swing.JToolTip
 import javax.swing.plaf.PopupMenuUI
 
 @Suppress("UNUSED")
@@ -25,5 +26,11 @@ open class PopupMenu : JPopupMenu {
         internal fun setUI(popupMenu: JPopupMenu, ui: PopupMenuUI) {
             popupMenu.ui = ui
         }
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }

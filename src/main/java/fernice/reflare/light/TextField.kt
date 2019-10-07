@@ -8,6 +8,7 @@ package fernice.reflare.light
 
 import org.fernice.reflare.ui.FlareTextFieldUI
 import javax.swing.JTextField
+import javax.swing.JToolTip
 import javax.swing.text.Document
 
 @Suppress("UNUSED")
@@ -21,5 +22,11 @@ open class TextField : JTextField {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareTextFieldUI() })
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }

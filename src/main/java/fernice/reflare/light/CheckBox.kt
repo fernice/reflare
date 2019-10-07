@@ -10,6 +10,7 @@ import org.fernice.reflare.ui.FlareCheckBoxUI
 import javax.swing.Action
 import javax.swing.Icon
 import javax.swing.JCheckBox
+import javax.swing.JToolTip
 
 @Suppress("UNUSED")
 open class CheckBox : JCheckBox {
@@ -25,5 +26,11 @@ open class CheckBox : JCheckBox {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareCheckBoxUI() })
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }

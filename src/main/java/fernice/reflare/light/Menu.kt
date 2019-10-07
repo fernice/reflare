@@ -10,6 +10,8 @@ import org.fernice.reflare.ui.FlareMenuUI
 import org.fernice.reflare.ui.FlarePopupMenuUI
 import javax.swing.Action
 import javax.swing.JMenu
+import javax.swing.JPopupMenu
+import javax.swing.JToolTip
 
 @Suppress("UNUSED")
 open class Menu : JMenu {
@@ -19,13 +21,26 @@ open class Menu : JMenu {
     constructor(text: String) : super(text)
     constructor(text: String, b: Boolean) : super(text, b)
 
-    init {
-        computeIntegrationDependent {
-            PopupMenu.setUI(popupMenu, FlarePopupMenuUI())
+    private var popupMenuUIInitialized = false
+
+    override fun getPopupMenu(): JPopupMenu {
+        val popupMenu = super.getPopupMenu()
+        if (!popupMenuUIInitialized) {
+            computeIntegrationDependent {
+                popupMenu.ui = FlarePopupMenuUI()
+            }
+            popupMenuUIInitialized = true
         }
+        return popupMenu
     }
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareMenuUI() })
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }

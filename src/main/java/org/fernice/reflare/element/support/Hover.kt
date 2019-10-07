@@ -11,6 +11,7 @@ import org.fernice.reflare.element.element
 import java.awt.AWTEvent
 import java.awt.Component
 import java.awt.Container
+import java.awt.Point
 import java.awt.Toolkit
 import java.awt.Window
 import java.awt.event.AWTEventListener
@@ -40,7 +41,7 @@ object SharedHoverHandler : AWTEventListener {
         if (event.id == MouseEvent.MOUSE_EXITED && event is MouseEvent) {
             val component = event.component
             val window = SwingUtilities.getWindowAncestor(component)
-            if (window != null && !window.contains(event.locationOnScreen)) {
+            if (window != null && !window.isInside(event.locationOnScreen)) {
                 for (exitedComponent in component.selfAndAncestorsIterator()) {
                     exitedComponent.element.hoverHint(false)
                 }
@@ -127,4 +128,8 @@ private class SelfAndAncestorIterator(private var component: Component) : Iterat
         component = component.parent
         return current
     }
+}
+
+private fun Window.isInside(point: Point): Boolean {
+    return point.x > x && point.y > y && point.x < x + width && point.y < y + height
 }

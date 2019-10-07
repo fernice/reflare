@@ -9,6 +9,7 @@ package fernice.reflare.light
 import org.fernice.reflare.ui.FlareFormattedTextFieldUI
 import java.text.Format
 import javax.swing.JFormattedTextField
+import javax.swing.JToolTip
 
 @Suppress("UNUSED")
 open class FormattedTextField : JFormattedTextField {
@@ -22,5 +23,11 @@ open class FormattedTextField : JFormattedTextField {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareFormattedTextFieldUI() })
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }

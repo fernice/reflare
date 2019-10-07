@@ -91,7 +91,7 @@ public class FlareMenuItemUI extends BasicMenuItemUI implements FlareUI {
 
     private void applyCSSIfOrphanAndDirty() {
         Frame frame = element.getFrame();
-        if (frame == null && element.getCssFlag$fernice_reflare() != StyleState.CLEAN) {
+        if (frame == null && element.getStyleState() != StyleState.CLEAN) {
             element.applyCSSFrom("menu:orphan");
         }
     }

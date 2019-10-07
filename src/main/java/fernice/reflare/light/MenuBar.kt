@@ -8,11 +8,18 @@ package fernice.reflare.light
 
 import org.fernice.reflare.ui.FlareMenuBarUI
 import javax.swing.JMenuBar
+import javax.swing.JToolTip
 
 @Suppress("UNUSED")
 open class MenuBar : JMenuBar() {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareMenuBarUI() })
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }

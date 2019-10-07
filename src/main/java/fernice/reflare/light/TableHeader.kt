@@ -7,6 +7,7 @@
 package fernice.reflare.light
 
 import org.fernice.reflare.ui.FlareTableHeaderUI
+import javax.swing.JToolTip
 import javax.swing.table.JTableHeader
 import javax.swing.table.TableColumnModel
 
@@ -18,5 +19,11 @@ class TableHeader : JTableHeader {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareTableHeaderUI(this) })
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }

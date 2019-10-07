@@ -11,6 +11,7 @@ import org.fernice.reflare.ui.FlareScrollPaneUI
 import java.awt.Component
 import javax.swing.JScrollBar
 import javax.swing.JScrollPane
+import javax.swing.JToolTip
 import javax.swing.JViewport
 
 @Suppress("UNUSED")
@@ -35,6 +36,12 @@ open class ScrollPane : JScrollPane {
 
     override fun createViewport(): JViewport {
         return Viewport()
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 
     protected inner class ScrollBar(orientation: Int) : JScrollPane.ScrollBar(orientation) {

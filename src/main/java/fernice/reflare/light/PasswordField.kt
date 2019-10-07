@@ -8,6 +8,7 @@ package fernice.reflare.light
 
 import org.fernice.reflare.ui.FlarePasswordFieldUI
 import javax.swing.JPasswordField
+import javax.swing.JToolTip
 import javax.swing.text.Document
 
 @Suppress("UNUSED")
@@ -21,5 +22,11 @@ open class PasswordField : JPasswordField {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlarePasswordFieldUI() })
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }

@@ -10,6 +10,7 @@ import org.fernice.reflare.ui.FlareToggleButtonUI
 import javax.swing.Action
 import javax.swing.Icon
 import javax.swing.JToggleButton
+import javax.swing.JToolTip
 
 @Suppress("UNUSED")
 open class ToggleButton : JToggleButton {
@@ -25,5 +26,11 @@ open class ToggleButton : JToggleButton {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareToggleButtonUI() })
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }

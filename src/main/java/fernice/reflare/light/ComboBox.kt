@@ -10,6 +10,7 @@ import org.fernice.reflare.ui.FlareComboBoxUI
 import java.util.Vector
 import javax.swing.ComboBoxModel
 import javax.swing.JComboBox
+import javax.swing.JToolTip
 
 @Suppress("UNUSED")
 open class ComboBox<E> : JComboBox<E> {
@@ -21,5 +22,11 @@ open class ComboBox<E> : JComboBox<E> {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareComboBoxUI() })
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }

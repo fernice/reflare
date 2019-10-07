@@ -8,6 +8,7 @@ package fernice.reflare.light
 
 import org.fernice.reflare.ui.FlareTextAreaUI
 import javax.swing.JTextArea
+import javax.swing.JToolTip
 import javax.swing.text.Document
 
 @Suppress("UNUSED")
@@ -22,5 +23,11 @@ open class TextArea : JTextArea {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareTextAreaUI() })
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }

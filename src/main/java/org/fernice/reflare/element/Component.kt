@@ -28,15 +28,9 @@ import org.fernice.flare.style.properties.parsePropertyDeclarationList
 import org.fernice.flare.style.value.computed.SingleFontFamily
 import org.fernice.flare.url.Url
 import org.fernice.reflare.Defaults
-import org.fernice.reflare.geom.Insets
-import org.fernice.reflare.geom.toInsets
 import org.fernice.reflare.internal.SunFontHelper
 import org.fernice.reflare.platform.Platform
-import org.fernice.reflare.render.BackgroundLayers
-import org.fernice.reflare.render.computeBackgroundLayers
 import org.fernice.reflare.render.merlin.MerlinRenderer
-import org.fernice.reflare.shape.BackgroundShape
-import org.fernice.reflare.shape.BorderShape
 import org.fernice.reflare.statistics.Statistics
 import org.fernice.reflare.toAWTColor
 import org.fernice.reflare.trace.TraceHelper
@@ -52,9 +46,6 @@ import java.awt.Component
 import java.awt.Dialog
 import java.awt.Font
 import java.awt.Graphics
-import java.awt.Rectangle
-import java.awt.event.ComponentAdapter
-import java.awt.event.ComponentEvent
 import java.awt.event.HierarchyEvent
 import javax.swing.JComponent
 import javax.swing.SwingUtilities
@@ -66,14 +57,6 @@ abstract class AWTComponentElement(val component: Component) : Element {
     fun <C : JComponent> component(): C {
         @Suppress("UNCHECKED_CAST")
         return component as C
-    }
-
-    init {
-        component.addComponentListener(object : ComponentAdapter() {
-            override fun componentResized(e: ComponentEvent) {
-                boundsChange.fire(component.bounds)
-            }
-        })
     }
 
     // ***************************** Dirty ***************************** //
@@ -104,6 +87,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
         frame?.markElementDirty(this)
     }
 
+    @get:JvmName("getStyleState")
     internal var cssFlag: StyleState = StyleState.CLEAN
 
     /**
@@ -208,12 +192,12 @@ abstract class AWTComponentElement(val component: Component) : Element {
         val frame = frame
 
         if (frame != null) {
-            //traceReapplyOrigin("apply[${javaClass.simpleName}]")
             markBranchAsReapplyCSS()
             notifyParentOfInvalidatedCSS()
 
             pulseForComputation()
         } else {
+            // Make sure this element and its children is suitable for restyling
             markBranchAsReapplyCSS()
             notifyParentOfInvalidatedCSS()
 
@@ -221,9 +205,6 @@ abstract class AWTComponentElement(val component: Component) : Element {
             while (parent.parent != null) {
                 parent = parent.parent!!
             }
-
-            // Make sure this element and its children is suitable for restyling
-            //parent.markBranchAsReapplyCSS()
 
             // Without a frame we are unable to process a few cases correctly namely
             // viewport relative sizes root font size and more. Because in HTML no elements
@@ -253,17 +234,15 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
         if (cssFlag == StyleState.REAPPLY) {
             context.traceElement(this)
-            TraceHelper.resetReapplyOrigins(debug_traceHelper)
-            Statistics.increment("process")
 
             context.styleContext.bloomFilter.insertParent(this)
 
             val styleResolver = ElementStyleResolver(this, context.styleContext)
             val styles = styleResolver.resolvePrimaryStyleWithDefaultParentStyles()
 
-            val data = this.ensureData()
+            val data = ensureData()
 
-            this.finishRestyle(context.styleContext, data, styles)
+            finishRestyle(context.styleContext, data, styles)
         }
 
         cssFlag = StyleState.CLEAN
@@ -314,21 +293,12 @@ abstract class AWTComponentElement(val component: Component) : Element {
     final override val owner: Element? get() = this
 
     final override var parent: AWTContainerElement? = null
-        internal set(parent) {
-            field = parent
-
-            /*
-            if (parent != null) {
-                reapplyCSS(origin = "parent")
-            }
-             */
-        }
+        internal set
 
     final override val traversalParent: Element? get() = inheritanceParent
     final override val inheritanceParent: Element? get() = parent
 
-    override val pseudoElement: PseudoElement?
-        get() = null
+    override val pseudoElement: PseudoElement? get() = null
 
     override fun isRoot(): Boolean = parent == null
 
@@ -366,8 +336,8 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
     override fun matchPseudoElement(pseudoElement: PseudoElement): Boolean = false
 
-    protected var hover = false
-    protected var focus = false
+    private var hover = false
+    private var focus = false
 
     override fun matchNonTSPseudoClass(pseudoClass: NonTSPseudoClass): Boolean {
         return when (pseudoClass) {
@@ -533,14 +503,12 @@ abstract class AWTComponentElement(val component: Component) : Element {
         pulseForRendering()
 
         renderer.renderBackground(g, getStyle())
-        //renderBackground(g, component, this, getStyle())
     }
 
     open fun paintBorder(component: Component, g: Graphics) {
         pulseForRendering()
 
         renderer.renderBorder(g, getStyle())
-        //renderBorder(g, component, this, getStyle())
     }
 
     // ***************************** Renderer Override ***************************** //
@@ -580,62 +548,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
         return old
     }
 
-    private val boundsChange: Broadcast<Rectangle> = broadcast()
     val restyle: Broadcast<ComputedValues> = broadcast()
-
-    // ***************************** Style Properties ***************************** //
-
-    val margin: Insets by property(Insets.empty()) {
-        dependsOn(boundsChange) { component.bounds }
-        dependsOn(restyle) { style -> style.margin }
-
-        computeStyle { styles -> styles.margin.toInsets(component.bounds) }
-    }
-
-    val padding: Insets by property(Insets.empty()) {
-        dependsOn(boundsChange) { component.bounds }
-        dependsOn(restyle) { style -> style.padding }
-
-        computeStyle { styles -> styles.padding.toInsets(component.bounds) }
-    }
-
-    val fontSize by property(16) {
-        dependsOn(restyle) { style -> style.font.fontSize }
-
-        computeStyle { styles -> styles.font.fontSize.size().toPx().toInt() }
-    }
-
-    internal val backgroundShape: BackgroundShape by property {
-        dependsOn(boundsChange) { component.bounds }
-        dependsOn(restyle)
-
-        computeStyle { element, style -> BackgroundShape.computeBackgroundShape(style, component) }
-    }
-
-    fun invalidateShape() {
-        // this::padding.invalidate()
-        // this::margin.invalidate()
-        // this::backgroundShape.invalidate()
-        // this::borderShape.invalidate()
-        // this::backgroundLayers.invalidate()
-    }
-
-    internal val borderShape: BorderShape by property {
-        dependsOn(boundsChange) { component.bounds }
-        dependsOn(restyle)
-
-        computeStyle { element, style -> BorderShape.computeBorderShape(style, component) }
-    }
-
-    val backgroundLayers: BackgroundLayers by property {
-        dependsOn(boundsChange)
-        dependsOn(restyle) { style -> style.margin }
-        dependsOn(restyle) { style -> style.padding }
-        dependsOn(restyle) { style -> style.border }
-        dependsOn(restyle) { style -> style.background }
-
-        computeStyle { style -> BackgroundLayers.computeBackgroundLayers(component, style) }
-    }
 }
 
 abstract class ComponentElement(component: JComponent) : AWTContainerElement(component) {
@@ -643,26 +556,9 @@ abstract class ComponentElement(component: JComponent) : AWTContainerElement(com
     init {
         component.addHierarchyListener { event ->
             if (event.id == HierarchyEvent.HIERARCHY_CHANGED && (event.changeFlags and HierarchyEvent.PARENT_CHANGED.toLong()) != 0L) {
-                // println("idem: $event. this: ${component.javaClass.simpleName} changed: ${event.changed.javaClass.simpleName} parent: ${event.changedParent.javaClass.simpleName}")
                 SwingUtilities.getWindowAncestor(event.changedParent)?.frame
             }
         }
-        /*
-        component.addAncestorListener(object : AncestorListener {
-            override fun ancestorAdded(event: AncestorEvent) {
-                val ancestor = event.ancestor
-                if (ancestor is Window) {
-                    ancestor.frame
-                }
-            }
-
-            override fun ancestorMoved(event: AncestorEvent) {
-            }
-
-            override fun ancestorRemoved(event: AncestorEvent) {
-            }
-        })
-         */
     }
 }
 

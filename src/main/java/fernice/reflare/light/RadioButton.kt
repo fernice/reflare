@@ -10,6 +10,7 @@ import org.fernice.reflare.ui.FlareRadioButtonUI
 import javax.swing.Action
 import javax.swing.Icon
 import javax.swing.JRadioButton
+import javax.swing.JToolTip
 
 @Suppress("UNUSED")
 open class RadioButton : JRadioButton {
@@ -25,5 +26,11 @@ open class RadioButton : JRadioButton {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareRadioButtonUI() })
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }

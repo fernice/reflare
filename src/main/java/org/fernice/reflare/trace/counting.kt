@@ -29,6 +29,7 @@ class CountingTrace(private val name: String, private val pass: Int) : RestyleTr
         element.debug_traceHelper?.origins?.forEach { origin ->
             originCounts.merge(origin, 1, Int::plus)
         }
+        TraceHelper.resetReapplyOrigins(element.debug_traceHelper)
     }
 
     override fun traceRootElement(element: AWTComponentElement) {

@@ -9,6 +9,7 @@ package fernice.reflare.light
 import org.fernice.reflare.ui.FlareEditorPaneUI
 import java.net.URL
 import javax.swing.JEditorPane
+import javax.swing.JToolTip
 
 @Suppress("UNUSED")
 open class EditorPane : JEditorPane {
@@ -20,5 +21,11 @@ open class EditorPane : JEditorPane {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareEditorPaneUI(this) })
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }

@@ -10,6 +10,7 @@ import org.fernice.reflare.ui.FlareMenuItemUI
 import javax.swing.Action
 import javax.swing.Icon
 import javax.swing.JMenuItem
+import javax.swing.JToolTip
 
 @Suppress("UNUSED")
 open class MenuItem : JMenuItem {
@@ -23,5 +24,11 @@ open class MenuItem : JMenuItem {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareMenuItemUI() })
+    }
+
+    override fun createToolTip(): JToolTip {
+        val toolTip = ToolTip()
+        toolTip.component = this
+        return toolTip
     }
 }
