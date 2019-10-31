@@ -6,27 +6,30 @@
 
 package fernice.reflare.light
 
-import org.fernice.reflare.ui.FlareButtonUI
+import org.fernice.reflare.ui.FlareToggleButtonUI
 import javax.swing.Action
 import javax.swing.Icon
-import javax.swing.JButton
+import javax.swing.JToggleButton
 import javax.swing.JToolTip
 
 @Suppress("UNUSED")
-open class Button : JButton {
+open class FToggleButton : JToggleButton {
 
     constructor()
     constructor(action: Action?) : super(action)
-    constructor(text: String?) : super(text)
     constructor(icon: Icon?) : super(icon)
+    constructor(icon: Icon?, selected: Boolean) : super(icon, selected)
+    constructor(text: String?) : super(text)
+    constructor(text: String?, selected: Boolean) : super(text, selected)
     constructor(text: String?, icon: Icon?) : super(text, icon)
+    constructor(text: String?, icon: Icon?, selected: Boolean) : super(text, icon, selected)
 
     override fun updateUI() {
-        super.setUI(integrationDependent(this) { FlareButtonUI() })
+        super.setUI(integrationDependent(this) { FlareToggleButtonUI() })
     }
 
     override fun createToolTip(): JToolTip {
-        val toolTip = ToolTip()
+        val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
     }

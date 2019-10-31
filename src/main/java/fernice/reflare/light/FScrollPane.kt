@@ -15,7 +15,7 @@ import javax.swing.JToolTip
 import javax.swing.JViewport
 
 @Suppress("UNUSED")
-open class ScrollPane : JScrollPane {
+open class FScrollPane : JScrollPane {
 
     constructor()
     constructor(component: Component?) : super(component)
@@ -35,11 +35,11 @@ open class ScrollPane : JScrollPane {
     }
 
     override fun createViewport(): JViewport {
-        return Viewport()
+        return FViewport()
     }
 
     override fun createToolTip(): JToolTip {
-        val toolTip = ToolTip()
+        val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
     }

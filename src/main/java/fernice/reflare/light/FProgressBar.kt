@@ -12,7 +12,7 @@ import javax.swing.JProgressBar
 import javax.swing.JToolTip
 
 @Suppress("UNUSED")
-open class ProgressBar : JProgressBar {
+open class FProgressBar : JProgressBar {
 
     constructor()
     constructor(model: BoundedRangeModel) : super(model)
@@ -25,7 +25,7 @@ open class ProgressBar : JProgressBar {
     }
 
     override fun createToolTip(): JToolTip {
-        val toolTip = ToolTip()
+        val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
     }

@@ -6,14 +6,14 @@
 
 package fernice.reflare.light
 
-import org.fernice.reflare.ui.FlareToggleButtonUI
+import org.fernice.reflare.ui.FlareRadioButtonUI
 import javax.swing.Action
 import javax.swing.Icon
-import javax.swing.JToggleButton
+import javax.swing.JRadioButton
 import javax.swing.JToolTip
 
 @Suppress("UNUSED")
-open class ToggleButton : JToggleButton {
+open class FRadioButton : JRadioButton {
 
     constructor()
     constructor(action: Action?) : super(action)
@@ -25,11 +25,11 @@ open class ToggleButton : JToggleButton {
     constructor(text: String?, icon: Icon?, selected: Boolean) : super(text, icon, selected)
 
     override fun updateUI() {
-        super.setUI(integrationDependent(this) { FlareToggleButtonUI() })
+        super.setUI(integrationDependent(this) { FlareRadioButtonUI() })
     }
 
     override fun createToolTip(): JToolTip {
-        val toolTip = ToolTip()
+        val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
     }

@@ -14,6 +14,7 @@ import java.awt.event.ContainerListener
 import java.util.WeakHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+import javax.swing.SwingUtilities
 
 private val FRAME_COUNT = AtomicInteger(0)
 internal val frames: MutableMap<Window, Frame> = WeakHashMap()
@@ -130,7 +131,7 @@ class Frame(private val frame: Window) : Device {
 
     internal fun requestNextPulse(element: AWTComponentElement) {
         if (!pulseRequested.getAndSet(true)) {
-            element.component.repaint()
+            SwingUtilities.invokeLater { pulse() }
         }
     }
 

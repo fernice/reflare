@@ -6,26 +6,25 @@
 
 package fernice.reflare.light
 
-import org.fernice.reflare.ui.FlareListUI
-import java.util.Vector
-import javax.swing.JList
+import org.fernice.reflare.ui.FlarePanelUI
+import java.awt.LayoutManager
+import javax.swing.JPanel
 import javax.swing.JToolTip
-import javax.swing.ListModel
 
 @Suppress("UNUSED")
-open class List<E> : JList<E> {
+open class FPanel : JPanel {
 
     constructor()
-    constructor(elements: Array<E>) : super(elements)
-    constructor(model: ListModel<E>) : super(model)
-    constructor(elements: Vector<E>) : super(elements)
+    constructor(doubleBuffered: Boolean) : super(doubleBuffered)
+    constructor(layout: LayoutManager?) : super(layout)
+    constructor(layout: LayoutManager?, doubleBuffered: Boolean) : super(layout, doubleBuffered)
 
     override fun updateUI() {
-        super.setUI(integrationDependent(this) { FlareListUI() })
+        super.setUI(integrationDependent(this) { FlarePanelUI() })
     }
 
     override fun createToolTip(): JToolTip {
-        val toolTip = ToolTip()
+        val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
     }

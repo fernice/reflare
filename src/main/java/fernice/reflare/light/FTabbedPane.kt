@@ -6,23 +6,23 @@
 
 package fernice.reflare.light
 
-import org.fernice.reflare.ui.FlareTableHeaderUI
+import org.fernice.reflare.ui.FlareTabbedPaneUI
+import javax.swing.JTabbedPane
 import javax.swing.JToolTip
-import javax.swing.table.JTableHeader
-import javax.swing.table.TableColumnModel
 
 @Suppress("UNUSED")
-class TableHeader : JTableHeader {
+class FTabbedPane : JTabbedPane {
 
     constructor() : super()
-    constructor(model: TableColumnModel) : super(model)
+    constructor(tabPlacement: Int) : super(tabPlacement)
+    constructor(tabPlacement: Int, tabLayoutPolicy: Int) : super(tabPlacement, tabLayoutPolicy)
 
     override fun updateUI() {
-        super.setUI(integrationDependent(this) { FlareTableHeaderUI(this) })
+        super.setUI(integrationDependent(this) { FlareTabbedPaneUI() })
     }
 
     override fun createToolTip(): JToolTip {
-        val toolTip = ToolTip()
+        val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
     }

@@ -5,6 +5,7 @@ import fernice.std.None
 import fernice.std.Option
 import fernice.std.Some
 import fernice.std.into
+import mu.KotlinLogging
 import org.fernice.flare.EngineContext
 import org.fernice.flare.cssparser.Parser
 import org.fernice.flare.cssparser.ParserInput
@@ -14,6 +15,7 @@ import org.fernice.flare.dom.ElementStyles
 import org.fernice.flare.selector.NamespaceUrl
 import org.fernice.flare.selector.NonTSPseudoClass
 import org.fernice.flare.selector.PseudoElement
+import org.fernice.flare.std.systemFlag
 import org.fernice.flare.style.ComputedValues
 import org.fernice.flare.style.ElementStyleResolver
 import org.fernice.flare.style.MatchingResult
@@ -37,20 +39,21 @@ import org.fernice.reflare.trace.TraceHelper
 import org.fernice.reflare.trace.trace
 import org.fernice.reflare.trace.traceElement
 import org.fernice.reflare.trace.traceRoot
-import org.fernice.reflare.util.Broadcast
 import org.fernice.reflare.util.ObservableMutableSet
 import org.fernice.reflare.util.Observables
-import org.fernice.reflare.util.broadcast
 import org.fernice.reflare.util.observableMutableSetOf
 import java.awt.Component
 import java.awt.Dialog
 import java.awt.Font
 import java.awt.Graphics
 import java.awt.event.HierarchyEvent
+import java.util.concurrent.atomic.AtomicInteger
 import javax.swing.JComponent
 import javax.swing.SwingUtilities
 import org.fernice.flare.style.properties.stylestruct.Font as FontStyle
 import java.awt.Color as AWTColor
+
+private val REPAINT_TRACE_ENABLED = systemFlag("fernice.reflare.traceRepaint")
 
 abstract class AWTComponentElement(val component: Component) : Element {
 
@@ -87,8 +90,9 @@ abstract class AWTComponentElement(val component: Component) : Element {
         frame?.markElementDirty(this)
     }
 
-    @get:JvmName("getStyleState")
     internal var cssFlag: StyleState = StyleState.CLEAN
+    val styleState: StyleState
+        get() = cssFlag
 
     /**
      * Notifies the parent of invalid css by mark every parent as a dirty branch
@@ -114,12 +118,6 @@ abstract class AWTComponentElement(val component: Component) : Element {
         }
     }
 
-    private fun forcePulseForDeferredRendering() {
-        if (frame != null) {
-            component.repaint()
-        }
-    }
-
     /**
      * Marks the element's css dirty.
      */
@@ -137,7 +135,6 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
         markBranchAsReapplyCSS()
         notifyParentOfInvalidatedCSS()
-        forcePulseForDeferredRendering()
     }
 
     /**
@@ -256,7 +253,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
     // ***************************** Old Dirty ***************************** //
 
-    fun forceRestyle() {
+    fun restyle() {
         Statistics.increment("force-restyle")
 
         forceApplyStyle = true
@@ -265,10 +262,10 @@ abstract class AWTComponentElement(val component: Component) : Element {
         applyCSS(origin = "force")
     }
 
-    fun getMatchingStyles(): MatchingResult {
-        val frame = frame
-
-        return frame?.matchStyle(this) ?: CSSEngine.matchStyleWithLocalContext(this)
+    fun restyleIfNecessary() {
+        if (cssFlag != StyleState.CLEAN) {
+            restyle()
+        }
     }
 
     fun pulseForComputation() {
@@ -277,6 +274,12 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
     fun pulseForRendering() {
         frame?.pulse()
+    }
+
+    fun getMatchingStyles(): MatchingResult {
+        val frame = frame
+
+        return frame?.matchStyle(this) ?: CSSEngine.matchStyleWithLocalContext(this)
     }
 
     // ***************************** Frame & Parent ***************************** //
@@ -452,7 +455,15 @@ abstract class AWTComponentElement(val component: Component) : Element {
             }
         }
 
-        restyle.fire(primaryStyle)
+        forceApplyStyle = false
+
+        if (frame != null) {
+            component.repaint()
+
+            if (REPAINT_TRACE_ENABLED) {
+                LOG.trace { "[${repaintCount.getAndIncrement()}] repaint requested for ${this::class.simpleName}" }
+            }
+        }
     }
 
     protected open fun updateStyle(style: ComputedValues) {}
@@ -548,7 +559,11 @@ abstract class AWTComponentElement(val component: Component) : Element {
         return old
     }
 
-    val restyle: Broadcast<ComputedValues> = broadcast()
+    private val restyleListenersProperty = lazy { mutableListOf<(ComputedValues) -> Unit>() }
+    private val restyleListeners by restyleListenersProperty
+    fun addRestyleListener(listener: (ComputedValues) -> Unit) = restyleListeners.add(listener)
+    fun removeRestyleListener(listener: (ComputedValues) -> Unit) = restyleListeners.remove(listener)
+    private fun fireRestyleListeners(style: ComputedValues) = if (restyleListenersProperty.isInitialized()) restyleListeners.forEach { it(style) } else Unit
 }
 
 abstract class ComponentElement(component: JComponent) : AWTContainerElement(component) {
@@ -570,3 +585,7 @@ enum class StyleState {
 
     DIRTY_BRANCH
 }
+
+private val repaintCount = AtomicInteger()
+
+private val LOG = KotlinLogging.logger { }

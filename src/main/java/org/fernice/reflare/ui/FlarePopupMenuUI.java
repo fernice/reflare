@@ -34,6 +34,7 @@ public class FlarePopupMenuUI extends BasicPopupMenuUI implements FlareUI {
         }
 
         UIDefaultsHelper.installDefaultProperties(this, popupMenu);
+        popupMenu.setLayout(new FlarePopupMenuLayout());
 
         StyleTreeElementLookup.registerElement(popupMenu, this);
     }
@@ -47,19 +48,19 @@ public class FlarePopupMenuUI extends BasicPopupMenuUI implements FlareUI {
 
     @Override
     public Dimension getMinimumSize(final JComponent c) {
-        element.pulseForComputation();
+        element.restyleIfNecessary();
         return super.getMinimumSize(c);
     }
 
     @Override
     public Dimension getPreferredSize(final JComponent c) {
-        element.pulseForComputation();
+        element.restyle();
         return super.getPreferredSize(c);
     }
 
     @Override
     public Dimension getMaximumSize(final JComponent c) {
-        element.pulseForComputation();
+        element.restyleIfNecessary();
         return super.getMaximumSize(c);
     }
 

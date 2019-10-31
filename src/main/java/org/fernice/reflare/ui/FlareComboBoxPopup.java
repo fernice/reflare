@@ -7,8 +7,8 @@ package org.fernice.reflare.ui;
 
 import fernice.reflare.StyleHelper;
 import fernice.reflare.light.IntegrationHelper;
-import fernice.reflare.light.List;
-import fernice.reflare.light.ScrollPane;
+import fernice.reflare.light.FList;
+import fernice.reflare.light.FScrollPane;
 import java.awt.Component;
 import java.awt.Insets;
 import java.awt.Toolkit;
@@ -45,7 +45,7 @@ public class FlareComboBoxPopup extends BasicComboPopup {
 
     @Override
     protected JList createList() {
-        return new List( comboBox.getModel() ) {
+        return new FList( comboBox.getModel() ) {
             public void processMouseEvent(MouseEvent e)  {
                 if ((e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0)  {
                     // Fix for 4234053. Filter out the Control Key from the list.
@@ -84,7 +84,7 @@ public class FlareComboBoxPopup extends BasicComboPopup {
 
     @Override
     protected JScrollPane createScroller() {
-        ScrollPane sp = new ScrollPane( list,
+        FScrollPane sp = new FScrollPane( list,
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER );
         sp.setHorizontalScrollBar(null);

@@ -6,23 +6,19 @@
 
 package fernice.reflare.light
 
-import org.fernice.reflare.ui.FlareTabbedPaneUI
-import javax.swing.JTabbedPane
+import org.fernice.reflare.ui.FlareMenuBarUI
+import javax.swing.JMenuBar
 import javax.swing.JToolTip
 
 @Suppress("UNUSED")
-class TabbedPane : JTabbedPane {
-
-    constructor() : super()
-    constructor(tabPlacement: Int) : super(tabPlacement)
-    constructor(tabPlacement: Int, tabLayoutPolicy: Int) : super(tabPlacement, tabLayoutPolicy)
+open class FMenuBar : JMenuBar() {
 
     override fun updateUI() {
-        super.setUI(integrationDependent(this) { FlareTabbedPaneUI() })
+        super.setUI(integrationDependent(this) { FlareMenuBarUI() })
     }
 
     override fun createToolTip(): JToolTip {
-        val toolTip = ToolTip()
+        val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
     }

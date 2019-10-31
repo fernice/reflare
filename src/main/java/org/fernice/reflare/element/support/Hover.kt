@@ -45,6 +45,7 @@ object SharedHoverHandler : AWTEventListener {
                 for (exitedComponent in component.selfAndAncestorsIterator()) {
                     exitedComponent.element.hoverHint(false)
                 }
+                this.component = null
             }
             return
         }

@@ -85,10 +85,12 @@ object CSSEngine {
         }
     }
 
+    @JvmStatic
     fun addStylesheetResource(resource: String) {
         addStylesheet(Source.Resource(resource), Origin.AUTHOR)
     }
 
+    @JvmStatic
     fun addStylesheet(file: File) {
         addStylesheet(Source.File(file), Origin.AUTHOR)
     }
@@ -113,11 +115,17 @@ object CSSEngine {
         }
     }
 
+    @JvmStatic
     fun removeStylesheet(file: File) {
         removeStylesheet(Source.File(file))
     }
 
-    fun removeStylesheet(source: Source) {
+    @JvmStatic
+    fun removeStylesheetResource(resource: String) {
+        removeStylesheet(Source.Resource(resource))
+    }
+
+    private fun removeStylesheet(source: Source) {
         val stylesheet = stylesheets.remove(source)
 
         if (stylesheet != null) {

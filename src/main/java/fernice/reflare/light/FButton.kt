@@ -6,30 +6,27 @@
 
 package fernice.reflare.light
 
-import org.fernice.reflare.ui.FlareCheckBoxUI
+import org.fernice.reflare.ui.FlareButtonUI
 import javax.swing.Action
 import javax.swing.Icon
-import javax.swing.JCheckBox
+import javax.swing.JButton
 import javax.swing.JToolTip
 
 @Suppress("UNUSED")
-open class CheckBox : JCheckBox {
+open class FButton : JButton {
 
     constructor()
     constructor(action: Action?) : super(action)
-    constructor(icon: Icon?) : super(icon)
-    constructor(icon: Icon?, selected: Boolean) : super(icon, selected)
     constructor(text: String?) : super(text)
-    constructor(text: String?, selected: Boolean) : super(text, selected)
+    constructor(icon: Icon?) : super(icon)
     constructor(text: String?, icon: Icon?) : super(text, icon)
-    constructor(text: String?, icon: Icon?, selected: Boolean) : super(text, icon, selected)
 
     override fun updateUI() {
-        super.setUI(integrationDependent(this) { FlareCheckBoxUI() })
+        super.setUI(integrationDependent(this) { FlareButtonUI() })
     }
 
     override fun createToolTip(): JToolTip {
-        val toolTip = ToolTip()
+        val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
     }

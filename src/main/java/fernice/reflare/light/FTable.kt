@@ -16,7 +16,7 @@ import javax.swing.table.TableColumnModel
 import javax.swing.table.TableModel
 
 @Suppress("UNUSED")
-open class Table : JTable {
+open class FTable : JTable {
 
     constructor()
     constructor(model: TableModel) : super(model)
@@ -31,11 +31,11 @@ open class Table : JTable {
     }
 
     override fun createDefaultTableHeader(): JTableHeader {
-        return TableHeader(columnModel)
+        return FTableHeader(columnModel)
     }
 
     override fun createToolTip(): JToolTip {
-        val toolTip = ToolTip()
+        val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
     }

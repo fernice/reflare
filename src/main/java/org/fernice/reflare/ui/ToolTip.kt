@@ -42,7 +42,7 @@ class FlareToolTipUI(tooltip: JToolTip) : BasicToolTipUI(), FlareUI {
     }
 
     override fun getPreferredSize(c: JComponent): Dimension {
-        element.pulseOrApplyCSS()
+        element.applyCSS(origin = "tooltip:sizing")
         return super.getPreferredSize(c)
     }
 

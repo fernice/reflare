@@ -6,30 +6,28 @@
 
 package fernice.reflare.light
 
-import org.fernice.reflare.ui.FlareRadioButtonUI
+import org.fernice.reflare.ui.FlareMenuItemUI
 import javax.swing.Action
 import javax.swing.Icon
-import javax.swing.JRadioButton
+import javax.swing.JMenuItem
 import javax.swing.JToolTip
 
 @Suppress("UNUSED")
-open class RadioButton : JRadioButton {
+open class FMenuItem : JMenuItem {
 
     constructor()
     constructor(action: Action?) : super(action)
-    constructor(icon: Icon?) : super(icon)
-    constructor(icon: Icon?, selected: Boolean) : super(icon, selected)
     constructor(text: String?) : super(text)
-    constructor(text: String?, selected: Boolean) : super(text, selected)
+    constructor(icon: Icon?) : super(icon)
     constructor(text: String?, icon: Icon?) : super(text, icon)
-    constructor(text: String?, icon: Icon?, selected: Boolean) : super(text, icon, selected)
+    constructor(text: String?, mnemonic: Int) : super(text, mnemonic)
 
     override fun updateUI() {
-        super.setUI(integrationDependent(this) { FlareRadioButtonUI() })
+        super.setUI(integrationDependent(this) { FlareMenuItemUI() })
     }
 
     override fun createToolTip(): JToolTip {
-        val toolTip = ToolTip()
+        val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
     }

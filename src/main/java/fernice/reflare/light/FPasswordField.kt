@@ -6,13 +6,13 @@
 
 package fernice.reflare.light
 
-import org.fernice.reflare.ui.FlareTextFieldUI
-import javax.swing.JTextField
+import org.fernice.reflare.ui.FlarePasswordFieldUI
+import javax.swing.JPasswordField
 import javax.swing.JToolTip
 import javax.swing.text.Document
 
 @Suppress("UNUSED")
-open class TextField : JTextField {
+open class FPasswordField : JPasswordField {
 
     constructor()
     constructor(document: Document, text: String?, columns: Int) : super(document, text, columns)
@@ -21,11 +21,11 @@ open class TextField : JTextField {
     constructor(text: String?, columns: Int) : super(text, columns)
 
     override fun updateUI() {
-        super.setUI(integrationDependent(this) { FlareTextFieldUI() })
+        super.setUI(integrationDependent(this) { FlarePasswordFieldUI() })
     }
 
     override fun createToolTip(): JToolTip {
-        val toolTip = ToolTip()
+        val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
     }

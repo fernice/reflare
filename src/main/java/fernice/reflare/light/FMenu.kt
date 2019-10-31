@@ -14,7 +14,7 @@ import javax.swing.JPopupMenu
 import javax.swing.JToolTip
 
 @Suppress("UNUSED")
-open class Menu : JMenu {
+open class FMenu : JMenu {
 
     constructor()
     constructor(action: Action) : super(action)
@@ -39,7 +39,7 @@ open class Menu : JMenu {
     }
 
     override fun createToolTip(): JToolTip {
-        val toolTip = ToolTip()
+        val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
     }

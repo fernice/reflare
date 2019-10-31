@@ -6,23 +6,26 @@
 
 package fernice.reflare.light
 
-import org.fernice.reflare.ui.FlareScrollBarUI
-import javax.swing.JScrollBar
+import org.fernice.reflare.ui.FlareComboBoxUI
+import java.util.Vector
+import javax.swing.ComboBoxModel
+import javax.swing.JComboBox
 import javax.swing.JToolTip
 
 @Suppress("UNUSED")
-open class ScrollBar : JScrollBar {
+open class FComboBox<E> : JComboBox<E> {
 
     constructor()
-    constructor(orientation: Int) : super(orientation)
-    constructor(orientation: Int, value: Int, extent: Int, min: Int, max: Int) : super(orientation, value, extent, min, max)
+    constructor(elements: Array<E>) : super(elements)
+    constructor(model: ComboBoxModel<E>) : super(model)
+    constructor(elements: Vector<E>) : super(elements)
 
     override fun updateUI() {
-        super.setUI(integrationDependent(this) { FlareScrollBarUI(this) })
+        super.setUI(integrationDependent(this) { FlareComboBoxUI() })
     }
 
     override fun createToolTip(): JToolTip {
-        val toolTip = ToolTip()
+        val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
     }

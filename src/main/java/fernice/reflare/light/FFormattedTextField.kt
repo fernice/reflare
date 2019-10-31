@@ -12,7 +12,7 @@ import javax.swing.JFormattedTextField
 import javax.swing.JToolTip
 
 @Suppress("UNUSED")
-open class FormattedTextField : JFormattedTextField {
+open class FFormattedTextField : JFormattedTextField {
 
     constructor()
     constructor(formatter: AbstractFormatter) : super(formatter)
@@ -26,7 +26,7 @@ open class FormattedTextField : JFormattedTextField {
     }
 
     override fun createToolTip(): JToolTip {
-        val toolTip = ToolTip()
+        val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
     }

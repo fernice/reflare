@@ -6,19 +6,23 @@
 
 package fernice.reflare.light
 
-import org.fernice.reflare.ui.FlareRootPaneUI
-import javax.swing.JRootPane
+import org.fernice.reflare.ui.FlareTextPaneUI
+import javax.swing.JTextPane
 import javax.swing.JToolTip
+import javax.swing.text.StyledDocument
 
 @Suppress("UNUSED")
-open class RootPane : JRootPane() {
+open class FTextPane : JTextPane {
+
+    constructor()
+    constructor(document: StyledDocument) : super(document)
 
     override fun updateUI() {
-        super.setUI(integrationDependent(this) { FlareRootPaneUI() })
+        super.setUI(integrationDependent(this) { FlareTextPaneUI(this) })
     }
 
     override fun createToolTip(): JToolTip {
-        val toolTip = ToolTip()
+        val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
     }

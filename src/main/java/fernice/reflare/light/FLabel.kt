@@ -12,7 +12,7 @@ import javax.swing.JLabel
 import javax.swing.JToolTip
 
 @Suppress("UNUSED")
-open class Label : JLabel {
+open class FLabel : JLabel {
 
     constructor()
     constructor(icon: Icon?) : super(icon)
@@ -26,7 +26,7 @@ open class Label : JLabel {
     }
 
     override fun createToolTip(): JToolTip {
-        val toolTip = ToolTip()
+        val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
     }

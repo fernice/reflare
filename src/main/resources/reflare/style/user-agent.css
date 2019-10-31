@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-root, tooltip {
+root, tooltip, popup {
   background-color: #ececec;
   color: #262626;
   font-size: 12px;
@@ -57,13 +57,21 @@ button:disabled {
   color: #636363;
 }
 
-combobox button, combobox button:hover,
-combobox button:focus, combobox button:active {
+combobox > button, combobox > button:hover,
+combobox > button:focus, combobox > button:active {
   border: none;
   margin: 0;
   padding: 0;
   background: dodgerblue;
   border-radius: 0 3px 3px 0;
+}
+
+combobox > text, combobox > text:hover,
+combobox > text:focus, combobox > text:active {
+  border: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
 }
 
 combobox button::icon {
@@ -128,10 +136,10 @@ menubar {
 
 menuitem, menu {
   background-color: white;
-  padding: 2px 3px;
+  padding: 4px 5px;
 }
 
-menuitem:active, menu:active {
+menuitem:hover, menuitem:active, menu:active {
   background-color: dodgerblue;
   color: white;
 }
@@ -151,7 +159,6 @@ scrollbar > button:active {
 tooltip {
   background-color: #505050;
   color: white;
-  font-size: 12px;
   padding: 5px;
 }
 

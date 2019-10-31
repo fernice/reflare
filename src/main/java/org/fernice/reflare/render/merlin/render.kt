@@ -106,14 +106,16 @@ class MerlinRenderer(private val component: Component, private val element: AWTC
         g2.color = backgroundLayers.color
         g2.fill(backgroundShape.shape)
 
-        for (layer in backgroundLayers.layers) {
-            when (layer) {
-                is BackgroundLayer.Image -> {
-                    paintBackgroundImage(g2, component, computedValues, layer, backgroundLayers.clip, layer.origin, padding, borderInsets, margin)
-                }
-                is BackgroundLayer.Gradient -> {
-                    g2.paint = layer.gradient
-                    g2.fill(backgroundShape.shape)
+        if (backgroundLayers.layers.isNotEmpty()) {
+            for (layer in backgroundLayers.layers) {
+                when (layer) {
+                    is BackgroundLayer.Image -> {
+                        paintBackgroundImage(g2, component, computedValues, layer, backgroundLayers.clip, layer.origin, padding, borderInsets, margin)
+                    }
+                    is BackgroundLayer.Gradient -> {
+                        g2.paint = layer.gradient
+                        g2.fill(backgroundShape.shape)
+                    }
                 }
             }
         }

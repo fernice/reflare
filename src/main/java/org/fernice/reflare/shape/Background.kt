@@ -13,6 +13,7 @@ import org.fernice.reflare.resource.toTRadii
 import java.awt.Component
 import java.awt.Dimension
 import java.awt.Shape
+import java.awt.geom.Arc2D
 import java.awt.geom.Path2D
 
 internal class BackgroundShape(val shape: Shape) {
@@ -102,14 +103,50 @@ private fun computeRoundedRectangle(rect: TBounds, radii: TRadii): Path2D {
 
     path.moveTo(rect.x + radii.topLeftWidth, rect.y)
     path.lineTo(rect.x + rect.width - radii.topRightWidth, rect.y)
-    path.quadTo(rect.x + rect.width, rect.y, rect.x + rect.width, rect.y + radii.topRightHeight)
+    //path.quadTo(rect.x + rect.width, rect.y, rect.x + rect.width, rect.y + radii.topRightHeight)
+    path.arcTo(rect.x + rect.width - radii.topRightWidth * 2, rect.y, radii.topRightWidth, radii.topRightHeight, 90f, -90f)
     path.lineTo(rect.x + rect.width, rect.y + rect.height - radii.bottomRightHeight)
-    path.quadTo(rect.x + rect.width, rect.y + rect.height, rect.x + rect.width - radii.bottomRightWidth, rect.y + rect.height)
+//    path.quadTo(rect.x + rect.width, rect.y + rect.height, rect.x + rect.width - radii.bottomRightWidth, rect.y + rect.height)
+    path.arcTo(
+        rect.x + rect.width - radii.bottomRightWidth * 2,
+        rect.y + rect.height - radii.bottomRightHeight * 2,
+        radii.bottomRightWidth,
+        radii.bottomRightHeight,
+        0f,
+        -90f
+    )
     path.lineTo((rect.x + radii.bottomLeftWidth).toDouble(), (rect.y + rect.height).toDouble())
-    path.quadTo(rect.x.toDouble(), (rect.y + rect.height).toDouble(), rect.x.toDouble(), (rect.y + rect.height - radii.bottomLeftHeight).toDouble())
+//    path.quadTo(rect.x.toDouble(), (rect.y + rect.height).toDouble(), rect.x.toDouble(), (rect.y + rect.height - radii.bottomLeftHeight).toDouble())
+    path.arcTo(
+        rect.x,
+        rect.y + rect.height - radii.bottomLeftHeight * 2,
+        radii.bottomLeftWidth,
+        radii.bottomLeftHeight,
+        -90f,
+        -90f
+    )
     path.lineTo(rect.x.toDouble(), (rect.y + radii.topLeftHeight).toDouble())
-    path.quadTo(rect.x.toDouble(), rect.y.toDouble(), (rect.x + radii.topLeftWidth).toDouble(), rect.y.toDouble())
+//    path.quadTo(rect.x.toDouble(), rect.y.toDouble(), (rect.x + radii.topLeftWidth).toDouble(), rect.y.toDouble())
+    path.arcTo(
+        rect.x,
+        rect.y ,
+        radii.topLeftWidth,
+        radii.topLeftHeight,
+        -180f,
+        -90f
+    )
     path.closePath()
 
     return path
+}
+
+private fun Path2D.arcTo(x: Float, y: Float, width: Float, height: Float, start: Float, extent: Float) {
+    append(
+        Arc2D.Float(
+            x, y,
+            width * 2, height * 2,
+            start, extent,
+            Arc2D.OPEN
+        ), true
+    )
 }

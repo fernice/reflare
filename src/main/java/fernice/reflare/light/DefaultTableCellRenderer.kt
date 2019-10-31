@@ -13,7 +13,7 @@ import javax.swing.JLabel
 import javax.swing.JTable
 import javax.swing.table.TableCellRenderer
 
-open class DefaultTableCellRenderer : Label(), TableCellRenderer, Serializable {
+open class DefaultTableCellRenderer : FLabel(), TableCellRenderer, Serializable {
 
     /**
      * Creates a default table cell renderer.

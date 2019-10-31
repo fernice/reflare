@@ -12,7 +12,7 @@ import javax.swing.JToolTip
 import javax.swing.text.Document
 
 @Suppress("UNUSED")
-open class TextArea : JTextArea {
+open class FTextArea : JTextArea {
 
     constructor()
     constructor(document: Document) : super(document)
@@ -26,7 +26,7 @@ open class TextArea : JTextArea {
     }
 
     override fun createToolTip(): JToolTip {
-        val toolTip = ToolTip()
+        val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
     }

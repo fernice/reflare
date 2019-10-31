@@ -26,7 +26,6 @@ import java.awt.Dialog
 import java.awt.Toolkit
 import java.awt.event.AWTEventListener
 import java.awt.event.MouseEvent
-import java.util.Arrays
 import javax.swing.JButton
 import javax.swing.JFrame
 import javax.swing.JLabel
@@ -59,7 +58,7 @@ object DebugHelper : JPanel() {
     }
 }
 
-private val RELEVANT_EVENTS = Arrays.asList(MouseEvent.MOUSE_PRESSED, MouseEvent.MOUSE_CLICKED, MouseEvent.MOUSE_RELEASED)
+private val RELEVANT_EVENTS = listOf(MouseEvent.MOUSE_PRESSED, MouseEvent.MOUSE_CLICKED, MouseEvent.MOUSE_RELEASED)
 
 class DebugStylePanel : JPanel() {
 
@@ -142,13 +141,13 @@ private class MatchingStylesPanel : JPanel() {
             val previous = field
 
             if (previous is Some) {
-                previous.value.restyle.removeListener(restyleListener)
+                previous.value.removeRestyleListener(restyleListener)
             }
 
             field = value
 
             if (value is Some) {
-                value.value.restyle.addListener(restyleListener)
+                value.value.addRestyleListener(restyleListener)
             }
 
             update()

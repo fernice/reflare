@@ -6,26 +6,26 @@
 
 package fernice.reflare.light
 
-import org.fernice.reflare.ui.FlareComboBoxUI
+import org.fernice.reflare.ui.FlareListUI
 import java.util.Vector
-import javax.swing.ComboBoxModel
-import javax.swing.JComboBox
+import javax.swing.JList
 import javax.swing.JToolTip
+import javax.swing.ListModel
 
 @Suppress("UNUSED")
-open class ComboBox<E> : JComboBox<E> {
+open class FList<E> : JList<E> {
 
     constructor()
     constructor(elements: Array<E>) : super(elements)
-    constructor(model: ComboBoxModel<E>) : super(model)
+    constructor(model: ListModel<E>) : super(model)
     constructor(elements: Vector<E>) : super(elements)
 
     override fun updateUI() {
-        super.setUI(integrationDependent(this) { FlareComboBoxUI() })
+        super.setUI(integrationDependent(this) { FlareListUI() })
     }
 
     override fun createToolTip(): JToolTip {
-        val toolTip = ToolTip()
+        val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
     }

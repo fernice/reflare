@@ -6,19 +6,25 @@
 
 package fernice.reflare.light
 
-import org.fernice.reflare.ui.FlareMenuBarUI
-import javax.swing.JMenuBar
+import org.fernice.reflare.ui.FlareEditorPaneUI
+import java.net.URL
+import javax.swing.JEditorPane
 import javax.swing.JToolTip
 
 @Suppress("UNUSED")
-open class MenuBar : JMenuBar() {
+open class FEditorPane : JEditorPane {
+
+    constructor()
+    constructor(url: String) : super(url)
+    constructor(type: String, text: String?) : super(type, text)
+    constructor(url: URL) : super(url)
 
     override fun updateUI() {
-        super.setUI(integrationDependent(this) { FlareMenuBarUI() })
+        super.setUI(integrationDependent(this) { FlareEditorPaneUI(this) })
     }
 
     override fun createToolTip(): JToolTip {
-        val toolTip = ToolTip()
+        val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
     }

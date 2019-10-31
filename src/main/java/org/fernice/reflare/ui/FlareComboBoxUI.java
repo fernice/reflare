@@ -1,7 +1,8 @@
 package org.fernice.reflare.ui;
 
-import fernice.reflare.light.Button;
-import fernice.reflare.light.Label;
+import fernice.reflare.light.FButton;
+import fernice.reflare.light.FLabel;
+import fernice.reflare.light.FTextField;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
@@ -10,14 +11,17 @@ import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
+import javax.swing.ComboBoxEditor;
 import javax.swing.Icon;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.UIResource;
+import javax.swing.plaf.basic.BasicComboBoxEditor;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 import javax.swing.plaf.basic.ComboPopup;
 import org.fernice.reflare.Defaults;
@@ -77,18 +81,24 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
     }
 
     @Override
-    protected Button createArrowButton() {
-        Button button = new Button();
+    protected FButton createArrowButton() {
+        FButton button = new FButton();
         button.setCursor(Cursor.getDefaultCursor());
         return button;
     }
 
     @Override
+    protected ComboBoxEditor createEditor() {
+        return new FlareComboBoxEditor();
+    }
+
+    @Override
     public void paint(final Graphics graphics, JComponent component) {
+        element.paintBackground(component, graphics);
+
         hasFocus = comboBox.hasFocus();
         if (!comboBox.isEditable()) {
             Rectangle r = rectangleForCurrentValue();
-            element.paintBackground(component, graphics);
             paintCurrentValue(graphics, r, hasFocus);
         }
     }
@@ -192,7 +202,7 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
         }
     }
 
-    private class FlareComboBoxRenderer extends Label implements ListCellRenderer<Object>, UIResource {
+    private class FlareComboBoxRenderer extends FLabel implements ListCellRenderer<Object>, UIResource {
 
         public FlareComboBoxRenderer() {
             super();
@@ -266,6 +276,16 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
                 Rectangle cvb = rectangleForCurrentValue();
                 editor.setBounds(cvb);
             }
+        }
+    }
+
+    private static class FlareComboBoxEditor extends BasicComboBoxEditor.UIResource {
+
+        @Override
+        public JTextField createEditorComponent() {
+            FTextField f = new FTextField("", 9);
+            f.setName("ComboBox.textField");
+            return f;
         }
     }
 }

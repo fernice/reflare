@@ -6,28 +6,26 @@
 
 package fernice.reflare.light
 
-import org.fernice.reflare.ui.FlareMenuItemUI
-import javax.swing.Action
-import javax.swing.Icon
-import javax.swing.JMenuItem
+import org.fernice.reflare.ui.FlareTextFieldUI
+import javax.swing.JTextField
 import javax.swing.JToolTip
+import javax.swing.text.Document
 
 @Suppress("UNUSED")
-open class MenuItem : JMenuItem {
+open class FTextField : JTextField {
 
     constructor()
-    constructor(action: Action?) : super(action)
+    constructor(document: Document, text: String?, columns: Int) : super(document, text, columns)
+    constructor(columns: Int) : super(columns)
     constructor(text: String?) : super(text)
-    constructor(icon: Icon?) : super(icon)
-    constructor(text: String?, icon: Icon?) : super(text, icon)
-    constructor(text: String?, mnemonic: Int) : super(text, mnemonic)
+    constructor(text: String?, columns: Int) : super(text, columns)
 
     override fun updateUI() {
-        super.setUI(integrationDependent(this) { FlareMenuItemUI() })
+        super.setUI(integrationDependent(this) { FlareTextFieldUI() })
     }
 
     override fun createToolTip(): JToolTip {
-        val toolTip = ToolTip()
+        val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
     }

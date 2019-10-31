@@ -6,23 +6,23 @@
 
 package fernice.reflare.light
 
-import org.fernice.reflare.ui.FlareTextPaneUI
-import javax.swing.JTextPane
+import org.fernice.reflare.ui.FlareScrollBarUI
+import javax.swing.JScrollBar
 import javax.swing.JToolTip
-import javax.swing.text.StyledDocument
 
 @Suppress("UNUSED")
-open class TextPane : JTextPane {
+open class FScrollBar : JScrollBar {
 
     constructor()
-    constructor(document: StyledDocument) : super(document)
+    constructor(orientation: Int) : super(orientation)
+    constructor(orientation: Int, value: Int, extent: Int, min: Int, max: Int) : super(orientation, value, extent, min, max)
 
     override fun updateUI() {
-        super.setUI(integrationDependent(this) { FlareTextPaneUI(this) })
+        super.setUI(integrationDependent(this) { FlareScrollBarUI(this) })
     }
 
     override fun createToolTip(): JToolTip {
-        val toolTip = ToolTip()
+        val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
     }

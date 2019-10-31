@@ -6,18 +6,19 @@
 
 package fernice.reflare.light
 
-import org.fernice.reflare.ui.FlareToolTipUI
+import org.fernice.reflare.ui.FlareViewportUI
 import javax.swing.JToolTip
+import javax.swing.JViewport
 
 @Suppress("UNUSED")
-open class ToolTip : JToolTip() {
+open class FViewport : JViewport() {
 
     override fun updateUI() {
-        super.setUI(integrationDependent(this) { FlareToolTipUI(this) })
+        super.setUI(integrationDependent(this) { FlareViewportUI() })
     }
 
     override fun createToolTip(): JToolTip {
-        val toolTip = ToolTip()
+        val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
     }

@@ -32,7 +32,6 @@ import java.awt.Rectangle;
 import javax.accessibility.Accessible;
 import javax.swing.JComponent;
 import org.fernice.reflare.element.AWTComponentElement;
-import org.fernice.reflare.element.StyleState;
 import org.fernice.reflare.element.StyleTreeHelper;
 import org.fernice.reflare.ui.FlareBorder;
 
@@ -162,9 +161,7 @@ public class CellRendererPane extends javax.swing.CellRendererPane implements Ac
 
         c.validate();
 
-        if (StyleTreeHelper.getElement(c).getStyleState() != StyleState.CLEAN) {
-            StyleTreeHelper.getElement(c).forceRestyle();
-        }
+        StyleTreeHelper.getElement(c).restyleIfNecessary();
 
         boolean wasDoubleBuffered = false;
         if ((c instanceof JComponent) && c.isDoubleBuffered()) {
