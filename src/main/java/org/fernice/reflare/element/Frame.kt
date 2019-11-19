@@ -129,7 +129,7 @@ class Frame(private val frame: Window) : Device {
         }
     }
 
-    internal fun requestNextPulse(element: AWTComponentElement) {
+    internal fun requestNextPulse() {
         if (!pulseRequested.getAndSet(true)) {
             SwingUtilities.invokeLater { pulse() }
         }

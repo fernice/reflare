@@ -5,6 +5,7 @@
  */
 package org.fernice.reflare.ui;
 
+import fernice.reflare.StyledImageIcon;
 import java.awt.Component;
 import java.awt.Graphics;
 import javax.swing.AbstractButton;
@@ -33,6 +34,9 @@ public class FlareCheckBoxUI extends FlareToggleButtonUI {
     @Override
     protected void installDefaults(AbstractButton button) {
         super.installDefaults(button);
+
+        button.setIcon(new StyledImageIcon("/reflare/icons/checkbox.png"));
+        button.setSelectedIcon(new StyledImageIcon("/reflare/icons/checkbox-checked.png"));
     }
 
     @Override

@@ -7,16 +7,27 @@ import org.fernice.reflare.render.icon.ColorAndBackground
 import org.fernice.reflare.render.icon.setIcon
 import org.fernice.reflare.util.Observables
 import javax.swing.AbstractButton
+import javax.swing.ButtonModel
 import javax.swing.JCheckBox
 import javax.swing.JRadioButton
 import javax.swing.JToggleButton
+import javax.swing.event.ChangeListener
 
 open class ButtonElement(button: AbstractButton) : ComponentElement(button) {
 
     init {
-        button.model.addChangeListener {
-            reapplyCSS(origin = "active")
-        }
+        modelChanged(null, button.model)
+
+        button.addPropertyChangeListener("model") { modelChanged(it.oldValue as ButtonModel?, it.newValue as ButtonModel?) }
+    }
+
+    private val modelChangeListener = ChangeListener {
+        reapplyCSS(origin = "active")
+    }
+
+    private fun modelChanged(old: ButtonModel?, new: ButtonModel?) {
+        old?.removeChangeListener(modelChangeListener)
+        new?.addChangeListener(modelChangeListener)
     }
 
     override fun matchNonTSPseudoClass(pseudoClass: NonTSPseudoClass): Boolean {
@@ -48,6 +59,12 @@ open class ButtonElement(button: AbstractButton) : ComponentElement(button) {
         component.setIcon(iconStyle) {
             component.setIcon(iconStyle)
         }
+    }
+
+    override fun updateStyle(style: ComputedValues) {
+        super.updateStyle(style)
+
+        iconStyle
     }
 
     override fun updatePseudoElement(pseudoElement: PseudoElement, style: ComputedValues) {

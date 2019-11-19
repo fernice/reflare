@@ -127,10 +127,9 @@ object IconPseudoElementHelper {
         loop@
         for (layer in background.imageLayerIterator()) {
             val image = layer.image as? Image.Url ?: continue@loop
-            val unvalidatedUrl = image.url
 
-            val url = when (unvalidatedUrl) {
-                is ComputedUrl.Valid -> (image.url as ComputedUrl.Valid).url
+            val url = when (val unvalidatedUrl = image.url) {
+                is ComputedUrl.Valid -> unvalidatedUrl.url
                 is ComputedUrl.Invalid -> continue@loop
             }
 

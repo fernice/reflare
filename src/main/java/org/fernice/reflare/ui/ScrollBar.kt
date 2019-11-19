@@ -33,6 +33,12 @@ class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentEle
     override fun installDefaults() {
         super.installDefaults()
 
+        minimumThumbSize = Dimension(30, 30)
+        maximumThumbSize = Dimension(1000, 1000)
+
+        incrGap = 0
+        decrGap = 0
+
         scrollBarWidth = if (showButtons) 16 else 12
         scrollbar.isOpaque = false
         scrollbar.border = FlareBorder(this)

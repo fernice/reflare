@@ -104,8 +104,9 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
         if (root != null && !root.isDirty(DirtyBits.NODE_CSS)) {
             root.markDirty(DirtyBits.NODE_CSS)
-            frame?.requestNextPulse(this)
         }
+
+        frame?.requestNextPulse()
 
         var parent = parent
         while (parent != null) {
@@ -523,6 +524,11 @@ abstract class AWTComponentElement(val component: Component) : Element {
     }
 
     // ***************************** Renderer Override ***************************** //
+
+
+    init {
+        component.addPropertyChangeListener("enabled") { reapplyCSS() }
+    }
 
     fun hoverHint(hover: Boolean): Boolean {
         val old = this.hover

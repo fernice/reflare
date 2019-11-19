@@ -74,36 +74,20 @@ combobox > text:focus, combobox > text:active {
   background: transparent;
 }
 
-combobox button::icon {
-  background-image: url("/reflare/icons/combobox.png");
+combobox button {
   fill: white;
 }
 
-checkbox::icon {
-  background-image: url("/reflare/icons/checkbox.png");
+
+checkbox, radio {
   fill: #444444;
 }
 
-checkbox:checked::icon {
-  background-image: url("/reflare/icons/checkbox-checked.png");
+checkbox:checked, radio:checked {
   fill: dodgerblue;
 }
 
-radio::icon {
-  background-image: url("/reflare/icons/radio.png");
-  fill: #444444;
-}
-
-radio:checked::icon {
-  background-image: url("/reflare/icons/radio-checked.png");
-  fill: dodgerblue;
-}
-
-checkbox::icon {
-  background-size: contain;
-}
-
-:disabled::icon {
+checkbox:disabled, radio:disabled {
   fill: #aaaaaa;
 }
 
