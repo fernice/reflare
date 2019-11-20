@@ -35,8 +35,8 @@ public class FlareCheckBoxUI extends FlareToggleButtonUI {
     protected void installDefaults(AbstractButton button) {
         super.installDefaults(button);
 
-        button.setIcon(new StyledImageIcon("/reflare/icons/checkbox.png"));
-        button.setSelectedIcon(new StyledImageIcon("/reflare/icons/checkbox-checked.png"));
+        button.setIcon(StyledImageIcon.fromResource("/reflare/icons/checkbox.png"));
+        button.setSelectedIcon(StyledImageIcon.fromResource("/reflare/icons/checkbox-checked.png"));
     }
 
     @Override

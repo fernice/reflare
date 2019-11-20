@@ -22,8 +22,8 @@ public class FlareRadioButtonUI extends FlareToggleButtonUI {
     protected void installDefaults(AbstractButton button) {
         super.installDefaults(button);
 
-        button.setIcon(new StyledImageIcon("/reflare/icons/radio.png"));
-        button.setSelectedIcon(new StyledImageIcon("/reflare/icons/radio-checked.png"));
+        button.setIcon(StyledImageIcon.fromResource("/reflare/icons/radio.png"));
+        button.setSelectedIcon(StyledImageIcon.fromResource("/reflare/icons/radio-checked.png"));
     }
 
     @Override

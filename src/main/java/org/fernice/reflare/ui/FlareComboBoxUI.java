@@ -84,7 +84,7 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
     @Override
     protected FButton createArrowButton() {
         FButton button = new FButton();
-        button.setIcon(new StyledImageIcon("/reflare/icons/combobox.png"));
+        button.setIcon(StyledImageIcon.fromResource("/reflare/icons/combobox.png"));
         button.setCursor(Cursor.getDefaultCursor());
         return button;
     }

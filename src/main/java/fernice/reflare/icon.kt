@@ -18,7 +18,7 @@ import java.awt.Image
 import java.util.WeakHashMap
 import javax.swing.Icon
 
-class StyledImageIcon(resource: String) : Icon {
+class StyledImageIcon private constructor(resource: String) : Icon {
 
     private val imageFuture = ImageCache.image(Url(resource)) {}
     private val image by lazy { imageFuture.get() }
@@ -50,6 +50,19 @@ class StyledImageIcon(resource: String) : Icon {
             }
 
             return styledImage
+        }
+    }
+
+    companion object {
+
+        @JvmStatic
+        fun fromResource(resource: String): StyledImageIcon {
+            return StyledImageIcon(resource)
+        }
+
+        @JvmStatic
+        fun fromUrl(url: String): StyledImageIcon {
+            return StyledImageIcon(url);
         }
     }
 }

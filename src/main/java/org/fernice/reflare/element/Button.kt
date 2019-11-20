@@ -15,14 +15,14 @@ import javax.swing.event.ChangeListener
 
 open class ButtonElement(button: AbstractButton) : ComponentElement(button) {
 
+    private val modelChangeListener = ChangeListener {
+        reapplyCSS(origin = "active")
+    }
+
     init {
         modelChanged(null, button.model)
 
         button.addPropertyChangeListener("model") { modelChanged(it.oldValue as ButtonModel?, it.newValue as ButtonModel?) }
-    }
-
-    private val modelChangeListener = ChangeListener {
-        reapplyCSS(origin = "active")
     }
 
     private fun modelChanged(old: ButtonModel?, new: ButtonModel?) {
@@ -59,12 +59,6 @@ open class ButtonElement(button: AbstractButton) : ComponentElement(button) {
         component.setIcon(iconStyle) {
             component.setIcon(iconStyle)
         }
-    }
-
-    override fun updateStyle(style: ComputedValues) {
-        super.updateStyle(style)
-
-        iconStyle
     }
 
     override fun updatePseudoElement(pseudoElement: PseudoElement, style: ComputedValues) {
