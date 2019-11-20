@@ -8,7 +8,7 @@
         <version>1.0.15</version>
     </parent>
     <artifactId>fernice-reflare</artifactId>
-    <version>1.0.15-SNAPSHOT</version>
+    <version>1.0.15</version>
 
     <name>reflare</name>
     <description>CSS integration through fernice-flare in Java Swing as a LookAndFeel</description>
@@ -18,7 +18,7 @@
         <connection>scm:git:ssh://git@github.com:fernice/reflare.git</connection>
         <developerConnection>scm:git:ssh://git@github.com:fernice/relare.git</developerConnection>
         <url>https://github.com/fernice/reflare</url>
-        <tag>HEAD</tag>
+        <tag>fernice-reflare-1.0.15</tag>
     </scm>
 
     <dependencies>
