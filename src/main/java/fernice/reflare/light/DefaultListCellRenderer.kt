@@ -13,7 +13,7 @@ import javax.swing.Icon
 import javax.swing.JList
 import javax.swing.ListCellRenderer
 
-open class DefaultListCellRenderer : Label(), ListCellRenderer<Any>, Serializable {
+open class DefaultListCellRenderer : FLabel(), ListCellRenderer<Any>, Serializable {
 
     init {
         isOpaque = true

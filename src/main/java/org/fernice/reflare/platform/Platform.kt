@@ -20,7 +20,7 @@ enum class OperatingSystem {
 object Platform {
 
     val operatingSystem by lazy {
-        val os = System.getProperty("os.name").toLowerCase()
+        val os = System.getProperty("fernice.reflare.platform")?.toLowerCase() ?: System.getProperty("os.name").toLowerCase()
         when {
             os.startsWith("mac") || os.startsWith("darwin") -> OperatingSystem.Mac
             os.startsWith("wind") -> OperatingSystem.Windows
@@ -28,6 +28,10 @@ object Platform {
             else -> throw RuntimeException("cannot infer operating system")
         }
     }
+
+    fun isWindows(): Boolean = operatingSystem == OperatingSystem.Windows
+    fun isMac(): Boolean = operatingSystem == OperatingSystem.Mac
+    fun isLinux(): Boolean = operatingSystem == OperatingSystem.Linux
 
     private val platform: PlatformImpl by lazy {
         when (operatingSystem) {

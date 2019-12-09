@@ -25,7 +25,6 @@ open class FlareEditorPaneUI(editorPane: JEditorPane) : BasicEditorPaneUI(), Fla
 
         installDefaultProperties(component)
 
-        component.addPropertyChangeListener("enabled") { component.repaint() }
         component.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true)
 
         StyleTreeElementLookup.registerElement(component, this)

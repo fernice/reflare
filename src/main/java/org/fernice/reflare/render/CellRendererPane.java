@@ -113,10 +113,11 @@ public class CellRendererPane extends javax.swing.CellRendererPane implements Ac
         if (x.getParent() != this) {
             super.addImpl(x, constraints, index);
 
+            // fixme(kralli) most likely redundant, but could be used in
+            //  case the component is already part of the parent
             if (!suppressRestyling) {
                 AWTComponentElement element = StyleTreeHelper.getElement(x);
-                element.invalidateShape();
-                element.applyCSS();
+                element.applyCSSFrom("renderer:cell");
             }
         }
     }
@@ -160,8 +161,7 @@ public class CellRendererPane extends javax.swing.CellRendererPane implements Ac
 
         c.validate();
 
-        StyleTreeHelper.getElement(c).invalidateShape();
-        StyleTreeHelper.getElement(c).forceRestyle();
+        StyleTreeHelper.getElement(c).restyleIfNecessary();
 
         boolean wasDoubleBuffered = false;
         if ((c instanceof JComponent) && c.isDoubleBuffered()) {

@@ -2,6 +2,7 @@ package fernice.reflare;
 
 import java.awt.Component;
 import java.awt.KeyboardFocusManager;
+import java.awt.Window;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -78,20 +79,18 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
     private static final PropertyChangeListener focusChangeListener = new PropertyChangeListener() {
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            if (evt.getOldValue() != null) {
+            if (evt.getOldValue() != null && !(evt.getOldValue() instanceof Window)) {
                 Component component = (Component) evt.getOldValue();
                 AWTComponentElement element = StyleTreeHelper.getElement(component);
 
-                element.traceReapplyOrigin("focus:gain");
-                element.reapplyCSS();
+                element.reapplyCSSFrom("focus:loss");
             }
 
-            if (evt.getNewValue() != null) {
+            if (evt.getNewValue() != null && !(evt.getNewValue() instanceof Window)) {
                 Component component = (Component) evt.getNewValue();
                 AWTComponentElement element = StyleTreeHelper.getElement(component);
 
-                element.traceReapplyOrigin("focus:loss");
-                element.reapplyCSS();
+                element.reapplyCSSFrom("focus:gain");
             }
         }
     };

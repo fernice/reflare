@@ -8,6 +8,7 @@
 
 package org.fernice.reflare.ui
 
+import org.fernice.flare.std.systemFlag
 import org.fernice.reflare.Defaults
 import org.fernice.reflare.element.ui
 import java.awt.Component
@@ -15,7 +16,7 @@ import java.beans.PropertyChangeListener
 import javax.swing.JComponent
 import javax.swing.LookAndFeel
 
-private val enforceBorder = System.getProperty("reflare.enforce_border", "true")!!.toBoolean()
+private val enforceBorder = systemFlag("fernice.reflare.enforceBorder", default = true)
 
 private val propertyChangeListener = PropertyChangeListener { event ->
     if (event.newValue !is FlareBorder) {

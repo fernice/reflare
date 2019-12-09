@@ -1,21 +1,23 @@
 package org.fernice.reflare.element
 
 import fernice.reflare.CSSEngine
-import org.fernice.flare.EngineContext
 import org.fernice.flare.dom.Device
 import org.fernice.flare.style.MatchingResult
 import org.fernice.flare.style.value.computed.Au
 import org.fernice.flare.style.value.generic.Size2D
-import org.fernice.reflare.trace.CountingTrace
-import org.fernice.reflare.trace.RestyleTrace
+import org.fernice.reflare.trace.trace
+import org.fernice.reflare.trace.traceRoot
 import java.awt.Component
 import java.awt.Window
 import java.awt.event.ContainerEvent
 import java.awt.event.ContainerListener
 import java.util.WeakHashMap
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
+import javax.swing.SwingUtilities
 
-private val frames: MutableMap<Window, Frame> = WeakHashMap()
+private val FRAME_COUNT = AtomicInteger(0)
+internal val frames: MutableMap<Window, Frame> = WeakHashMap()
 
 val Window.frame: Frame
     get() = frames[this] ?: Frame(this)
@@ -60,8 +62,10 @@ class Frame(private val frame: Window) : Device {
         childElement.frame = this
         root = childElement
 
-        childElement.traceReapplyOrigin("frame:added")
-        childElement.reapplyCSS()
+        //childElement.reapplyCSS(origin = "frame:added")
+        childElement.applyCSS(origin = "frame:added")
+        frame.revalidate()
+        frame.repaint()
     }
 
     private fun childRemoved(child: Component) {
@@ -89,7 +93,7 @@ class Frame(private val frame: Window) : Device {
     }
 
     override fun invalidate() {
-        root?.reapplyCSS()
+        root?.reapplyCSS("frame:invalidate")
 
         frame.revalidate()
         frame.repaint()
@@ -99,22 +103,18 @@ class Frame(private val frame: Window) : Device {
         dirtyElements.add(element)
     }
 
-    private var count: Int = 0
+    private val debug_frameCount = FRAME_COUNT.get()
 
     private fun doCSSPass() {
         val root = root
 
         if (root != null && root.cssFlag != StyleState.CLEAN) {
             val engineContext = cssEngine.createEngineContext()
-            val context = TracingContext(engineContext, CountingTrace(count++))
 
-            context.traceBeginPass()
-
-            try {
+            trace(engineContext, name = "frame $debug_frameCount") { traceContext ->
+                traceContext.traceRoot(root)
                 root.clearDirty(DirtyBits.NODE_CSS)
-                root.processCSS(context)
-            } finally {
-                context.traceEndPass()
+                root.processCSS(traceContext)
             }
         }
     }
@@ -129,9 +129,9 @@ class Frame(private val frame: Window) : Device {
         }
     }
 
-    internal fun requestNextPulse(element: AWTComponentElement) {
+    internal fun requestNextPulse() {
         if (!pulseRequested.getAndSet(true)) {
-            element.component.repaint()
+            SwingUtilities.invokeLater { pulse() }
         }
     }
 
@@ -140,23 +140,3 @@ class Frame(private val frame: Window) : Device {
     }
 }
 
-class TracingContext(
-    delegate: EngineContext,
-    val trace: RestyleTrace
-) : EngineContext by delegate
-
-private fun EngineContext.trace(): RestyleTrace? {
-    return (this as? TracingContext)?.trace
-}
-
-internal fun EngineContext.traceBeginPass() {
-    trace()?.beginCSSPass()
-}
-
-internal fun EngineContext.traceElement(element: AWTComponentElement) {
-    trace()?.traceRestyledElement(element)
-}
-
-internal fun EngineContext.traceEndPass() {
-    trace()?.endCSSPass()
-}

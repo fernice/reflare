@@ -10,11 +10,15 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.UIManager;
 import javax.swing.plaf.ComponentUI;
+import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicMenuUI;
 import org.fernice.reflare.Defaults;
 import org.fernice.reflare.element.ComponentElement;
+import org.fernice.reflare.element.Frame;
 import org.fernice.reflare.element.MenuElement;
+import org.fernice.reflare.element.StyleState;
 import org.fernice.reflare.element.StyleTreeElementLookup;
 import org.fernice.reflare.internal.SwingUtilitiesHelper;
 import org.fernice.reflare.meta.DefinedBy;
@@ -33,6 +37,8 @@ public class FlareMenuUI extends BasicMenuUI implements FlareUI {
 
     @Override
     protected void installDefaults() {
+//        super.installDefaults();
+
         JMenu menu = (JMenu) menuItem;
 
         if (element == null) {
@@ -48,6 +54,12 @@ public class FlareMenuUI extends BasicMenuUI implements FlareUI {
         acceleratorDelimiter = "+";
         menu.setDelay(200);
 
+        String prefix = getPropertyPrefix();
+        if (arrowIcon == null ||
+                arrowIcon instanceof UIResource) {
+            arrowIcon = UIManager.getIcon(prefix + ".arrowIcon");
+        }
+
         uninstallKeyboardActions();
         installKeyboardActions();
 
@@ -62,20 +74,30 @@ public class FlareMenuUI extends BasicMenuUI implements FlareUI {
 
     @Override
     public Dimension getMinimumSize(final JComponent c) {
-        // element.pulseForComputation();
+//        applyCSSIfOrphanAndDirty();
+        element.restyleIfNecessary();
         return super.getMinimumSize(c);
     }
 
     @Override
     public Dimension getPreferredSize(final JComponent c) {
-        // element.pulseForComputation();
+//        applyCSSIfOrphanAndDirty();
+        element.restyleIfNecessary();
         return super.getPreferredSize(c);
     }
 
     @Override
     public Dimension getMaximumSize(final JComponent c) {
-        // element.pulseForComputation();
+//        applyCSSIfOrphanAndDirty();
+        element.restyleIfNecessary();
         return super.getMaximumSize(c);
+    }
+
+    private void applyCSSIfOrphanAndDirty() {
+        Frame frame = element.getFrame();
+        if (frame == null && element.getStyleState() != StyleState.CLEAN) {
+            element.applyCSSFrom("menu:orphan");
+        }
     }
 
     @Override

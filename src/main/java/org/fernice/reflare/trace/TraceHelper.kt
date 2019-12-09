@@ -6,6 +6,9 @@
 
 package org.fernice.reflare.trace
 
+import org.fernice.flare.std.systemFlag
+
+
 class TraceHelper private constructor() {
 
     val origins = mutableListOf<String>()
@@ -21,7 +24,7 @@ class TraceHelper private constructor() {
     companion object {
 
         @JvmStatic
-        val TRACE_ENABLED = System.getProperty("reflare.trace", "false")!!.toBoolean()
+        val TRACE_ENABLED = systemFlag("fernice.reflare.traceRestyle")
 
         fun createTraceHelper(): TraceHelper? {
             return if (TRACE_ENABLED) TraceHelper() else null

@@ -7,6 +7,7 @@ import org.fernice.flare.dom.Device
 import org.fernice.flare.dom.Element
 import org.fernice.flare.font.FontMetricsProvider
 import org.fernice.flare.font.FontMetricsQueryResult
+import org.fernice.flare.std.systemFlag
 import org.fernice.flare.style.MatchingResult
 import org.fernice.flare.style.properties.stylestruct.Font
 import org.fernice.flare.style.stylesheet.Origin
@@ -14,11 +15,15 @@ import org.fernice.flare.style.stylesheet.Stylesheet
 import org.fernice.flare.style.value.computed.Au
 import org.fernice.flare.style.value.generic.Size2D
 import org.fernice.reflare.element.AWTComponentElement
+import org.fernice.reflare.platform.OperatingSystem
+import org.fernice.reflare.platform.Platform
 import java.awt.Component
 import java.io.File
 import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.nio.charset.StandardCharsets
+
+private val SUPPRESS_USER_AGENT_STYLESHEETS = systemFlag("fernice.reflare.suppressUserAgentStylesheet")
 
 object CSSEngine {
 
@@ -64,15 +69,28 @@ object CSSEngine {
     private val stylesheets: MutableMap<Source, Stylesheet> = mutableMapOf()
 
     init {
-        addStylesheet(Source.Resource("/reflare/style/user-agent.css"), Origin.USER_AGENT)
-        addStylesheet(Source.Resource("/reflare/style/file_chooser.css"), Origin.USER_AGENT)
-        addStylesheet(Source.Resource("/reflare/style/material.css"), Origin.USER)
+        if (!SUPPRESS_USER_AGENT_STYLESHEETS) {
+            addStylesheet(Source.Resource("/reflare/style/user-agent.css"), Origin.USER_AGENT)
+
+            val platformStylesheet = when (Platform.operatingSystem) {
+                OperatingSystem.Windows -> "/reflare/style/user-agent-windows.css"
+                OperatingSystem.Mac -> "/reflare/style/user-agent-macos.css"
+                OperatingSystem.Linux -> "/reflare/style/user-agent-linux.css"
+            }
+
+            addStylesheet(Source.Resource(platformStylesheet), Origin.USER_AGENT)
+
+            addStylesheet(Source.Resource("/reflare/style/file_chooser.css"), Origin.USER_AGENT)
+            addStylesheet(Source.Resource("/reflare/style/material.css"), Origin.USER)
+        }
     }
 
+    @JvmStatic
     fun addStylesheetResource(resource: String) {
         addStylesheet(Source.Resource(resource), Origin.AUTHOR)
     }
 
+    @JvmStatic
     fun addStylesheet(file: File) {
         addStylesheet(Source.File(file), Origin.AUTHOR)
     }
@@ -92,22 +110,28 @@ object CSSEngine {
 
         shared.stylist.addStylesheet(stylesheet)
 
-        for (engine in engines.toStrongList()) {
+        for (engine in engines.toDereferencedList()) {
             engine.device.invalidate()
         }
     }
 
+    @JvmStatic
     fun removeStylesheet(file: File) {
         removeStylesheet(Source.File(file))
     }
 
-    fun removeStylesheet(source: Source) {
+    @JvmStatic
+    fun removeStylesheetResource(resource: String) {
+        removeStylesheet(Source.Resource(resource))
+    }
+
+    private fun removeStylesheet(source: Source) {
         val stylesheet = stylesheets.remove(source)
 
         if (stylesheet != null) {
             shared.stylist.removeStylesheet(stylesheet)
 
-            for (engine in engines.toStrongList()) {
+            for (engine in engines.toDereferencedList()) {
                 engine.device.invalidate()
             }
         }
@@ -138,8 +162,8 @@ sealed class Source {
 
     fun inputStream(): InputStream {
         return when (this) {
-            is Source.Resource -> FlareLookAndFeel::class.java.getResourceAsStream(path)
-            is Source.File -> path.inputStream()
+            is Resource -> FlareLookAndFeel::class.java.getResourceAsStream(path)
+            is File -> path.inputStream()
         }
     }
 }
@@ -161,7 +185,7 @@ private class LocalDevice(val component: Component) : Device {
     }
 }
 
-private fun <E> MutableList<WeakReference<E>>.toStrongList(): List<E> {
+private fun <E> MutableList<WeakReference<E>>.toDereferencedList(): List<E> {
     val strong: MutableList<E> = mutableListOf()
 
     val iter = this.iterator()

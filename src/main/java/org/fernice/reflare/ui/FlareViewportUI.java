@@ -6,6 +6,7 @@ import javax.swing.JComponent;
 import javax.swing.JViewport;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicViewportUI;
+import org.fernice.reflare.Defaults;
 import org.fernice.reflare.element.ComponentElement;
 import org.fernice.reflare.element.StyleTreeElementLookup;
 import org.fernice.reflare.element.ViewportElement;
@@ -35,6 +36,7 @@ public class FlareViewportUI extends BasicViewportUI implements FlareUI {
         // primarily draws other components it does not require
         // and partially does not support the usual defaults
         component.setOpaque(false);
+        component.setFont(Defaults.FONT_SERIF);
 
         StyleTreeElementLookup.registerElement(component, this);
     }

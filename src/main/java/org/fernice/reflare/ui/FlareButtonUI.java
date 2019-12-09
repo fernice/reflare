@@ -13,6 +13,7 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import javax.swing.AbstractButton;
 import javax.swing.ButtonModel;
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicButtonUI;
@@ -88,13 +89,33 @@ public class FlareButtonUI extends BasicButtonUI implements FlareUI {
     @Override
     protected void paintIcon(Graphics g, JComponent c, Rectangle iconRect) {
         AbstractButton b = (AbstractButton) c;
+        ButtonModel model = b.getModel();
 
-        b.getIcon().paintIcon(c, g, iconRect.x, iconRect.y);
+        Icon icon = b.getIcon();
+
+        if (icon == null) {
+            return;
+        }
+
+        if (b.isSelected()) {
+            Icon selectedIcon = b.getSelectedIcon();
+            if (selectedIcon != null) {
+                icon = selectedIcon;
+            }
+        }
+
+        if (model.isPressed()) {
+            Icon pressedIcon = b.getPressedIcon();
+            if (pressedIcon != null) {
+                icon = pressedIcon;
+            }
+        }
+
+        icon.paintIcon(c, g, iconRect.x, iconRect.y);
     }
 
     protected void paintText(Graphics g, JComponent c, Rectangle textRect, String text) {
         AbstractButton b = (AbstractButton) c;
-        ButtonModel model = b.getModel();
         FontMetrics fm = SwingUtilitiesHelper.getFontMetrics(c, g);
         int mnemonicIndex = b.getDisplayedMnemonicIndex();
 

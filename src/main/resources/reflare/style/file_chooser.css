@@ -12,14 +12,14 @@ filechooser {
 }
 
 filechooser > .file-pane {
-  border: 1px;
+  border: 1px solid;
   border-color: #d7d7d7 #d3d3d3 #bfbfbf;
   background-color: white;
 }
 
 filechooser button, filechooser button:hover, filechooser button:focus {
   background-color: white;
-  border: 1px;
+  border: 1px solid;
   border-color: #d7d7d7 #d3d3d3 #bfbfbf;
   border-radius: 4px;
   margin: 2px;
@@ -32,18 +32,19 @@ filechooser combobox, filechooser combobox:hover {
   background-color: #f6f6f6;
   border-color: #d7d7d7 #d3d3d3 #bfbfbf;
   border-radius: 4px;
+  border-style: solid;
   padding: 3px;
 }
 
 filechooser button:focus,
 filechooser text:focus, filechooser combobox:focus {
-  border: 2px #91C8FF;
+  border: 2px #91C8FF solid;
   margin: 1px;
 }
 
 filechooser button:active {
   background-color: #1e90ff;
-  border: 1px dodgerblue;
+  border: 1px dodgerblue solid;
   border-radius: 4px;
   margin: 2px;
   color: white;
@@ -74,7 +75,7 @@ filechooser button.icn-folder-new::icon {
 
 filechooser list text, filechooser list text:hover,
 filechooser list text:focus, filechooser list text:active {
-  border: 0;
+  border: none;
   padding: 0;
   margin: 0;
   background-color: white;
@@ -82,7 +83,7 @@ filechooser list text:focus, filechooser list text:active {
 
 filechooser combobox button, filechooser combobox button:hover,
 filechooser combobox button:focus, filechooser combobox button:active {
-  border: 0;
+  border: none;
   margin: 0;
   padding: 0;
   background-color: transparent;

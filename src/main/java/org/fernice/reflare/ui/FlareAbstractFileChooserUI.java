@@ -6,7 +6,7 @@
 
 package org.fernice.reflare.ui;
 
-import fernice.reflare.light.Button;
+import fernice.reflare.light.FButton;
 import java.awt.Component;
 import java.awt.ComponentOrientation;
 import java.awt.Graphics;
@@ -35,8 +35,8 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class FlareAbstractFileChooserUI extends BasicFileChooserUI implements FlareUI {
 
-    private Button approveButton;
-    private Button cancelButton;
+    private FButton approveButton;
+    private FButton cancelButton;
     private Action fileNameCompletionAction = new FileNameCompletionAction();
     private FileFilter actualFileFilter = null;
     private GlobFilter globFilter = null;
@@ -83,12 +83,12 @@ public abstract class FlareAbstractFileChooserUI extends BasicFileChooserUI impl
     }
 
     public void installComponents(JFileChooser var1) {
-        this.cancelButton = new Button(this.cancelButtonText);
+        this.cancelButton = new FButton(this.cancelButtonText);
         this.cancelButton.setName("SynthFileChooser.cancelButton");
         this.cancelButton.setMnemonic(this.cancelButtonMnemonic);
         this.cancelButton.setToolTipText(this.cancelButtonToolTipText);
         this.cancelButton.addActionListener(this.getCancelSelectionAction());
-        this.approveButton = new Button(this.getApproveButtonText(var1));
+        this.approveButton = new FButton(this.getApproveButtonText(var1));
         this.approveButton.setName("SynthFileChooser.approveButton");
         this.approveButton.setMnemonic(this.getApproveButtonMnemonic(var1));
         this.approveButton.setToolTipText(this.getApproveButtonToolTipText(var1));
@@ -257,11 +257,11 @@ public abstract class FlareAbstractFileChooserUI extends BasicFileChooserUI impl
         return this.fileNameCompletionAction;
     }
 
-    protected Button getApproveButton(JFileChooser var1) {
+    protected FButton getApproveButton(JFileChooser var1) {
         return this.approveButton;
     }
 
-    protected Button getCancelButton(JFileChooser var1) {
+    protected FButton getCancelButton(JFileChooser var1) {
         return this.cancelButton;
     }
 

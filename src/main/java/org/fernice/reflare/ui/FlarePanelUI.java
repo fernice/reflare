@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import javax.swing.FocusManager;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -20,6 +21,28 @@ import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("unused")
 public class FlarePanelUI extends BasicPanelUI implements FlareUI {
 
+    private static final Object focusDismissClientPropertyKey = new Object();
+    private static final MouseListener focusDismissListener = new MouseAdapter() {
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            FocusManager.getCurrentManager().clearFocusOwner();
+        }
+    };
+
+    public static void installFocusDismissHandling(@NotNull JPanel panel) {
+        panel.addMouseListener(focusDismissListener);
+        panel.putClientProperty(focusDismissClientPropertyKey, true);
+    }
+
+    public static void uninstallFocusDismissHandling(@NotNull JPanel panel) {
+        panel.putClientProperty(focusDismissClientPropertyKey, null);
+        panel.removeMouseListener(focusDismissListener);
+    }
+
+    public static boolean isFocusDismissHandlingInstalled(@NotNull JPanel panel) {
+        return panel.getClientProperty(focusDismissClientPropertyKey) != null;
+    }
+
     @DefinedBy(Api.LOOK_AND_FEEL)
     public static ComponentUI createUI(JComponent c) {
         return new FlarePanelUI();
@@ -33,16 +56,11 @@ public class FlarePanelUI extends BasicPanelUI implements FlareUI {
             element = new PanelElement(panel);
         }
 
-        UIDefaultsHelper.installDefaultProperties(this,panel);
+        UIDefaultsHelper.installDefaultProperties(this, panel);
 
         StyleTreeElementLookup.registerElement(panel, this);
 
-        panel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                FocusManager.getCurrentManager().clearFocusOwner();
-            }
-        });
+        installFocusDismissHandling(panel);
     }
 
     @Override

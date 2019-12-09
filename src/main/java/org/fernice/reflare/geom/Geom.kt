@@ -3,6 +3,7 @@ package org.fernice.reflare.geom
 import java.awt.Color
 import java.awt.Dimension
 
+
 data class Point(
     val x: Float,
     val y: Float
@@ -18,6 +19,7 @@ data class Point(
     }
 }
 
+@Deprecated(message = "use TRadii instead")
 data class Radii(
     val topLeftWidth: Float,
     val topLeftHeight: Float,
@@ -29,6 +31,7 @@ data class Radii(
     val bottomLeftHeight: Float
 )
 
+@Deprecated(message = "use TInsets instead")
 data class Insets(
     val top: Float,
     val right: Float,
@@ -59,6 +62,7 @@ data class Insets(
     }
 }
 
+@Deprecated(message = "use TBounds instead")
 data class Bounds(
     val x: Float,
     val y: Float,
@@ -97,6 +101,7 @@ data class Bounds(
     }
 }
 
+@Deprecated(message = "use TColors instead")
 data class Colors(
     val top: Color,
     val right: Color,

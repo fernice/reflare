@@ -1,5 +1,6 @@
 package org.fernice.reflare.element
 
+import org.fernice.flare.selector.NonTSPseudoClass
 import javax.swing.JMenu
 import javax.swing.JMenuBar
 import javax.swing.JMenuItem
@@ -20,6 +21,22 @@ open class MenuItemElement(menuItem: JMenuItem) : ButtonElement(menuItem) {
 }
 
 class MenuElement(menu: JMenu) : MenuItemElement(menu) {
+
+    override fun matchNonTSPseudoClass(pseudoClass: NonTSPseudoClass): Boolean {
+        return when (pseudoClass) {
+            NonTSPseudoClass.Active -> {
+                val menu = component as JMenu
+
+                menu.isSelected
+            }
+            NonTSPseudoClass.Hover -> {
+                val menu = component as JMenu
+
+                menu.isSelected && !menu.isTopLevelMenu
+            }
+            else -> super.matchNonTSPseudoClass(pseudoClass)
+        }
+    }
 
     override fun localName(): String {
         return "menu"

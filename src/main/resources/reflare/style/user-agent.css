@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-root, tooltip {
+root, tooltip, popup {
   background-color: #ececec;
   color: #262626;
   font-size: 12px;
@@ -15,7 +15,7 @@ root, tooltip {
 
 button, button:hover {
   background-color: white;
-  border: 1px;
+  border: 1px solid;
   border-color: #d7d7d7 #d3d3d3 #bfbfbf;
   border-radius: 4px;
   margin: 2px;
@@ -28,6 +28,7 @@ combobox, combobox:hover {
   background-color: #f8f8f8;
   border-color: #d7d7d7 #d3d3d3 #bfbfbf;
   border-radius: 4px;
+  border-style: solid;
   padding: 3px;
   margin: 2px;
   border-width: 1px;
@@ -37,7 +38,7 @@ combobox, combobox:hover {
 
 button:focus, button:focus,
 text:focus, textarea:focus, combobox:focus {
-  border: 2px #91C8FF;
+  border: 2px #91C8FF solid;
   margin: 1px;
 }
 
@@ -45,7 +46,7 @@ text:focus, textarea:focus, combobox:focus {
 
 button:active {
   background-color: #1e90ff;
-  border: 1px dodgerblue;
+  border: 1px dodgerblue solid;
   border-radius: 4px;
   margin: 2px;
   color: white;
@@ -56,45 +57,37 @@ button:disabled {
   color: #636363;
 }
 
-combobox button, combobox button:hover,
-combobox button:focus, combobox button:active {
-  border: 0;
+combobox > button, combobox > button:hover,
+combobox > button:focus, combobox > button:active {
+  border: none;
   margin: 0;
   padding: 0;
   background: dodgerblue;
   border-radius: 0 3px 3px 0;
 }
 
-combobox button::icon {
-  background-image: url("/reflare/icons/combobox.png");
+combobox > text, combobox > text:hover,
+combobox > text:focus, combobox > text:active {
+  border: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+combobox button {
   fill: white;
 }
 
-checkbox::icon {
-  background-image: url("/reflare/icons/checkbox.png");
+
+checkbox, radio {
   fill: #444444;
 }
 
-checkbox:checked::icon {
-  background-image: url("/reflare/icons/checkbox-checked.png");
+checkbox:checked, radio:checked {
   fill: dodgerblue;
 }
 
-radio::icon {
-  background-image: url("/reflare/icons/radio.png");
-  fill: #444444;
-}
-
-radio:checked::icon {
-  background-image: url("/reflare/icons/radio-checked.png");
-  fill: dodgerblue;
-}
-
-checkbox::icon {
-  background-size: contain;
-}
-
-:disabled::icon {
+checkbox:disabled, radio:disabled {
   fill: #aaaaaa;
 }
 
@@ -112,7 +105,7 @@ combobox-popup -flr-renderer > label:active, .list-cell:active {
 
 combobox-popup, popup {
   background-color: white;
-  border: 1px;
+  border: 1px solid;
   border-color: #d7d7d7 #d3d3d3 #bfbfbf;
 }
 
@@ -127,22 +120,29 @@ menubar {
 
 menuitem, menu {
   background-color: white;
-  padding: 2px 3px;
+  padding: 4px 5px;
 }
 
-menuitem:active, menu:active {
+menuitem:hover, menuitem:active, menu:active {
   background-color: dodgerblue;
   color: white;
 }
 
-scrollbar {
-  color: #888888DD
+scrollbar > button, scrollbar > button:hover,
+scrollbar > button:focus, scrollbar > button:active {
+  margin: 0;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+}
+
+scrollbar > button:active {
+  background: dodgerblue;
 }
 
 tooltip {
   background-color: #505050;
   color: white;
-  font-size: 12px;
   padding: 5px;
 }
 
@@ -176,8 +176,12 @@ label.outlined-placeholder-active {
 }
 
 th label {
-  padding: 1px;
-  border: #d3d3d3 1px;
+  background: #eeeeee;
+  padding: 2px 4px;
+  /*border: #d3d3d3 1px solid;*/
+}
+
+th label:hover {
   background: white;
 }
 
@@ -188,4 +192,9 @@ table label {
 table label:active {
   color: white;
   background: dodgerblue;
+}
+
+.table-corner {
+  background: #eeeeee;
+  border-bottom: 1px #dddddd solid;
 }

@@ -3,6 +3,7 @@ package org.fernice.reflare.ui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Rectangle;
@@ -133,6 +134,11 @@ public class FlareTabbedPaneUI extends BasicTabbedPaneUI implements FlareUI {
     }
 
     @Override
+    protected Insets getTabInsets(int tabPlacement, int tabIndex) {
+        return tabPane.getTabComponentAt(tabIndex) == null ? tabInsets : Defaults.INSETS_EMPTY;
+    }
+
+    @Override
     public void paintBorder(@NotNull final Component c, @NotNull final Graphics g, final int x, final int y, final int width, final int height) {
         element.paintBorder(c, g);
     }
@@ -146,5 +152,15 @@ public class FlareTabbedPaneUI extends BasicTabbedPaneUI implements FlareUI {
     private static Color darker(Color color, float factor) {
         return new Color(Math.max((int) (color.getRed() * factor), 0), Math.max((int) (color.getGreen() * factor), 0),
                 Math.max((int) (color.getBlue() * factor), 0), color.getAlpha());
+    }
+
+    protected int calculateTabHeight(int tabPlacement, int tabIndex, int fontHeight) {
+        // Subtract unwanted constant added by super implementation
+        return super.calculateTabHeight(tabPlacement, tabIndex, fontHeight) - 2;
+    }
+
+    protected int calculateTabWidth(int tabPlacement, int tabIndex, FontMetrics metrics) {
+        // Subtract unwanted constant added by super implementation
+        return super.calculateTabWidth(tabPlacement, tabIndex, metrics) - 3;
     }
 }

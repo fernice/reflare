@@ -6,12 +6,11 @@
 
 package org.fernice.reflare.ui
 
-import fernice.reflare.light.Button
+import fernice.reflare.light.FButton
 import org.fernice.reflare.Defaults
 import org.fernice.reflare.element.ComponentElement
 import org.fernice.reflare.element.ScrollBarElement
 import org.fernice.reflare.element.StyleTreeElementLookup
-import org.fernice.reflare.platform.OperatingSystem
 import org.fernice.reflare.platform.Platform
 import org.fernice.reflare.render.use
 import java.awt.Color
@@ -29,10 +28,16 @@ import javax.swing.plaf.basic.BasicScrollBarUI
 
 class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentElement = ScrollBarElement(scrollbar)) : BasicScrollBarUI(), FlareUI {
 
-    private val showButtons = Platform.operatingSystem == OperatingSystem.Windows
+    private val showButtons = Platform.isWindows()
 
     override fun installDefaults() {
         super.installDefaults()
+
+        minimumThumbSize = Dimension(30, 30)
+        maximumThumbSize = Dimension(1000, 1000)
+
+        incrGap = 0
+        decrGap = 0
 
         scrollBarWidth = if (showButtons) 16 else 12
         scrollbar.isOpaque = false
@@ -72,7 +77,7 @@ class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentEle
     override fun paintTrack(g: Graphics, c: JComponent, trackBounds: Rectangle) {
         if (showButtons) {
             g.color = c.background
-            g.fillRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height)
+            //g.fillRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height)
         }
     }
 
@@ -91,7 +96,7 @@ class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentEle
         val hp = if (vertical) 0 else padding
 
         val radii = when {
-            showButtons -> 3
+            showButtons -> 0
             scrollbar.orientation == JScrollBar.VERTICAL -> w - 2
             scrollbar.orientation == JScrollBar.HORIZONTAL -> h - 2
             else -> 0
@@ -325,7 +330,7 @@ class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentEle
     }
 }
 
-private class FlareArrowButton(var direction: Int) : Button(), SwingConstants {
+private class FlareArrowButton(var direction: Int) : FButton(), SwingConstants {
 
     init {
         isRequestFocusEnabled = false

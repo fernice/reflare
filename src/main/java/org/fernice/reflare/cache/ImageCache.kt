@@ -3,6 +3,7 @@ package org.fernice.reflare.cache
 import org.fernice.flare.url.Url
 import org.fernice.reflare.internal.ImageHelper
 import java.awt.Image
+import java.lang.RuntimeException
 import java.net.URL
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.LinkedBlockingQueue
@@ -31,6 +32,10 @@ object ImageCache {
         val cachedRequest = images[url]
 
         if (cachedRequest != null) {
+            if (!cachedRequest.isDone) {
+                cachedRequest.thenRun(invoker)
+            }
+
             return cachedRequest
         }
 
@@ -40,7 +45,7 @@ object ImageCache {
             }, executor)
         } else {
             CompletableFuture.supplyAsync(Supplier {
-                ImageIO.read(URL(url.value))
+                ImageIO.read(URL(url.value)) ?: throw RuntimeException("image could not be processed: ImageIO.read() returned null")
             }, executor)
         }
 

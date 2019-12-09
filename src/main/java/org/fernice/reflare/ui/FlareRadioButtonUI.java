@@ -1,5 +1,6 @@
 package org.fernice.reflare.ui;
 
+import fernice.reflare.StyledImageIcon;
 import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 import javax.swing.JRadioButton;
@@ -20,6 +21,9 @@ public class FlareRadioButtonUI extends FlareToggleButtonUI {
     @Override
     protected void installDefaults(AbstractButton button) {
         super.installDefaults(button);
+
+        button.setIcon(StyledImageIcon.fromResource("/reflare/icons/radio.png"));
+        button.setSelectedIcon(StyledImageIcon.fromResource("/reflare/icons/radio-checked.png"));
     }
 
     @Override

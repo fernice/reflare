@@ -1,13 +1,11 @@
 package org.fernice.reflare.element
 
 import fernice.reflare.CSSEngine
-import fernice.reflare.FlareLookAndFeel
 import fernice.std.None
 import fernice.std.Option
 import fernice.std.Some
 import fernice.std.into
-import fernice.std.mapOr
-import fernice.std.unwrap
+import mu.KotlinLogging
 import org.fernice.flare.EngineContext
 import org.fernice.flare.cssparser.Parser
 import org.fernice.flare.cssparser.ParserInput
@@ -17,6 +15,7 @@ import org.fernice.flare.dom.ElementStyles
 import org.fernice.flare.selector.NamespaceUrl
 import org.fernice.flare.selector.NonTSPseudoClass
 import org.fernice.flare.selector.PseudoElement
+import org.fernice.flare.std.systemFlag
 import org.fernice.flare.style.ComputedValues
 import org.fernice.flare.style.ElementStyleResolver
 import org.fernice.flare.style.MatchingResult
@@ -31,53 +30,36 @@ import org.fernice.flare.style.properties.parsePropertyDeclarationList
 import org.fernice.flare.style.value.computed.SingleFontFamily
 import org.fernice.flare.url.Url
 import org.fernice.reflare.Defaults
-import org.fernice.reflare.geom.Insets
-import org.fernice.reflare.geom.toInsets
 import org.fernice.reflare.internal.SunFontHelper
 import org.fernice.reflare.platform.Platform
-import org.fernice.reflare.render.BackgroundLayers
-import org.fernice.reflare.render.RenderCache
-import org.fernice.reflare.render.computeBackgroundLayers
-import org.fernice.reflare.render.renderBackground
-import org.fernice.reflare.render.renderBorder
-import org.fernice.reflare.shape.BackgroundShape
-import org.fernice.reflare.shape.BorderShape
-import org.fernice.reflare.shape.computeBackgroundShape
-import org.fernice.reflare.shape.computeBorderShape
+import org.fernice.reflare.render.merlin.MerlinRenderer
+import org.fernice.reflare.statistics.Statistics
 import org.fernice.reflare.toAWTColor
 import org.fernice.reflare.trace.TraceHelper
-import org.fernice.reflare.util.Broadcast
+import org.fernice.reflare.trace.trace
+import org.fernice.reflare.trace.traceElement
+import org.fernice.reflare.trace.traceRoot
 import org.fernice.reflare.util.ObservableMutableSet
 import org.fernice.reflare.util.Observables
-import org.fernice.reflare.util.broadcast
 import org.fernice.reflare.util.observableMutableSetOf
 import java.awt.Component
 import java.awt.Dialog
 import java.awt.Font
 import java.awt.Graphics
-import java.awt.Rectangle
-import java.awt.Window
-import java.awt.event.ComponentAdapter
-import java.awt.event.ComponentEvent
+import java.awt.event.HierarchyEvent
+import java.util.concurrent.atomic.AtomicInteger
 import javax.swing.JComponent
-import javax.swing.event.AncestorEvent
-import javax.swing.event.AncestorListener
+import javax.swing.SwingUtilities
 import org.fernice.flare.style.properties.stylestruct.Font as FontStyle
 import java.awt.Color as AWTColor
+
+private val REPAINT_TRACE_ENABLED = systemFlag("fernice.reflare.traceRepaint")
 
 abstract class AWTComponentElement(val component: Component) : Element {
 
     fun <C : JComponent> component(): C {
         @Suppress("UNCHECKED_CAST")
         return component as C
-    }
-
-    init {
-        component.addComponentListener(object : ComponentAdapter() {
-            override fun componentResized(e: ComponentEvent) {
-                boundsChange.fire(component.bounds)
-            }
-        })
     }
 
     // ***************************** Dirty ***************************** //
@@ -109,6 +91,8 @@ abstract class AWTComponentElement(val component: Component) : Element {
     }
 
     internal var cssFlag: StyleState = StyleState.CLEAN
+    val styleState: StyleState
+        get() = cssFlag
 
     /**
      * Notifies the parent of invalid css by mark every parent as a dirty branch
@@ -120,8 +104,9 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
         if (root != null && !root.isDirty(DirtyBits.NODE_CSS)) {
             root.markDirty(DirtyBits.NODE_CSS)
-            frame?.requestNextPulse(this)
         }
+
+        frame?.requestNextPulse()
 
         var parent = parent
         while (parent != null) {
@@ -134,43 +119,23 @@ abstract class AWTComponentElement(val component: Component) : Element {
         }
     }
 
-    private fun forcePulseForDeferredRendering() {
-        component.repaint()
-    }
-
     /**
      * Marks the element's css dirty.
      */
     fun reapplyCSS() {
+        reapplyCSS(origin = "reapply:external")
+    }
+
+    @JvmName(name = "reapplyCSSFrom")
+    internal fun reapplyCSS(origin: String) {
+        traceReapplyOrigin(origin)
+
         if (cssFlag == StyleState.REAPPLY) {
             return
         }
 
-        // if the element has no frame find the root and restyle the element
-        // immediately to allow for size calculation off the scene graph
-        if (frame == null) {
-            var parent = this
-            while (parent.parent != null) {
-                parent = parent.parent!!
-            }
-
-            // Make sure this element and its children is suitable for restyling
-            parent.markBranchAsReapplyCSS()
-
-            // Without a frame we are unable to process a few cases correctly namely
-            // viewport relative sizes root font size and more. Because in HTML no elements
-            // exists without being in a view hierarchy and because there is only one view
-            // hierarchy this edge case does not exist. We're solving it by providing means
-            // to at least get it right most cases.
-            val localContext = CSSEngine.createLocalEngineContext(parent)
-
-            // Immediately apply the styles
-            parent.processCSS(localContext)
-        } else {
-            markBranchAsReapplyCSS()
-            notifyParentOfInvalidatedCSS()
-            forcePulseForDeferredRendering()
-        }
+        markBranchAsReapplyCSS()
+        notifyParentOfInvalidatedCSS()
     }
 
     /**
@@ -215,22 +180,29 @@ abstract class AWTComponentElement(val component: Component) : Element {
      * Applies the CSS immediately.
      */
     fun applyCSS() {
+        applyCSS(origin = "apply:external")
+    }
+
+    @JvmName(name = "applyCSSFrom")
+    internal fun applyCSS(origin: String) {
+        traceReapplyOrigin("apply:$origin")
+
         val frame = frame
 
         if (frame != null) {
-            traceReapplyOrigin("apply")
             markBranchAsReapplyCSS()
             notifyParentOfInvalidatedCSS()
 
             pulseForComputation()
         } else {
+            // Make sure this element and its children is suitable for restyling
+            markBranchAsReapplyCSS()
+            notifyParentOfInvalidatedCSS()
+
             var parent = this
             while (parent.parent != null) {
                 parent = parent.parent!!
             }
-
-            // Make sure this element and its children is suitable for restyling
-            parent.markBranchAsReapplyCSS()
 
             // Without a frame we are unable to process a few cases correctly namely
             // viewport relative sizes root font size and more. Because in HTML no elements
@@ -240,7 +212,10 @@ abstract class AWTComponentElement(val component: Component) : Element {
             val localContext = CSSEngine.createLocalEngineContext(parent)
 
             // Immediately apply the styles
-            parent.processCSS(localContext)
+            trace(localContext, name = "apply") { traceContext ->
+                traceContext.traceRoot(parent)
+                parent.processCSS(traceContext)
+            }
         }
     }
 
@@ -257,16 +232,15 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
         if (cssFlag == StyleState.REAPPLY) {
             context.traceElement(this)
-            TraceHelper.resetReapplyOrigins(debug_traceHelper)
 
             context.styleContext.bloomFilter.insertParent(this)
 
             val styleResolver = ElementStyleResolver(this, context.styleContext)
             val styles = styleResolver.resolvePrimaryStyleWithDefaultParentStyles()
 
-            val data = this.ensureData()
+            val data = ensureData()
 
-            this.finishRestyle(context.styleContext, data, styles)
+            finishRestyle(context.styleContext, data, styles)
         }
 
         cssFlag = StyleState.CLEAN
@@ -274,23 +248,25 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
     internal val debug_traceHelper: TraceHelper? = TraceHelper.createTraceHelper()
 
-    fun traceReapplyOrigin(origin: String) {
+    private fun traceReapplyOrigin(origin: String) {
         TraceHelper.traceReapplyOrigin(debug_traceHelper, origin)
     }
 
     // ***************************** Old Dirty ***************************** //
 
-    fun forceRestyle() {
+    fun restyle() {
+        Statistics.increment("force-restyle")
+
         forceApplyStyle = true
         fontStyle = FontStyle.initial
 
-        applyCSS()
+        applyCSS(origin = "force")
     }
 
-    fun getMatchingStyles(): MatchingResult {
-        val frame = frame
-
-        return frame?.matchStyle(this) ?: CSSEngine.matchStyleWithLocalContext(this)
+    fun restyleIfNecessary() {
+        if (cssFlag != StyleState.CLEAN) {
+            restyle()
+        }
     }
 
     fun pulseForComputation() {
@@ -299,6 +275,12 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
     fun pulseForRendering() {
         frame?.pulse()
+    }
+
+    fun getMatchingStyles(): MatchingResult {
+        val frame = frame
+
+        return frame?.matchStyle(this) ?: CSSEngine.matchStyleWithLocalContext(this)
     }
 
     // ***************************** Frame & Parent ***************************** //
@@ -312,38 +294,187 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
     internal abstract fun parentChanged(old: Frame?, new: Frame?)
 
-    var parent: AWTContainerElement? = null
-        internal set(parent) {
-            field = parent
+    final override val owner: Element? get() = this
 
-            if (parent != null) {
-                traceReapplyOrigin("parent")
-                reapplyCSS()
+    final override var parent: AWTContainerElement? = null
+        internal set
+
+    final override val traversalParent: Element? get() = inheritanceParent
+    final override val inheritanceParent: Element? get() = parent
+
+    override val pseudoElement: PseudoElement? get() = null
+
+    override fun isRoot(): Boolean = parent == null
+
+    override fun owner(): Option<Element> = Some(this)
+
+    override fun parent(): Option<Element> = parent.into()
+    override fun traversalParent(): Option<Element> = parent()
+    override fun inheritanceParent(): Option<Element> = parent()
+
+    override fun pseudoElement(): Option<PseudoElement> = None
+
+    // ***************************** Matching ***************************** //
+
+    final override var namespace: NamespaceUrl? = null
+    final override var id: String? = null
+    final override val classes: ObservableMutableSet<String> = observableMutableSetOf()
+    final override val localName: String
+        get() = localName()
+
+    init {
+        classes.addInvalidationListener { reapplyCSS(origin = "classes") }
+    }
+
+    override fun namespace(): Option<NamespaceUrl> = namespace.into()
+    override fun id(): Option<String> = id.into()
+    override fun classes(): Set<String> = classes
+
+    override fun hasID(id: String): Boolean {
+        return id == this.id
+    }
+
+    override fun hasClass(styleClass: String): Boolean {
+        return classes.contains(styleClass)
+    }
+
+    override fun matchPseudoElement(pseudoElement: PseudoElement): Boolean = false
+
+    private var hover = false
+    private var focus = false
+
+    override fun matchNonTSPseudoClass(pseudoClass: NonTSPseudoClass): Boolean {
+        return when (pseudoClass) {
+            is NonTSPseudoClass.Enabled -> component.isEnabled
+            is NonTSPseudoClass.Disabled -> !component.isEnabled
+            is NonTSPseudoClass.Focus -> component.isFocusOwner || focus
+            is NonTSPseudoClass.Hover -> hover
+            is NonTSPseudoClass.Active -> active
+            else -> false
+        }
+    }
+
+    // ***************************** Inline ***************************** //
+
+    final override var styleAttribute: PropertyDeclarationBlock? = null
+
+    override fun styleAttribute(): Option<PropertyDeclarationBlock> {
+        return styleAttribute.into()
+    }
+
+    var styleAttributeValue: String = ""
+        set(value) {
+            field = value
+
+            styleAttribute = if (value.isNotBlank()) {
+                val input = Parser.new(ParserInput(value))
+                val context = ParserContext(ParseMode.Default, QuirksMode.NO_QUIRKS, Url(""))
+
+                parsePropertyDeclarationList(context, input)
+            } else {
+                null
+            }
+
+            reapplyCSS(origin = "style-attribute")
+        }
+
+
+    // ***************************** Data ***************************** //
+
+    private var data: ElementData? = null
+
+    override fun ensureData(): ElementData {
+        val current = data
+        return if (current != null) {
+            current
+        } else {
+            val new = ElementData(
+                ElementStyles(
+                    primary = null,
+                    pseudos = PerPseudoElementMap()
+                )
+            )
+            data = new
+            new
+        }
+    }
+
+    override fun getData(): ElementData? {
+        return data
+    }
+
+    override fun clearData() {
+        data = null
+    }
+
+    fun getStyle(): ComputedValues? {
+        return getData()?.styles?.primary
+    }
+
+    private var forceApplyStyle = false
+
+    override fun finishRestyle(context: StyleContext, data: ElementData, elementStyles: ResolvedElementStyles) {
+        val oldStyle = data.setStyles(elementStyles)
+
+        val primaryStyle = elementStyles.primary.style()
+
+        if (!forceApplyStyle && oldStyle.primary != null && primaryStyle == oldStyle.primary()) {
+            for ((i, style) in data.styles.pseudos.iterator().withIndex()) {
+                if (style != null) {
+                    updatePseudoElement(PseudoElement.fromEagerOrdinal(i), style)
+                }
+            }
+
+            return
+        }
+
+        updateStyle(primaryStyle)
+
+        if (isRoot()) {
+            val fontSize = primaryStyle.font.fontSize
+            val oldFontSize = oldStyle.primary?.font?.fontSize
+
+            if (oldFontSize != null && oldFontSize != fontSize) {
+                context.device.setRootFontSize(fontSize.size())
             }
         }
 
-    override fun parent(): Option<Element> {
-        return parent.into()
+        fontStyle = primaryStyle.font
+        component.foreground = primaryStyle.color.color.toAWTColor()
+
+        val background = primaryStyle.background.color.toAWTColor()
+
+        if (component.isOpaque) {
+            component.background = Defaults.COLOR_WHITE
+        } else if (isBackgroundColorApplicable(background)) {
+            component.background = background
+        }
+
+        for ((i, style) in data.styles.pseudos.iterator().withIndex()) {
+            if (style != null) {
+                updatePseudoElement(PseudoElement.fromEagerOrdinal(i), style)
+            }
+        }
+
+        forceApplyStyle = false
+
+        if (frame != null) {
+            component.repaint()
+
+            if (REPAINT_TRACE_ENABLED) {
+                LOG.trace { "[${repaintCount.getAndIncrement()}] repaint requested for ${this::class.simpleName}" }
+            }
+        }
     }
 
-    override fun owner(): Option<Element> {
-        return Some(this)
-    }
+    protected open fun updateStyle(style: ComputedValues) {}
+    protected open fun updatePseudoElement(pseudoElement: PseudoElement, style: ComputedValues) {}
 
-    override fun traversalParent(): Option<Element> {
-        return parent()
-    }
-
-    override fun inheritanceParent(): Option<Element> {
-        return parent()
-    }
-
-    override fun pseudoElement(): Option<PseudoElement> {
-        return None
-    }
-
-    override fun isRoot(): Boolean {
-        return parent == null
+    private fun isBackgroundColorApplicable(color: AWTColor) = when {
+        color.alpha == 255 -> true
+        component is java.awt.Frame -> component.isUndecorated
+        component is Dialog -> component.isUndecorated
+        else -> true
     }
 
     private var fontStyle: FontStyle by Observables.observable(FontStyle.initial) { _, _, fontStyle ->
@@ -376,204 +507,35 @@ abstract class AWTComponentElement(val component: Component) : Element {
         }
     }
 
-    // ***************************** Matching ***************************** //
-
-    var namespace: Option<NamespaceUrl> = None
-
-    override fun namespace(): Option<NamespaceUrl> {
-        return namespace
-    }
-
-    var id: Option<String> = None
-
-    override fun id(): Option<String> {
-        return id
-    }
-
-    override fun hasID(id: String): Boolean {
-        return when (val own = this.id) {
-            is Some -> own.value == id
-            is None -> false
-        }
-    }
-
-    val classes: ObservableMutableSet<String> = observableMutableSetOf()
-
-    init {
-        classes.addInvalidationListener { reapplyCSS() }
-    }
-
-    override fun classes(): Set<String> {
-        return classes
-    }
-
-    override fun hasClass(styleClass: String): Boolean {
-        return classes.contains(styleClass)
-    }
-
-    override fun matchPseudoElement(pseudoElement: PseudoElement): Boolean {
-        return false
-    }
-
-    protected var hover = false
-    protected var focus = false
-
-    override fun matchNonTSPseudoClass(pseudoClass: NonTSPseudoClass): Boolean {
-        return when (pseudoClass) {
-            is NonTSPseudoClass.Enabled -> component.isEnabled
-            is NonTSPseudoClass.Disabled -> !component.isEnabled
-            is NonTSPseudoClass.Focus -> component.isFocusOwner || focus
-            is NonTSPseudoClass.Hover -> hover
-            is NonTSPseudoClass.Active -> active
-            else -> false
-        }
-    }
-
-    // ***************************** Inline ***************************** //
-
-    private var styleAttributeInternal: Option<PropertyDeclarationBlock> = None
-
-    override fun styleAttribute(): Option<PropertyDeclarationBlock> {
-        return styleAttributeInternal
-    }
-
-    var styleAttribute: String = ""
-        set(value) {
-            field = value
-
-            styleAttributeInternal = if (value.isNotBlank()) {
-                val input = Parser.new(ParserInput(value))
-                val context = ParserContext(ParseMode.Default, QuirksMode.NO_QUIRKS, Url(""))
-
-                Some(parsePropertyDeclarationList(context, input))
-            } else {
-                None
-            }
-
-            traceReapplyOrigin("style-attribute")
-            reapplyCSS()
-        }
-
-
-    // ***************************** Data ***************************** //
-
-    private var data: Option<ElementData> = None
-
-    override fun ensureData(): ElementData {
-        return when (data) {
-            is Some -> data.unwrap()
-            is None -> {
-                val new = ElementData(
-                    ElementStyles(
-                        None,
-                        PerPseudoElementMap()
-                    )
-                )
-                data = Some(new)
-
-                new
-            }
-        }
-    }
-
-    override fun getData(): Option<ElementData> {
-        return data
-    }
-
-    override fun clearData() {
-        data = None
-    }
-
-    fun getStyle(): Option<ComputedValues> {
-        val data = when (val elementData = getData()) {
-            is Some -> elementData.value
-            is None -> return None
-        }
-
-        return data.styles.primary
-    }
-
-    private var forceApplyStyle = false
-
-    override fun finishRestyle(context: StyleContext, data: ElementData, elementStyles: ResolvedElementStyles) {
-        val oldStyle = data.setStyles(elementStyles)
-
-        val primaryStyle = elementStyles.primary.style()
-
-        if (!forceApplyStyle && oldStyle.primary !is None && primaryStyle == oldStyle.primary()) {
-            for ((i, style) in data.styles.pseudos.iter().withIndex()) {
-                if (style is Some) {
-                    updatePseudoElement(PseudoElement.fromEagerOrdinal(i), style.value)
-                }
-            }
-
-            return
-        }
-
-        updateStyle(primaryStyle)
-
-        if (isRoot()) {
-            val fontSize = primaryStyle.font.fontSize
-
-            if (oldStyle.primary.mapOr({ style -> style.font.fontSize != fontSize }, false)) {
-                context.device.setRootFontSize(fontSize.size())
-            }
-        }
-
-        fontStyle = primaryStyle.font
-        component.foreground = primaryStyle.color.color.toAWTColor()
-
-        val background = primaryStyle.background.color.toAWTColor()
-
-        if (component.isOpaque) {
-            component.background = Defaults.COLOR_WHITE
-        } else if (isBackgroundColorApplicable(background)) {
-            component.background = background
-        }
-
-        for ((i, style) in data.styles.pseudos.iter().withIndex()) {
-            if (style is Some) {
-                updatePseudoElement(PseudoElement.fromEagerOrdinal(i), style.value)
-            }
-        }
-
-        restyle.fire(primaryStyle)
-    }
-
-    protected open fun updateStyle(style: ComputedValues) {}
-    protected open fun updatePseudoElement(pseudoElement: PseudoElement, style: ComputedValues) {}
-
-    private fun isBackgroundColorApplicable(color: AWTColor) = when {
-        color.alpha == 255 -> true
-        component is java.awt.Frame -> component.isUndecorated
-        component is Dialog -> component.isUndecorated
-        else -> true
-    }
     // ***************************** Render ***************************** //
 
-    val cache: RenderCache by lazy { RenderCache() }
+    private val renderer by lazy { MerlinRenderer(component, this) }
 
     fun paintBackground(component: Component, g: Graphics) {
         pulseForRendering()
 
-        renderBackground(g, component, this, getStyle())
+        renderer.renderBackground(g, getStyle())
     }
 
     open fun paintBorder(component: Component, g: Graphics) {
         pulseForRendering()
 
-        renderBorder(g, component, this, getStyle())
+        renderer.renderBorder(g, getStyle())
     }
 
     // ***************************** Renderer Override ***************************** //
+
+
+    init {
+        component.addPropertyChangeListener("enabled") { reapplyCSS() }
+    }
 
     fun hoverHint(hover: Boolean): Boolean {
         val old = this.hover
         this.hover = hover
 
         if (old != hover) {
-            traceReapplyOrigin("hover:hint")
-            reapplyCSS()
+            reapplyCSS(origin = "hover:hint")
         }
 
         return old
@@ -584,8 +546,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
         this.focus = focus
 
         if (old != focus) {
-            traceReapplyOrigin("focus:hint")
-            reapplyCSS()
+            reapplyCSS(origin = "focus:hint")
         }
 
         return old
@@ -598,89 +559,27 @@ abstract class AWTComponentElement(val component: Component) : Element {
         this.active = active
 
         if (old != active) {
-            traceReapplyOrigin("active:hint")
-            reapplyCSS()
+            reapplyCSS(origin = "active:hint")
         }
 
         return old
     }
 
-    private val boundsChange: Broadcast<Rectangle> = broadcast()
-    val restyle: Broadcast<ComputedValues> = broadcast()
-
-    // ***************************** Style Properties ***************************** //
-
-    val margin: Insets by property(Insets.empty()) {
-        dependsOn(boundsChange) { component.bounds }
-        dependsOn(restyle) { style -> style.margin }
-
-        computeStyle { styles -> styles.margin.toInsets(component.bounds) }
-    }
-
-    val padding: Insets by property(Insets.empty()) {
-        dependsOn(boundsChange) { component.bounds }
-        dependsOn(restyle) { style -> style.padding }
-
-        computeStyle { styles -> styles.padding.toInsets(component.bounds) }
-    }
-
-    val fontSize by property(16) {
-        dependsOn(restyle) { style -> style.font.fontSize }
-
-        computeStyle { styles -> styles.font.fontSize.size().toPx().toInt() }
-    }
-
-    val backgroundShape: BackgroundShape by property {
-        dependsOn(boundsChange) { component.bounds }
-        dependsOn(restyle)
-
-        computeStyle { element, style -> BackgroundShape.computeBackgroundShape(style, element) }
-    }
-
-    fun invalidateShape() {
-        this::padding.invalidate()
-        this::margin.invalidate()
-        this::backgroundShape.invalidate()
-        this::borderShape.invalidate()
-        this::backgroundLayers.invalidate()
-    }
-
-    val borderShape: BorderShape by property {
-        dependsOn(boundsChange) { component.bounds }
-        dependsOn(restyle)
-
-        computeStyle { element, style -> BorderShape.computeBorderShape(style, element) }
-    }
-
-    val backgroundLayers: BackgroundLayers by property {
-        dependsOn(boundsChange)
-        dependsOn(restyle) { style -> style.margin }
-        dependsOn(restyle) { style -> style.padding }
-        dependsOn(restyle) { style -> style.border }
-        dependsOn(restyle) { style -> style.background }
-
-        computeStyle { style -> BackgroundLayers.computeBackgroundLayers(component, style) }
-    }
+    private val restyleListenersProperty = lazy { mutableListOf<(ComputedValues) -> Unit>() }
+    private val restyleListeners by restyleListenersProperty
+    fun addRestyleListener(listener: (ComputedValues) -> Unit) = restyleListeners.add(listener)
+    fun removeRestyleListener(listener: (ComputedValues) -> Unit) = restyleListeners.remove(listener)
+    private fun fireRestyleListeners(style: ComputedValues) = if (restyleListenersProperty.isInitialized()) restyleListeners.forEach { it(style) } else Unit
 }
 
 abstract class ComponentElement(component: JComponent) : AWTContainerElement(component) {
 
     init {
-        component.addAncestorListener(object : AncestorListener {
-            override fun ancestorAdded(event: AncestorEvent) {
-                if (event.ancestor is Window) {
-                    val frame = event.ancestor as Window
-
-                    frame.frame
-                }
+        component.addHierarchyListener { event ->
+            if (event.id == HierarchyEvent.HIERARCHY_CHANGED && (event.changeFlags and HierarchyEvent.PARENT_CHANGED.toLong()) != 0L) {
+                SwingUtilities.getWindowAncestor(event.changedParent)?.frame
             }
-
-            override fun ancestorMoved(event: AncestorEvent) {
-            }
-
-            override fun ancestorRemoved(event: AncestorEvent) {
-            }
-        })
+        }
     }
 }
 
@@ -692,3 +591,7 @@ enum class StyleState {
 
     DIRTY_BRANCH
 }
+
+private val repaintCount = AtomicInteger()
+
+private val LOG = KotlinLogging.logger { }

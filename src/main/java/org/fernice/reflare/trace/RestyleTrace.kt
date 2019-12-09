@@ -14,5 +14,7 @@ interface RestyleTrace {
 
     fun traceRestyledElement(element: AWTComponentElement)
 
+    fun traceRootElement(element: AWTComponentElement)
+
     fun endCSSPass()
 }

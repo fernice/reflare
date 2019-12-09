@@ -20,6 +20,7 @@ import java.awt.Container
 import java.awt.event.ContainerEvent
 import java.awt.event.ContainerListener
 import java.util.concurrent.CopyOnWriteArrayList
+import javax.swing.JMenuItem
 
 
 open class AWTContainerElement(container: Container, val artificial: Boolean = false) : AWTComponentElement(container) {
@@ -48,12 +49,25 @@ open class AWTContainerElement(container: Container, val artificial: Boolean = f
         val container = component as Container
         val index = container.getComponentZOrder(child)
 
+        val oldFrame = childElement.frame
+
         childElement.frame = frame
         childElement.parent = this
         children.add(index, childElement)
 
-        traceReapplyOrigin("child:added")
-        reapplyCSS()
+        // If the child had no parent before this and it is going to have
+        // one now, then we have to check the style state of the child.
+        // If it has already been marked as dirty, apply the styles
+        // immediately, because calls to reapplyCss() won't request next
+        // pulse, as it is only done if the style state is clean.
+        //
+        // Also if the child is a JMenuItem apply style immediately
+        // independently of the current style state.
+        if (oldFrame == null && frame != null && childElement.cssFlag != StyleState.CLEAN || child is JMenuItem) {
+            childElement.applyCSS(origin = "child:added")
+        } else {
+            childElement.reapplyCSS(origin = "child:added")
+        }
     }
 
     private fun childRemoved(child: Component) {
@@ -63,8 +77,8 @@ open class AWTContainerElement(container: Container, val artificial: Boolean = f
         childElement.parent = null
         children.remove(childElement)
 
-        traceReapplyOrigin("child:removed")
-        reapplyCSS()
+        //traceReapplyOrigin("child:removed")
+        //reapplyCSS()
     }
 
     fun addVirtualChild(childElement: AWTComponentElement) {
