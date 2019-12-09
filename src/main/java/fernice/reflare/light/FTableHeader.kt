@@ -12,7 +12,7 @@ import javax.swing.table.JTableHeader
 import javax.swing.table.TableColumnModel
 
 @Suppress("UNUSED")
-class FTableHeader : JTableHeader {
+open class FTableHeader : JTableHeader {
 
     constructor() : super()
     constructor(model: TableColumnModel) : super(model)

@@ -176,8 +176,12 @@ label.outlined-placeholder-active {
 }
 
 th label {
-  padding: 1px;
-  border: #d3d3d3 1px solid;
+  background: #eeeeee;
+  padding: 2px 4px;
+  /*border: #d3d3d3 1px solid;*/
+}
+
+th label:hover {
   background: white;
 }
 
@@ -188,4 +192,9 @@ table label {
 table label:active {
   color: white;
   background: dodgerblue;
+}
+
+.table-corner {
+  background: #eeeeee;
+  border-bottom: 1px #dddddd solid;
 }

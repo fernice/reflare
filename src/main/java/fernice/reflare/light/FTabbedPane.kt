@@ -11,7 +11,7 @@ import javax.swing.JTabbedPane
 import javax.swing.JToolTip
 
 @Suppress("UNUSED")
-class FTabbedPane : JTabbedPane {
+open class FTabbedPane : JTabbedPane {
 
     constructor() : super()
     constructor(tabPlacement: Int) : super(tabPlacement)

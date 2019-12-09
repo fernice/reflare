@@ -29,6 +29,7 @@ import javax.swing.plaf.basic.BasicTableHeaderUI
 import javax.swing.table.JTableHeader
 import javax.swing.table.TableCellRenderer
 import javax.swing.table.TableColumn
+import kotlin.math.max
 
 
 class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(), FlareUI {
@@ -76,6 +77,7 @@ class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(), Flar
         var columnWidth: Int
         val cellRect = header.getHeaderRect(if (ltr) cMin else cMax)
         var aColumn: TableColumn
+        val table = header.table
         if (ltr) {
             for (column in cMin..cMax) {
                 aColumn = cm.getColumn(column)
@@ -121,7 +123,6 @@ class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(), Flar
 
             paintCell(g, draggedCellRect, draggedColumnIndex)
         }
-
         // Remove all components in the rendererPane.
         rendererPane.removeAll()
     }
@@ -147,6 +148,7 @@ class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(), Flar
         val element = component.element
 
         element.activeHint(false)
+        element.hoverHint(columnIndex == rolloverColumn)
         element.focusHint(hasFocus)
 
         return component
@@ -165,10 +167,37 @@ class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(), Flar
     private fun paintCell(g: Graphics, cellRect: Rectangle, columnIndex: Int) {
         val component = getHeaderRenderer(columnIndex)
 
+        val table = header.table
+
+        val verticalGap = if (table?.showVerticalLines == true) 1 else 0
+        val horizontalGap = 1 // if (table?.showHorizontalLines == true) 1 else 0
+
+        paintCellGrid(g, table, columnIndex, cellRect)
+
         rendererPane.paintComponent(
             g, component, header, cellRect.x, cellRect.y,
-            cellRect.width, cellRect.height, true
+            cellRect.width - verticalGap, cellRect.height - horizontalGap, true
         )
+    }
+
+    private fun paintCellGrid(g: Graphics, table: JTable?, column: Int, cellRect: Rectangle) {
+        if (table != null) {
+            val draggedColumn = header.draggedColumn
+            if (draggedColumn != null && table.showVerticalLines && column == viewIndexForColumn(draggedColumn)) {
+                g.color = table.gridColor
+                g.drawLine(cellRect.x - 1, cellRect.y, cellRect.x - 1, cellRect.y + cellRect.height - 1)
+            }
+
+            if (table.showVerticalLines) {
+                g.color = table.gridColor
+                g.drawLine(cellRect.x + cellRect.width - 1, cellRect.y, cellRect.x + cellRect.width - 1, cellRect.y + cellRect.height - 1)
+            }
+
+            // if (table.showHorizontalLines) {
+            g.color = table.gridColor
+            g.drawLine(cellRect.x, cellRect.y + cellRect.height - 1, cellRect.x + cellRect.width - 1, cellRect.y + cellRect.height - 1)
+            // }
+        }
     }
 
     private fun viewIndexForColumn(aColumn: TableColumn): Int {
@@ -195,7 +224,7 @@ class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(), Flar
                 rendererPane.add(comp)
 
                 val rendererHeight = comp.preferredSize.height
-                height = Math.max(height, rendererHeight)
+                height = max(height, rendererHeight)
 
                 // Configuring the header renderer to calculate its preferred size
                 // is expensive. Optimise this by assuming the default renderer
@@ -224,7 +253,10 @@ class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(), Flar
         if (width > Integer.MAX_VALUE) {
             width = Integer.MAX_VALUE.toLong()
         }
-        return Dimension(width.toInt(), getHeaderHeight())
+
+        val verticalGap = 1 // if (header.table?.showHorizontalLines == true) 1 else 0
+
+        return Dimension(width.toInt(), getHeaderHeight() + verticalGap)
     }
 
 
@@ -234,10 +266,12 @@ class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(), Flar
      */
     override fun getMinimumSize(c: JComponent): Dimension {
         var width: Long = 0
+        val horizontalGap = if (header.table?.showVerticalLines == true) 1 else 0
+
         val enumeration = header.columnModel.columns
         while (enumeration.hasMoreElements()) {
             val aColumn = enumeration.nextElement() as TableColumn
-            width += aColumn.minWidth
+            width += aColumn.minWidth + horizontalGap
         }
         return createHeaderSize(width)
     }
@@ -250,10 +284,12 @@ class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(), Flar
      */
     override fun getPreferredSize(c: JComponent?): Dimension {
         var width: Long = 0
+        val horizontalGap = if (header.table?.showVerticalLines == true) 1 else 0
+
         val enumeration = header.columnModel.columns
         while (enumeration.hasMoreElements()) {
             val aColumn = enumeration.nextElement() as TableColumn
-            width += aColumn.preferredWidth
+            width += aColumn.preferredWidth + horizontalGap
         }
         return createHeaderSize(width)
     }
@@ -264,12 +300,19 @@ class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(), Flar
      */
     override fun getMaximumSize(c: JComponent): Dimension {
         var width: Long = 0
+        val horizontalGap = if (header.table?.showVerticalLines == true) 1 else 0
+
         val enumeration = header.columnModel.columns
         while (enumeration.hasMoreElements()) {
             val aColumn = enumeration.nextElement() as TableColumn
-            width += aColumn.maxWidth
+            width += aColumn.maxWidth + horizontalGap
         }
         return createHeaderSize(width)
+    }
+
+    override fun rolloverColumnUpdated(oldColumn: Int, newColumn: Int) {
+        header.repaint(header.getHeaderRect(oldColumn))
+        header.repaint(header.getHeaderRect(newColumn))
     }
 
     override fun paintBorder(c: Component, g: Graphics, x: Int, y: Int, width: Int, height: Int) {
@@ -289,10 +332,6 @@ open class DefaultTableCellHeaderRenderer : DefaultTableCellRenderer.UIResource(
     private var horizontalTextPositionSet: Boolean = false
     private var sortArrow: Icon? = null
     private val emptyIcon = EmptyIcon()
-
-    init {
-        this.horizontalAlignment = 0
-    }
 
     override fun setHorizontalTextPosition(var1: Int) {
         this.horizontalTextPositionSet = true

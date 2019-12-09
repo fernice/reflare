@@ -8,9 +8,12 @@ package fernice.reflare.light
 
 import org.fernice.reflare.ui.FlareTableUI
 import java.util.Vector
+import javax.swing.JScrollPane
 import javax.swing.JTable
 import javax.swing.JToolTip
+import javax.swing.JViewport
 import javax.swing.ListSelectionModel
+import javax.swing.SwingUtilities
 import javax.swing.table.JTableHeader
 import javax.swing.table.TableColumnModel
 import javax.swing.table.TableModel
@@ -38,5 +41,17 @@ open class FTable : JTable {
         val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
+    }
+
+    override fun configureEnclosingScrollPane() {
+        super.configureEnclosingScrollPane()
+
+        val parent = SwingUtilities.getUnwrappedParent(this)
+        if (parent is JViewport) {
+            val scrollPane = parent.parent
+            if (scrollPane is JScrollPane) {
+                scrollPane.setCorner(JScrollPane.UPPER_TRAILING_CORNER, FTableScrollPaneCorner())
+            }
+        }
     }
 }
