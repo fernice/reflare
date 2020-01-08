@@ -8,6 +8,7 @@ package org.fernice.reflare.element.support
 
 import org.fernice.flare.std.min
 import org.fernice.reflare.element.element
+import org.fernice.reflare.util.WeakRef
 import java.awt.AWTEvent
 import java.awt.Component
 import java.awt.Container
@@ -31,7 +32,7 @@ object SharedHoverHandler : AWTEventListener {
         )
     }
 
-    private var component: Component? = null
+    private var component: WeakRef<Component>? = null
 
     override fun eventDispatched(event: AWTEvent) {
         fun <E> MutableList<E>.removeFirst(): E {
@@ -66,8 +67,8 @@ object SharedHoverHandler : AWTEventListener {
             return
         }
 
-        val component = component
-        this.component = pick
+        val component = component?.get()
+        this.component = pick?.let(::WeakRef)
 
         val componentStack = component.selfAndAncestorsList()
         val pickStack = pick.selfAndAncestorsList()

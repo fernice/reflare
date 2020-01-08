@@ -32,13 +32,16 @@ import org.fernice.reflare.resource.withResourceContext
 import org.fernice.reflare.shape.BackgroundShape
 import org.fernice.reflare.shape.BorderShape
 import org.fernice.reflare.toAWTColor
+import org.fernice.reflare.util.VacatingRef
 import java.awt.Color
 import java.awt.Component
 import java.awt.Graphics
 import java.awt.Graphics2D
 import javax.swing.SwingUtilities
 
-class MerlinRenderer(private val component: Component, private val element: AWTComponentElement) : Renderer {
+class MerlinRenderer(componentReference: VacatingRef<Component>, private val element: AWTComponentElement) : Renderer {
+
+    private val component by componentReference
 
     override fun renderBackground(g: Graphics, style: ComputedValues?) = withResourceContext {
         if (style == null) {

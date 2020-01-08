@@ -16,6 +16,7 @@ import javax.swing.ButtonModel;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.plaf.ComponentUI;
+import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicButtonUI;
 import org.fernice.reflare.element.ButtonElement;
 import org.fernice.reflare.element.ComponentElement;
@@ -108,6 +109,13 @@ public class FlareButtonUI extends BasicButtonUI implements FlareUI {
             Icon pressedIcon = b.getPressedIcon();
             if (pressedIcon != null) {
                 icon = pressedIcon;
+            }
+        }
+
+        if (!b.isEnabled()) {
+            Icon disabledIcon = b.getDisabledIcon();
+            if (disabledIcon != null && !(disabledIcon instanceof UIResource)) {
+                icon = disabledIcon;
             }
         }
 

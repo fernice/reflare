@@ -37,12 +37,25 @@ object CSSEngine {
 
     private val engines: MutableList<WeakReference<Engine>> = mutableListOf()
 
+    private fun removeStale() {
+        val iter = engines.iterator()
+        while (iter.hasNext()) {
+            val ref = iter.next()
+            val value = ref.get()
+
+            if (value == null) {
+                iter.remove()
+            }
+        }
+    }
+
     fun createEngine(device: Device): Engine {
         val engine = Engine(
             device,
             shared
         )
 
+        removeStale()
         engines.add(WeakReference(engine))
 
         return engine
