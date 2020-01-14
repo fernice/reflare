@@ -5,8 +5,10 @@ import java.awt.KeyboardFocusManager;
 import java.awt.Window;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.reflect.Constructor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.JComponent;
+import javax.swing.PopupFactory;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.plaf.ComponentUI;
@@ -21,8 +23,12 @@ import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
 import org.fernice.reflare.platform.GTKKeybindings;
 import org.fernice.reflare.platform.WindowsKeybindings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FlareLookAndFeel extends BasicLookAndFeel {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FlareLookAndFeel.class);
 
     @Deprecated
     public static void init() {
@@ -101,6 +107,7 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
         DefaultLookupHelper.setDefaultLookup(new FlareDefaultLookup());
 
         installIntegration();
+        installPreferredPopupFactory();
         lightweightMode.set(false);
     }
 
@@ -168,8 +175,10 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
             defaults.put("PopupMenuUI", basicPackageName + "FlarePopupMenuUI");
 
             defaults.put("MenuBarUI", basicPackageName + "FlareMenuBarUI");
-            defaults.put("MenuItemUI", basicPackageName + "FlareMenuItemUI");
             defaults.put("MenuUI", basicPackageName + "FlareMenuUI");
+            defaults.put("MenuItemUI", basicPackageName + "FlareMenuItemUI");
+            defaults.put("CheckBoxMenuItemUI", basicPackageName + "FlareCheckBoxMenuItemUI");
+            defaults.put("RadioButtonMenuItemUI", basicPackageName + "FlareRadioButtonMenuItemUI");
 
             defaults.put("FileChooserUI", basicPackageName + "FlareAbstractFileChooserUI");
         }
@@ -181,5 +190,30 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
     @DefinedBy(Api.LOOK_AND_FEEL)
     public static ComponentUI createUI(JComponent c) {
         throw new IllegalArgumentException();
+    }
+
+    private static void installPreferredPopupFactory() {
+        if (isMac()) {
+            installApplePopupFactory();
+        }
+    }
+
+    private static void installApplePopupFactory() {
+        try {
+            Class<?> screenPopupFactoryClass = Class.forName("com.apple.laf.ScreenPopupFactory");
+
+            Constructor<?> constructor = screenPopupFactoryClass.getDeclaredConstructor();
+            constructor.setAccessible(true);
+
+            PopupFactory screenPopupFactory = (PopupFactory) constructor.newInstance();
+
+            PopupFactory.setSharedInstance(screenPopupFactory);
+        } catch (Exception e) {
+            LOG.error("cannot install apple popup factory", e);
+        }
+    }
+
+    public static boolean isMac() {
+        return System.getProperty("os.name").toLowerCase().startsWith("mac");
     }
 }

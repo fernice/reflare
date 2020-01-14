@@ -6,6 +6,7 @@
 
 package fernice.reflare.light
 
+import fernice.reflare.classes
 import java.awt.Component
 import java.awt.Rectangle
 import java.io.Serializable
@@ -18,6 +19,8 @@ open class DefaultListCellRenderer : FLabel(), ListCellRenderer<Any>, Serializab
     init {
         isOpaque = true
         name = "List.cellRenderer"
+
+        classes.add("flr-list-cell")
     }
 
     override fun getListCellRendererComponent(

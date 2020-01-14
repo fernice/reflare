@@ -47,6 +47,8 @@ import java.awt.Component
 import java.awt.Dialog
 import java.awt.Font
 import java.awt.Graphics
+import java.awt.event.FocusEvent
+import java.awt.event.FocusListener
 import java.awt.event.HierarchyEvent
 import java.util.concurrent.atomic.AtomicInteger
 import javax.swing.JComponent
@@ -534,7 +536,7 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
 
 
     init {
-        component.addPropertyChangeListener("enabled") { reapplyCSS() }
+        component.addPropertyChangeListener("enabled") { reapplyCSS("enabled") }
     }
 
     fun hoverHint(hover: Boolean): Boolean {

@@ -23,7 +23,7 @@ import java.util.WeakHashMap
 import javax.swing.Icon
 
 
-class StyledImageIcon private constructor(imageProvider: Lazy<Image>) : Icon {
+open class StyledImageIcon private constructor(internal val imageProvider: Lazy<Image>) : Icon {
 
     private val image by imageProvider
 
@@ -91,6 +91,8 @@ class StyledImageIcon private constructor(imageProvider: Lazy<Image>) : Icon {
         }
     }
 
+    internal class UIResource(imageProvider: Lazy<Image>) : StyledImageIcon(imageProvider)
+
     companion object {
 
         @JvmStatic
@@ -113,4 +115,9 @@ class StyledImageIcon private constructor(imageProvider: Lazy<Image>) : Icon {
             return StyledImageIcon(imageProvider)
         }
     }
+}
+
+@JvmName("asUIResource")
+internal fun StyledImageIcon.asUIResource(): StyledImageIcon.UIResource {
+    return StyledImageIcon.UIResource(imageProvider)
 }
