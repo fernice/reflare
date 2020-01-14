@@ -25,12 +25,12 @@
         <dependency>
             <groupId>org.fernice</groupId>
             <artifactId>fernice-flare</artifactId>
-            <version>${project.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.fernice</groupId>
             <artifactId>fernice-reflare-access</artifactId>
-            <version>${project.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
