@@ -4,6 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+@file:JvmName("StyledImageIconHelper")
+
 package fernice.reflare
 
 import org.fernice.flare.style.value.computed.Fill
@@ -12,34 +14,59 @@ import org.fernice.reflare.cache.ImageCache
 import org.fernice.reflare.element.element
 import org.fernice.reflare.render.filter.createTintedImage
 import org.fernice.reflare.toAWTColor
+import org.fernice.reflare.util.VacatingRef
+import org.fernice.reflare.util.weakReferenceHashMap
 import java.awt.Component
 import java.awt.Graphics
 import java.awt.Image
 import java.util.WeakHashMap
 import javax.swing.Icon
 
-class StyledImageIcon private constructor(resource: String) : Icon {
 
-    private val imageFuture = ImageCache.image(Url(resource)) {}
-    private val image by lazy { imageFuture.get() }
+open class StyledImageIcon private constructor(internal val imageProvider: Lazy<Image>) : Icon {
 
-    private val processedImages = WeakHashMap<Component, StyledImage>()
+    private val image by imageProvider
+
+    private var styledImageProvider: StyledImageProvider? = null
 
     override fun paintIcon(component: Component, g: Graphics, x: Int, y: Int) {
-        val imageAndStyle = processedImages.computeIfAbsent(component) { StyledImage(component) }
+        var styledImageProvider = styledImageProvider
+        if (styledImageProvider == null) {
+            styledImageProvider = ComponentStyledImageProvider(component)
 
-        g.drawImage(imageAndStyle.getStyledImage(), x, y, null)
+            this.styledImageProvider = styledImageProvider;
+        }
+
+        val styleImage = styledImageProvider.getStyledImage(component)
+
+        g.drawImage(styleImage, x, y, null)
     }
 
     override fun getIconHeight(): Int = image.getHeight(null)
     override fun getIconWidth(): Int = image.getWidth(null)
 
-    private inner class StyledImage(private val component: Component) {
+    private interface StyledImageProvider {
+
+        fun getStyledImage(component: Component): Image
+    }
+
+    private inner class ComponentStyledImageProvider(componentInstance: Component) : StyledImageProvider {
+
+        private val componentReference = VacatingRef(componentInstance)
+        private val component by componentReference
 
         private var fill: Fill = Fill.None
         private var styledImage = image
 
-        fun getStyledImage(): Image {
+        override fun getStyledImage(component: Component): Image {
+            if (component !== this.component) {
+                val styledImageProvider = MultiComponentStyledImageProvider(component to this)
+
+                this@StyledImageIcon.styledImageProvider = styledImageProvider
+
+                return styledImageProvider.getStyledImage(component)
+            }
+
             val fill = component.element.getStyle()?.color?.fill ?: Fill.None
             if (fill != this.fill) {
                 styledImage = when (fill) {
@@ -53,16 +80,44 @@ class StyledImageIcon private constructor(resource: String) : Icon {
         }
     }
 
+    private inner class MultiComponentStyledImageProvider(initial: Pair<Component, StyledImageProvider>) : StyledImageProvider {
+
+        private val processedImages = weakReferenceHashMap(initial)
+
+        override fun getStyledImage(component: Component): Image {
+            val styledImageProvider = processedImages.computeIfAbsent(component) { ComponentStyledImageProvider(component) }
+
+            return styledImageProvider.getStyledImage(component)
+        }
+    }
+
+    internal class UIResource(imageProvider: Lazy<Image>) : StyledImageIcon(imageProvider)
+
     companion object {
 
         @JvmStatic
         fun fromResource(resource: String): StyledImageIcon {
-            return StyledImageIcon(resource)
+            val imageFuture = ImageCache.image(Url(resource)) {}
+            val imageProvider = lazy { imageFuture.get() }
+            return StyledImageIcon(imageProvider)
         }
 
         @JvmStatic
         fun fromUrl(url: String): StyledImageIcon {
-            return StyledImageIcon(url);
+            val imageFuture = ImageCache.image(Url(url)) {}
+            val imageProvider = lazy { imageFuture.get() }
+            return StyledImageIcon(imageProvider)
+        }
+
+        @JvmStatic
+        fun fromImage(image: Image): StyledImageIcon {
+            val imageProvider = lazy { image }
+            return StyledImageIcon(imageProvider)
         }
     }
+}
+
+@JvmName("asUIResource")
+internal fun StyledImageIcon.asUIResource(): StyledImageIcon.UIResource {
+    return StyledImageIcon.UIResource(imageProvider)
 }

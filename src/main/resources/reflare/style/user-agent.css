@@ -91,14 +91,14 @@ checkbox:disabled, radio:disabled {
   fill: #aaaaaa;
 }
 
-combobox-popup -flr-renderer > label, .list-cell {
+combobox-popup -flr-renderer > label, .flr-list-cell {
   font-size: 12px;
   font-family: sans-serif;
   color: black;
   padding: 5px;
 }
 
-combobox-popup -flr-renderer > label:active, .list-cell:active {
+combobox-popup -flr-renderer > label:active, .flr-list-cell:active {
   background-color: dodgerblue;
   color: white;
 }
@@ -146,35 +146,6 @@ tooltip {
   padding: 5px;
 }
 
-text.placeholder-text {
-  padding: 8px 3px;
-  font-size: 13px;
-}
-
-text.placeholder-text-filled {
-  padding: 13px 3px 3px;
-}
-
-text.placeholder-text > label.placeholder-label {
-  color: #777777;
-  font-size: 13px;
-  padding: 2px 0;
-}
-
-text.placeholder-text-filled > label.placeholder-label {
-  font-size: 10px;
-}
-
-label.outlined-placeholder {
-  color: #777777;
-}
-
-label.outlined-placeholder-active {
-  color: dodgerblue;
-  font-size: 10px;
-  background: white;
-}
-
 th label {
   background: #eeeeee;
   padding: 2px 4px;
@@ -194,7 +165,7 @@ table label:active {
   background: dodgerblue;
 }
 
-.table-corner {
+.flr-table-corner {
   background: #eeeeee;
   border-bottom: 1px #dddddd solid;
 }

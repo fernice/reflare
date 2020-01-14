@@ -7,22 +7,46 @@ import org.fernice.flare.style.value.computed.Au
 import org.fernice.flare.style.value.generic.Size2D
 import org.fernice.reflare.trace.trace
 import org.fernice.reflare.trace.traceRoot
+import org.fernice.reflare.util.ConcurrentReferenceHashMap
+import org.fernice.reflare.util.VacatingRef
+import org.fernice.reflare.util.weakReferenceHashMap
 import java.awt.Component
 import java.awt.Window
 import java.awt.event.ContainerEvent
 import java.awt.event.ContainerListener
-import java.util.WeakHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import javax.swing.SwingUtilities
 
 private val FRAME_COUNT = AtomicInteger(0)
-internal val frames: MutableMap<Window, Frame> = WeakHashMap()
 
 val Window.frame: Frame
-    get() = frames[this] ?: Frame(this)
+    get() = StyleTreeFrameLookup.ensureFrame(this)
 
-class Frame(private val frame: Window) : Device {
+object StyleTreeFrameLookup {
+
+    @JvmStatic
+    private val frames: MutableMap<Window, Frame> = weakReferenceHashMap()
+
+    @JvmStatic
+    fun ensureFrame(window: Window): Frame {
+        return frames.computeIfAbsent(window) { window -> Frame(window) }
+    }
+
+    @JvmStatic
+    fun removeReferences() {
+        (frames as ConcurrentReferenceHashMap).removeStale()
+    }
+}
+
+class Frame(frameInstance: Window) : Device {
+
+    private val frameReference = VacatingRef(frameInstance)
+    private val frame by frameReference
+
+    // early creation to prevent null pointer exception
+    // through forward calls to requestNextPulse()
+    private val pulseRunnable = { pulse() }
 
     private val cssEngine = CSSEngine.createEngine(this)
 
@@ -33,8 +57,6 @@ class Frame(private val frame: Window) : Device {
     private val pulseRequested = AtomicBoolean(false)
 
     init {
-        frames[frame] = this
-
         frame.addContainerListener(object : ContainerListener {
             override fun componentAdded(e: ContainerEvent) {
                 childAdded(e.child)
@@ -131,7 +153,7 @@ class Frame(private val frame: Window) : Device {
 
     internal fun requestNextPulse() {
         if (!pulseRequested.getAndSet(true)) {
-            SwingUtilities.invokeLater { pulse() }
+            SwingUtilities.invokeLater(pulseRunnable)
         }
     }
 

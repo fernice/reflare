@@ -9,11 +9,13 @@
 package org.fernice.reflare.element
 
 import org.fernice.reflare.ui.FlareUI
+import org.fernice.reflare.util.ConcurrentReferenceHashMap
+import org.fernice.reflare.util.fullyWeakReferenceHashMap
+import org.fernice.reflare.util.weakReferenceHashMap
 import java.awt.Component
 import java.awt.Container
 import java.awt.Graphics
 import java.awt.Window
-import java.util.WeakHashMap
 import javax.swing.CellRendererPane
 import javax.swing.JLayeredPane
 import javax.swing.JRootPane
@@ -21,23 +23,28 @@ import javax.swing.JRootPane
 object StyleTreeElementLookup {
 
     @JvmStatic
-    private val elements: MutableMap<Component, FlareUI> = WeakHashMap()
+    private val elements: MutableMap<Component, AWTComponentElement> = weakReferenceHashMap()
+
+    @JvmStatic
+    private val componentUis: MutableMap<Component, FlareUI> = fullyWeakReferenceHashMap()
 
     @JvmStatic
     fun registerElement(component: Component, ui: FlareUI) {
-        elements[component] = ui
+        elements[component] = ui.element
+        componentUis[component] = ui
     }
 
     @JvmStatic
     fun deregisterElement(component: Component) {
         elements.remove(component)
+        componentUis.remove(component)
     }
 
     @JvmStatic
-    internal fun ensureElement(component: Component): FlareUI {
+    internal fun ensureElement(component: Component): AWTComponentElement {
         require(component !is Window) { "windows cannot be elements" }
-        return elements.getOrPut(component) {
-            val new = when (component) {
+        return elements.computeIfAbsent(component) { component ->
+            when (component) {
                 is CellRendererPane -> CellRendererPaneElement(component)
                 is org.fernice.reflare.render.CellRendererPane -> ModernCellRendererPaneElement(component)
                 is JLayeredPane -> LayeredPaneElement(component)
@@ -45,9 +52,18 @@ object StyleTreeElementLookup {
                 is Container -> AWTContainerElement(component, artificial = component::class != Container::class)
                 else -> throw IllegalArgumentException("unsupported component ${component.javaClass.name}")
             }
-
-            ComponentUIWrapper(new)
         }
+    }
+
+    @JvmStatic
+    internal fun ensureComponentUI(component: Component): FlareUI {
+        return componentUis.computeIfAbsent(component) { component -> ComponentUIWrapper(ensureElement(component)) }
+    }
+
+    @JvmStatic
+    fun removeReferences() {
+        (elements as ConcurrentReferenceHashMap).removeStale()
+        (componentUis as ConcurrentReferenceHashMap).removeStale()
     }
 }
 
@@ -57,13 +73,8 @@ private class ComponentUIWrapper(override val element: AWTComponentElement) : Fl
     }
 }
 
-@Deprecated(message = "Element is now a extension attribute", level = DeprecationLevel.HIDDEN, replaceWith = ReplaceWith("element"))
-fun Component.into(): AWTComponentElement {
-    return StyleTreeElementLookup.ensureElement(this).element
-}
-
 val Component.element: AWTComponentElement
-    get() = StyleTreeElementLookup.ensureElement(this).element
+    get() = StyleTreeElementLookup.ensureElement(this)
 
 val Component.ui: FlareUI
-    get() = StyleTreeElementLookup.ensureElement(this)
+    get() = StyleTreeElementLookup.ensureComponentUI(this)

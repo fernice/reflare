@@ -5,7 +5,6 @@
  */
 package org.fernice.reflare.ui;
 
-import fernice.reflare.StyleHelper;
 import fernice.reflare.light.DefaultListCellRenderer;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -147,8 +146,5 @@ public class FlareListUI extends BasicListUI implements FlareUI {
 
     private static class FlareListCellRenderer extends DefaultListCellRenderer.UIResource {
 
-        {
-            StyleHelper.getClasses(this).add("list-cell");
-        }
     }
 }

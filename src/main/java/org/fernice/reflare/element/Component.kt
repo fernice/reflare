@@ -41,11 +41,14 @@ import org.fernice.reflare.trace.traceElement
 import org.fernice.reflare.trace.traceRoot
 import org.fernice.reflare.util.ObservableMutableSet
 import org.fernice.reflare.util.Observables
+import org.fernice.reflare.util.VacatingRef
 import org.fernice.reflare.util.observableMutableSetOf
 import java.awt.Component
 import java.awt.Dialog
 import java.awt.Font
 import java.awt.Graphics
+import java.awt.event.FocusEvent
+import java.awt.event.FocusListener
 import java.awt.event.HierarchyEvent
 import java.util.concurrent.atomic.AtomicInteger
 import javax.swing.JComponent
@@ -55,12 +58,10 @@ import java.awt.Color as AWTColor
 
 private val REPAINT_TRACE_ENABLED = systemFlag("fernice.reflare.traceRepaint")
 
-abstract class AWTComponentElement(val component: Component) : Element {
+abstract class AWTComponentElement(componentInstance: Component) : Element {
 
-    fun <C : JComponent> component(): C {
-        @Suppress("UNCHECKED_CAST")
-        return component as C
-    }
+    private val componentReference = VacatingRef(componentInstance)
+    val component by componentReference
 
     // ***************************** Dirty ***************************** //
 
@@ -314,6 +315,14 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
     override fun pseudoElement(): Option<PseudoElement> = None
 
+    init {
+        component.addHierarchyListener { event ->
+            if (event.id == HierarchyEvent.HIERARCHY_CHANGED && (event.changeFlags and HierarchyEvent.PARENT_CHANGED.toLong()) != 0L) {
+                SwingUtilities.getWindowAncestor(event.changedParent)?.frame
+            }
+        }
+    }
+
     // ***************************** Matching ***************************** //
 
     final override var namespace: NamespaceUrl? = null
@@ -472,8 +481,8 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
     private fun isBackgroundColorApplicable(color: AWTColor) = when {
         color.alpha == 255 -> true
-        component is java.awt.Frame -> component.isUndecorated
-        component is Dialog -> component.isUndecorated
+        component is java.awt.Frame -> (component as java.awt.Frame).isUndecorated
+        component is Dialog -> (component as Dialog).isUndecorated
         else -> true
     }
 
@@ -509,7 +518,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
     // ***************************** Render ***************************** //
 
-    private val renderer by lazy { MerlinRenderer(component, this) }
+    private val renderer by lazy { MerlinRenderer(componentReference, this) }
 
     fun paintBackground(component: Component, g: Graphics) {
         pulseForRendering()
@@ -527,7 +536,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
 
 
     init {
-        component.addPropertyChangeListener("enabled") { reapplyCSS() }
+        component.addPropertyChangeListener("enabled") { reapplyCSS("enabled") }
     }
 
     fun hoverHint(hover: Boolean): Boolean {
@@ -572,16 +581,7 @@ abstract class AWTComponentElement(val component: Component) : Element {
     private fun fireRestyleListeners(style: ComputedValues) = if (restyleListenersProperty.isInitialized()) restyleListeners.forEach { it(style) } else Unit
 }
 
-abstract class ComponentElement(component: JComponent) : AWTContainerElement(component) {
-
-    init {
-        component.addHierarchyListener { event ->
-            if (event.id == HierarchyEvent.HIERARCHY_CHANGED && (event.changeFlags and HierarchyEvent.PARENT_CHANGED.toLong()) != 0L) {
-                SwingUtilities.getWindowAncestor(event.changedParent)?.frame
-            }
-        }
-    }
-}
+abstract class ComponentElement(component: JComponent) : AWTContainerElement(component)
 
 enum class StyleState {
 

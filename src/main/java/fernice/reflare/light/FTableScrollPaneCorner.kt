@@ -11,6 +11,6 @@ import fernice.reflare.classes
 open class FTableScrollPaneCorner : FPanel() {
 
     init {
-        classes.add("table-corner")
+        classes.add("flr-table-corner")
     }
 }
