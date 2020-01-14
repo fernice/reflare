@@ -9,6 +9,7 @@ import org.fernice.reflare.trace.trace
 import org.fernice.reflare.trace.traceRoot
 import org.fernice.reflare.util.ConcurrentReferenceHashMap
 import org.fernice.reflare.util.VacatingRef
+import org.fernice.reflare.util.VacatingReferenceHolder
 import org.fernice.reflare.util.weakReferenceHashMap
 import java.awt.Component
 import java.awt.Window
@@ -39,7 +40,7 @@ object StyleTreeFrameLookup {
     }
 }
 
-class Frame(frameInstance: Window) : Device {
+class Frame(frameInstance: Window) : Device, VacatingReferenceHolder {
 
     private val frameReference = VacatingRef(frameInstance)
     private val frame by frameReference
@@ -97,6 +98,8 @@ class Frame(frameInstance: Window) : Device {
         root = null
     }
 
+    override fun hasVacated(): Boolean = frameReference.hasVacated()
+
     override fun viewportSize(): Size2D<Au> {
         return Size2D(Au.fromPx(frame.width), Au.fromPx(frame.height))
     }
@@ -117,8 +120,8 @@ class Frame(frameInstance: Window) : Device {
     override fun invalidate() {
         root?.reapplyCSS("frame:invalidate")
 
-        frame.revalidate()
-        frame.repaint()
+//        frame.revalidate()
+//        frame.repaint()
     }
 
     internal fun markElementDirty(element: AWTComponentElement) {

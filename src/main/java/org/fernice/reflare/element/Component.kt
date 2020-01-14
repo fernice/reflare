@@ -91,6 +91,7 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
         frame?.markElementDirty(this)
     }
 
+    @Volatile
     internal var cssFlag: StyleState = StyleState.CLEAN
     val styleState: StyleState
         get() = cssFlag

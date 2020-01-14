@@ -48,7 +48,7 @@ public class FlareCheckBoxMenuItemUI extends BasicCheckBoxMenuItemUI implements 
         menuItem.setMargin(Defaults.INSETS_EMPTY);
         acceleratorFont = Defaults.FONT_SERIF;
 
-        defaultTextIconGap = 6;
+        defaultTextIconGap = 2;
         acceleratorDelimiter = "+";
 
         checkIcon = new FlareCheckBoxMenuItemIcon();
