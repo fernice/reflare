@@ -16,12 +16,21 @@ interface Ref<T> {
 
 class WeakRef<T>(value: T) : WeakReference<T>(value), Ref<T>
 
-class VacatingRef<T>(value: T) : WeakReference<T>(value), Ref<T> {
+class VacatingRef<T>(value: T) : WeakReference<T>(value), Ref<T>, VacatingReferenceHolder {
 
     operator fun getValue(thisRef: Any?, property: KProperty<*>): T = get() ?: error("reference has vacated")
+
+    override fun hasVacated(): Boolean {
+        return get() == null
+    }
 
     override fun toString(): String {
         val value = get()
         return if (value != null) "ref<$value>" else "ref<vacated>"
     }
+}
+
+interface VacatingReferenceHolder {
+
+    fun hasVacated(): Boolean
 }

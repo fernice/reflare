@@ -66,6 +66,10 @@ combobox > button:focus, combobox > button:active {
   border-radius: 0 3px 3px 0;
 }
 
+combobox > button:disabled {
+  background: #636363;
+}
+
 combobox > text, combobox > text:hover,
 combobox > text:focus, combobox > text:active {
   border: none;
@@ -77,7 +81,6 @@ combobox > text:focus, combobox > text:active {
 combobox button {
   fill: white;
 }
-
 
 checkbox, radio {
   fill: #444444;
@@ -120,7 +123,7 @@ menubar {
 
 menuitem, menu {
   background-color: white;
-  padding: 4px 5px;
+  padding: 3px 2px;
 }
 
 menuitem:hover, menuitem:active, menu:active {

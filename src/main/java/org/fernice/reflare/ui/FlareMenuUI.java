@@ -50,7 +50,7 @@ public class FlareMenuUI extends BasicMenuUI implements FlareUI {
         menu.setMargin(Defaults.INSETS_EMPTY);
         acceleratorFont = Defaults.FONT_SERIF;
 
-        defaultTextIconGap = 4;
+        defaultTextIconGap = 2;
         acceleratorDelimiter = "+";
         menu.setDelay(200);
 
@@ -75,21 +75,21 @@ public class FlareMenuUI extends BasicMenuUI implements FlareUI {
     @Override
     public Dimension getMinimumSize(final JComponent c) {
 //        applyCSSIfOrphanAndDirty();
-        element.restyleIfNecessary();
+//        element.restyleIfNecessary();
         return super.getMinimumSize(c);
     }
 
     @Override
     public Dimension getPreferredSize(final JComponent c) {
 //        applyCSSIfOrphanAndDirty();
-        element.restyleIfNecessary();
+//        element.restyleIfNecessary();
         return super.getPreferredSize(c);
     }
 
     @Override
     public Dimension getMaximumSize(final JComponent c) {
 //        applyCSSIfOrphanAndDirty();
-        element.restyleIfNecessary();
+//        element.restyleIfNecessary();
         return super.getMaximumSize(c);
     }
 

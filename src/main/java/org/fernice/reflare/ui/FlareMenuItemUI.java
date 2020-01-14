@@ -44,7 +44,7 @@ public class FlareMenuItemUI extends BasicMenuItemUI implements FlareUI {
         menuItem.setMargin(Defaults.INSETS_EMPTY);
         acceleratorFont = Defaults.FONT_SERIF;
 
-        defaultTextIconGap = 6;
+        defaultTextIconGap = 2;
         acceleratorDelimiter = "+";
 
         uninstallKeyboardActions();
@@ -74,21 +74,21 @@ public class FlareMenuItemUI extends BasicMenuItemUI implements FlareUI {
     @Override
     public Dimension getMinimumSize(final JComponent c) {
 //        applyCSSIfOrphanAndDirty();
-        element.restyleIfNecessary();
+//        element.restyleIfNecessary();
         return super.getMinimumSize(c);
     }
 
     @Override
     public Dimension getPreferredSize(final JComponent c) {
 //        applyCSSIfOrphanAndDirty();
-        element.restyleIfNecessary();
+//        element.restyleIfNecessary();
         return super.getPreferredSize(c);
     }
 
     @Override
     public Dimension getMaximumSize(final JComponent c) {
 //        applyCSSIfOrphanAndDirty();
-        element.restyleIfNecessary();
+//        element.restyleIfNecessary();
         return super.getMaximumSize(c);
     }
 

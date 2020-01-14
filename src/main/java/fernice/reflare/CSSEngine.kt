@@ -17,11 +17,13 @@ import org.fernice.flare.style.value.generic.Size2D
 import org.fernice.reflare.element.AWTComponentElement
 import org.fernice.reflare.platform.OperatingSystem
 import org.fernice.reflare.platform.Platform
+import org.fernice.reflare.util.VacatingReferenceHolder
 import java.awt.Component
 import java.io.File
 import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.nio.charset.StandardCharsets
+import java.util.concurrent.ConcurrentHashMap
 
 private val SUPPRESS_USER_AGENT_STYLESHEETS = systemFlag("fernice.reflare.suppressUserAgentStylesheet")
 
@@ -37,25 +39,13 @@ object CSSEngine {
 
     private val engines: MutableList<WeakReference<Engine>> = mutableListOf()
 
-    private fun removeStale() {
-        val iter = engines.iterator()
-        while (iter.hasNext()) {
-            val ref = iter.next()
-            val value = ref.get()
-
-            if (value == null) {
-                iter.remove()
-            }
-        }
-    }
-
     fun createEngine(device: Device): Engine {
         val engine = Engine(
             device,
             shared
         )
 
-        removeStale()
+        removeVacatedEngines()
         engines.add(WeakReference(engine))
 
         return engine
@@ -79,7 +69,7 @@ object CSSEngine {
         return shared.matchStyle(localDevice, element)
     }
 
-    private val stylesheets: MutableMap<Source, Stylesheet> = mutableMapOf()
+    private val stylesheets: MutableMap<Source, Stylesheet> = ConcurrentHashMap()
 
     init {
         if (!SUPPRESS_USER_AGENT_STYLESHEETS) {
@@ -123,9 +113,7 @@ object CSSEngine {
 
         shared.stylist.addStylesheet(stylesheet)
 
-        for (engine in engines.toDereferencedList()) {
-            engine.device.invalidate()
-        }
+        invalidateEngines()
     }
 
     @JvmStatic
@@ -144,9 +132,7 @@ object CSSEngine {
         if (stylesheet != null) {
             shared.stylist.removeStylesheet(stylesheet)
 
-            for (engine in engines.toDereferencedList()) {
-                engine.device.invalidate()
-            }
+            invalidateEngines()
         }
     }
 
@@ -164,6 +150,42 @@ object CSSEngine {
 
     fun stylesheets(): List<Stylesheet> {
         return stylesheets.values.toList()
+    }
+
+    private fun invalidateEngines() {
+        val iter = engines.iterator()
+        while (iter.hasNext()) {
+            val ref = iter.next()
+            val value = ref.get()
+
+            if (value == null) {
+                iter.remove()
+            } else {
+                val device = value.device
+                if (device is VacatingReferenceHolder && device.hasVacated()) {
+                    iter.remove()
+                } else {
+                    device.invalidate()
+                }
+            }
+        }
+    }
+
+    private fun removeVacatedEngines() {
+        val iter = engines.iterator()
+        while (iter.hasNext()) {
+            val ref = iter.next()
+            val value = ref.get()
+
+            if (value == null) {
+                iter.remove()
+            } else {
+                val device = value.device
+                if (device is VacatingReferenceHolder && device.hasVacated()) {
+                    iter.remove()
+                }
+            }
+        }
     }
 }
 
@@ -196,22 +218,4 @@ private class LocalDevice(val component: Component) : Device {
 
     override fun invalidate() {
     }
-}
-
-private fun <E> MutableList<WeakReference<E>>.toDereferencedList(): List<E> {
-    val strong: MutableList<E> = mutableListOf()
-
-    val iter = this.iterator()
-    while (iter.hasNext()) {
-        val ref = iter.next()
-        val value = ref.get()
-
-        if (value != null) {
-            strong.add(value)
-        } else {
-            iter.remove()
-        }
-    }
-
-    return strong
 }
