@@ -87,8 +87,8 @@ class Frame(frameInstance: Window) : Device, VacatingReferenceHolder {
 
         //childElement.reapplyCSS(origin = "frame:added")
         childElement.applyCSS(origin = "frame:added")
-        frame.revalidate()
-        frame.repaint()
+//        frame.revalidate()
+//        frame.repaint()
     }
 
     private fun childRemoved(child: Component) {
