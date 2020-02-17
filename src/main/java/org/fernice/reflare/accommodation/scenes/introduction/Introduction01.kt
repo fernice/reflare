@@ -9,48 +9,50 @@ package org.fernice.reflare.accommodation.scenes.introduction
 import org.fernice.reflare.accommodation.scene.Scene
 import org.fernice.reflare.accommodation.scene.SceneRunner
 import org.fernice.reflare.accommodation.scenes.cm
+import org.fernice.reflare.accommodation.scenes.dc
 import org.fernice.reflare.accommodation.scenes.dlf
 import org.fernice.reflare.accommodation.scenes.her
 import org.fernice.reflare.accommodation.scenes.him
 
 class Introduction01 : Scene {
+
     override fun run(runner: SceneRunner) {
         runner.script {
             her()
-            ln("I'm sorry for us..")
-
-            delay(3)
-
-            lf()
-            ln("I actually am.")
-
-            delay(3)
+            ln("I'm sorry for us.")
+            delay(2)
 
             dlf()
             him()
             ln("What do you mean?")
-
-            delay(3)
-
-            dlf()
-            cm("She laughs and looks over into the mirror")
-
             delay(3)
 
             dlf()
             her()
-            ln("We look like complete idiots!")
-
+            ln("We look like complete idiots.")
             delay(2)
 
-            lf()
-            ln("I love it!")
+            dlf()
+            cm("She turns around in front of the mirror.")
+            delay(2)
 
+            dlf()
+            him()
+            action {
+                ac("I think we look fabulous.")
+                ac("Isn't that the point?")
+            }
+            delay(2)
+
+            dlf()
+            her()
+            dc("hmm")
             delay(3)
 
-            lf()
+            dlf()
+            him()
             action {
-                ac("Come on we have to go.") { goto("introduction/02") }
+                ac("Come on, we've got to hurry.") { goto("introduction/02") }
             }
         }
     }

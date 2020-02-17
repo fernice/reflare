@@ -14,16 +14,14 @@ import org.fernice.reflare.accommodation.scene.ColorPalette
 import org.fernice.reflare.accommodation.scene.Scene
 import org.fernice.reflare.accommodation.scene.SceneLoader
 import org.fernice.reflare.accommodation.scenes.CreditsScene
+import org.fernice.reflare.accommodation.scenes.help.About
 import org.fernice.reflare.accommodation.scenes.introduction.Introduction01
+import org.fernice.reflare.accommodation.scenes.TitleScreen
 import org.fernice.reflare.accommodation.scenes.introduction.Introduction02
 import org.fernice.reflare.accommodation.scenes.introduction.Introduction03
-import org.fernice.reflare.accommodation.scenes.opening.Opening01Scene
-import org.fernice.reflare.accommodation.scenes.opening.Opening02Scene
-import org.fernice.reflare.accommodation.scenes.opening.Opening03EmotionalScene
-import org.fernice.reflare.accommodation.scenes.opening.Opening03Scene
-import org.fernice.reflare.accommodation.still.AboutStill
-import org.fernice.reflare.accommodation.still.IntroStill
-import org.fernice.reflare.accommodation.still.RevealStill
+import org.fernice.reflare.accommodation.scenes.introduction.Introduction04
+import org.fernice.reflare.accommodation.scenes.introduction.Introduction05
+import org.fernice.reflare.accommodation.scenes.introduction.Introduction06
 import java.awt.Color
 import java.awt.Component
 import java.awt.Dimension
@@ -92,17 +90,15 @@ object SceneLoaderImpl : SceneLoader {
             "introduction/01" -> Introduction01()
             "introduction/02" -> Introduction02()
             "introduction/03" -> Introduction03()
+            "introduction/04" -> Introduction04()
+            "introduction/05" -> Introduction05()
+            "introduction/06" -> Introduction06()
 
-            "opening/01" -> Opening01Scene()
-            "opening/02" -> Opening02Scene()
-            "opening/03" -> Opening03Scene()
-            "opening/03-emotional" -> Opening03EmotionalScene()
+            "title-screen" -> TitleScreen()
+
+            "help/about" -> About()
 
             "credits" -> CreditsScene()
-
-            "intro" -> IntroStill()
-            "reveal" -> RevealStill()
-            "help/about" -> AboutStill()
             else -> error("no such scene: $path")
         }
     }

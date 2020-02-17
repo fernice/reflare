@@ -16,8 +16,8 @@ suspend fun Script.her() {
     ln("[Her]") { color = context.palette.accent1 }
 }
 
-suspend fun Script.dlf() {
-    lf()
+suspend fun Script.dlf(delay: Int = 0) {
+    lf(delay)
     lf()
 }
 
@@ -30,5 +30,8 @@ suspend fun Script.cm(text: String) {
 }
 
 suspend fun Script.title(text: String) {
-    ln(text) { size(30) }
+    ln(text) { size(40) }
 }
+
+inline val Int.seconds: Int
+    get() = this

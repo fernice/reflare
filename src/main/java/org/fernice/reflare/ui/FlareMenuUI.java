@@ -74,30 +74,17 @@ public class FlareMenuUI extends BasicMenuUI implements FlareUI {
 
     @Override
     public Dimension getMinimumSize(final JComponent c) {
-//        applyCSSIfOrphanAndDirty();
-//        element.restyleIfNecessary();
         return super.getMinimumSize(c);
     }
 
     @Override
     public Dimension getPreferredSize(final JComponent c) {
-//        applyCSSIfOrphanAndDirty();
-//        element.restyleIfNecessary();
         return super.getPreferredSize(c);
     }
 
     @Override
     public Dimension getMaximumSize(final JComponent c) {
-//        applyCSSIfOrphanAndDirty();
-//        element.restyleIfNecessary();
         return super.getMaximumSize(c);
-    }
-
-    private void applyCSSIfOrphanAndDirty() {
-        Frame frame = element.getFrame();
-        if (frame == null && element.getStyleState() != StyleState.CLEAN) {
-            element.applyCSSFrom("menu:orphan");
-        }
     }
 
     @Override

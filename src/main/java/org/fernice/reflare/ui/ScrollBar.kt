@@ -28,7 +28,7 @@ import javax.swing.plaf.basic.BasicScrollBarUI
 
 class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentElement = ScrollBarElement(scrollbar)) : BasicScrollBarUI(), FlareUI {
 
-    private val showButtons = Platform.isWindows()
+    private val showButtons = Platform.isWindows
 
     override fun installDefaults() {
         super.installDefaults()

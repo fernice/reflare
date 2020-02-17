@@ -28,6 +28,14 @@ private abstract class ObservableCollectionWrapperBase<E, S : Collection<E>>(pro
         return result
     }
 
+    protected inline fun withConditionalInvalidation(block: () -> Boolean): Boolean {
+        val result = block()
+        if (result) {
+            invalidated()
+        }
+        return result
+    }
+
     private fun invalidated() {
         listeners.forEach { it() }
     }
@@ -65,13 +73,13 @@ private open class ObservableSetWrapper<E, S : Set<E>>(delegate: S) : Observable
 private class ObservableMutableSetWrapper<E>(delegate: MutableSet<E>) : ObservableSetWrapper<E, MutableSet<E>>(delegate), MutableSet<E>,
     ObservableMutableSet<E> {
 
-    override fun add(element: E): Boolean = withInvalidation { delegate.add(element) }
-    override fun addAll(elements: Collection<E>): Boolean = withInvalidation { delegate.addAll(elements) }
+    override fun add(element: E): Boolean = withConditionalInvalidation { delegate.add(element) }
+    override fun addAll(elements: Collection<E>): Boolean = withConditionalInvalidation { delegate.addAll(elements) }
 
-    override fun remove(element: E): Boolean = withInvalidation { delegate.remove(element) }
-    override fun removeAll(elements: Collection<E>): Boolean = withInvalidation { delegate.removeAll(elements) }
+    override fun remove(element: E): Boolean = withConditionalInvalidation { delegate.remove(element) }
+    override fun removeAll(elements: Collection<E>): Boolean = withConditionalInvalidation { delegate.removeAll(elements) }
 
-    override fun retainAll(elements: Collection<E>): Boolean = withInvalidation { delegate.retainAll(elements) }
+    override fun retainAll(elements: Collection<E>): Boolean = withConditionalInvalidation { delegate.retainAll(elements) }
 
     override fun clear() = withInvalidation { delegate.clear() }
 

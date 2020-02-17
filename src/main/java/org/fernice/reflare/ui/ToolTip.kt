@@ -37,27 +37,22 @@ class FlareToolTipUI(tooltip: JToolTip) : BasicToolTipUI(), FlareUI {
     }
 
     override fun getMinimumSize(c: JComponent): Dimension {
-        element.pulseOrApplyCSS()
+        applyStyle()
         return super.getMinimumSize(c)
     }
 
     override fun getPreferredSize(c: JComponent): Dimension {
-        element.applyCSS(origin = "tooltip:sizing")
+        applyStyle()
         return super.getPreferredSize(c)
     }
 
     override fun getMaximumSize(c: JComponent): Dimension {
-        element.pulseOrApplyCSS()
+        applyStyle()
         return super.getMaximumSize(c)
     }
 
-    private fun AWTComponentElement.pulseOrApplyCSS() {
-        val frame = frame
-        if (frame != null) {
-            frame.pulse()
-        } else if (cssFlag != StyleState.CLEAN) {
-            applyCSS(origin = "tooltip:orphan")
-        }
+    private fun applyStyle() {
+        element.applyCSS(origin = "tooltip:sizing")
     }
 
     override fun paint(g: Graphics, component: JComponent) {

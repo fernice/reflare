@@ -29,9 +29,14 @@ object Platform {
         }
     }
 
-    fun isWindows(): Boolean = operatingSystem == OperatingSystem.Windows
-    fun isMac(): Boolean = operatingSystem == OperatingSystem.Mac
-    fun isLinux(): Boolean = operatingSystem == OperatingSystem.Linux
+    @JvmStatic
+    val isWindows = operatingSystem == OperatingSystem.Windows
+
+    @JvmStatic
+    val isMac = operatingSystem == OperatingSystem.Mac
+
+    @JvmStatic
+    val isLinux = operatingSystem == OperatingSystem.Linux
 
     private val platform: PlatformImpl by lazy {
         when (operatingSystem) {

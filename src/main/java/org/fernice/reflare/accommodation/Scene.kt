@@ -66,7 +66,11 @@ class SceneRenderer(val sceneLoader: SceneLoader) : JPanel(), Script, SceneRunne
 
     override val context: ScriptContext = SceneRendererScriptContext(ColorPaletteImpl)
 
-    override suspend fun lf() {
+    override suspend fun lf(delay: Int) {
+        if (delay > 0) {
+            delay(delay)
+        }
+
         textPanel.mutate {
             add(ElementPanel(" ", context.palette.primary, 12))
         }

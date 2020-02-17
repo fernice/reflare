@@ -13,7 +13,8 @@ root, tooltip, popup {
 
 /* none - :hover */
 
-button, button:hover {
+button, button:hover,
+toggle, toggle:hover {
   background-color: white;
   border: 1px solid;
   border-color: #d7d7d7 #d3d3d3 #bfbfbf;
@@ -36,7 +37,7 @@ combobox, combobox:hover {
 
 /* :focus */
 
-button:focus, button:focus,
+button:focus, toggle:focus,
 text:focus, textarea:focus, combobox:focus {
   border: 2px #91C8FF solid;
   margin: 1px;
@@ -44,7 +45,7 @@ text:focus, textarea:focus, combobox:focus {
 
 /* :active */
 
-button:active {
+button:active, toggle:active, toggle:checked {
   background-color: #1e90ff;
   border: 1px dodgerblue solid;
   border-radius: 4px;
@@ -52,7 +53,7 @@ button:active {
   color: white;
 }
 
-button:disabled {
+button:disabled, toggle:disabled {
   background-color: #f6f6f6;
   color: #636363;
 }
@@ -129,6 +130,11 @@ menuitem, menu {
 menuitem:hover, menuitem:active, menu:active {
   background-color: dodgerblue;
   color: white;
+}
+
+menuitem:disabled, menu:disabled {
+  background-color: white;
+  color: #636363;
 }
 
 scrollbar > button, scrollbar > button:hover,

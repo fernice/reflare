@@ -136,6 +136,18 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
         return new Dimension(size);
     }
 
+    @Override
+    protected Dimension getSizeForComponent(Component comp) {
+        if(comp.getParent()!= currentValuePane){
+        currentValuePane.add(comp);
+        }
+//        comp.setFont(comboBox.getFont());
+        Dimension d = comp.getPreferredSize();
+//        currentValuePane.remove(comp);
+
+        return d;
+    }
+
     // Prevents any background from being painted apart from our CSS Background
     @Override
     public void paintCurrentValue(Graphics g, Rectangle bounds, boolean hasFocus) {
