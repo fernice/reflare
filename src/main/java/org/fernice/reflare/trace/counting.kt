@@ -19,17 +19,28 @@ class CountingTrace(private val name: String, private val pass: Int) : RestyleTr
     private val originCounts = mutableMapOf<String, Int>()
 
     private var rootElement: AWTComponentElement? = null
+    private var firstRestyledElement: AWTComponentElement? = null
 
     override fun beginCSSPass() {
     }
 
     override fun traceRestyledElement(element: AWTComponentElement) {
+        if (firstRestyledElement == null) {
+            firstRestyledElement = element
+        }
+
         count++
 
         element.debug_traceHelper?.origins?.forEach { origin ->
             originCounts.merge(origin, 1, Int::plus)
         }
         TraceHelper.resetReapplyOrigins(element.debug_traceHelper)
+    }
+
+    override fun traceElementOrigins(element: AWTComponentElement) {
+        element.debug_traceHelper?.origins?.forEach { origin ->
+            originCounts.merge(origin, 1, Int::plus)
+        }
     }
 
     override fun traceRootElement(element: AWTComponentElement) {
@@ -41,7 +52,8 @@ class CountingTrace(private val name: String, private val pass: Int) : RestyleTr
             val totalRestyledElements = totalElementRestyleCount.addAndGet(count)
             val origins = originCounts.entries.joinToString { (name, count) -> "$name ($count times)" }
             val rootElementName = rootElement?.javaClass?.simpleName ?: "none"
-            LOG.debug { "[$name] pass $pass:  $totalRestyledElements (+$count) restyled from $rootElementName:  origins $origins" }
+            val firstRestyleElementName = firstRestyledElement?.javaClass?.simpleName ?: "none"
+            LOG.debug { "[$name] pass $pass:  $totalRestyledElements (+$count) restyled from $firstRestyleElementName ($rootElementName):  origins $origins" }
         }
         count = 0
         originCounts.clear()

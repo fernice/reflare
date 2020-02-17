@@ -9,13 +9,12 @@ package org.fernice.reflare.trace
 import org.fernice.flare.EngineContext
 import org.fernice.reflare.element.AWTComponentElement
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicInteger
 
 private val traceCountHolder = ConcurrentHashMap<String, Int>()
 
 internal inline fun trace(context: EngineContext, name: String = "unknown", block: (EngineContext) -> Unit) {
     if (!TraceHelper.TRACE_ENABLED) {
-        block(context)
+        return block(context)
     }
 
     val traceContext = when (context) {
@@ -42,6 +41,10 @@ private fun EngineContext.trace(): RestyleTrace? {
 
 internal fun EngineContext.traceElement(element: AWTComponentElement) {
     trace()?.traceRestyledElement(element)
+}
+
+internal fun EngineContext.traceOrigins(element: AWTComponentElement) {
+    trace()?.traceElementOrigins(element)
 }
 
 internal fun EngineContext.traceRoot(element: AWTComponentElement) {

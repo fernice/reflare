@@ -8,8 +8,11 @@ package fernice.reflare.light
 
 import org.fernice.reflare.ui.FlareMenuUI
 import org.fernice.reflare.ui.FlarePopupMenuUI
+import java.beans.PropertyChangeListener
 import javax.swing.Action
+import javax.swing.JButton
 import javax.swing.JMenu
+import javax.swing.JMenuItem
 import javax.swing.JPopupMenu
 import javax.swing.JToolTip
 
@@ -42,5 +45,16 @@ open class FMenu : JMenu {
         val toolTip = FToolTip()
         toolTip.component = this
         return toolTip
+    }
+
+    override fun createActionComponent(a: Action): JMenuItem {
+        val mi = object : FMenuItem() {
+            override fun createActionPropertyChangeListener(a: Action): PropertyChangeListener {
+                return createActionChangeListener(this) ?: super.createActionPropertyChangeListener(a)
+            }
+        }
+        mi.horizontalTextPosition = JButton.TRAILING
+        mi.verticalTextPosition = JButton.CENTER
+        return mi
     }
 }

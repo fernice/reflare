@@ -13,7 +13,7 @@ class CreditsScene : Scene {
 
     override fun run(runner: SceneRunner) {
         runner.script {
-            ln("This was Accommodation")
+            ln("This was Accommodations")
 
             delay(2)
 

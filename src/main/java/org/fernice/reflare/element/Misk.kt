@@ -43,6 +43,9 @@ class ViewportElement(viewport: JViewport) : ComponentElement(viewport) {
  */
 class CellRendererPaneElement(cellRendererPane: CellRendererPane) : AWTContainerElement(cellRendererPane) {
 
+    override val isVisible: Boolean
+        get() = true
+
     override fun localName(): String {
         return "-flr-renderer"
     }
@@ -50,9 +53,15 @@ class CellRendererPaneElement(cellRendererPane: CellRendererPane) : AWTContainer
 
 class ModernCellRendererPaneElement(cellRendererPane: ModernCellRenderPane) : AWTContainerElement(cellRendererPane) {
 
+    override val isVisible: Boolean
+        get() = true
+
     override fun localName(): String {
         return "-flr-renderer"
     }
 }
 
-class ProgressBarElement(progressBar: JProgressBar) : ComponentElement(progressBar)
+class ProgressBarElement(progressBar: JProgressBar) : ComponentElement(progressBar) {
+
+    override fun localName(): String = "progress"
+}

@@ -6,6 +6,8 @@
 
 package fernice.reflare.light
 
+import org.fernice.reflare.platform.Platform
+import org.fernice.reflare.ui.FlareAppleMenuBarUI
 import org.fernice.reflare.ui.FlareMenuBarUI
 import javax.swing.JMenuBar
 import javax.swing.JToolTip
@@ -14,7 +16,7 @@ import javax.swing.JToolTip
 open class FMenuBar : JMenuBar() {
 
     override fun updateUI() {
-        super.setUI(integrationDependent(this) { FlareMenuBarUI() })
+        super.setUI(integrationDependent(this) { if (Platform.isMac) FlareAppleMenuBarUI() else FlareMenuBarUI() })
     }
 
     override fun createToolTip(): JToolTip {

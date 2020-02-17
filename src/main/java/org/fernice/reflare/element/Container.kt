@@ -6,15 +6,11 @@
 
 package org.fernice.reflare.element
 
-import fernice.reflare.FlareLookAndFeel
 import fernice.std.None
 import fernice.std.Option
 import fernice.std.Some
 import org.fernice.flare.EngineContext
 import org.fernice.flare.dom.Element
-import org.fernice.flare.dom.ElementData
-import org.fernice.flare.style.ResolvedElementStyles
-import org.fernice.flare.style.context.StyleContext
 import java.awt.Component
 import java.awt.Container
 import java.awt.event.ContainerEvent
@@ -23,7 +19,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 import javax.swing.JMenuItem
 
 
-open class AWTContainerElement(container: Container, val artificial: Boolean = false) : AWTComponentElement(container) {
+abstract class AWTContainerElement(container: Container) : AWTComponentElement(container) {
 
     internal val children: MutableList<AWTComponentElement> = CopyOnWriteArrayList()
 
@@ -140,9 +136,9 @@ open class AWTContainerElement(container: Container, val artificial: Boolean = f
     }
 
     final override fun doProcessCSS(context: EngineContext) {
-        if (cssFlag == StyleState.CLEAN) {
-            return
-        }
+        // if (cssFlag == StyleState.CLEAN || !isVisible) return
+        if (cssFlag == StyleState.CLEAN) return
+
 
         if (cssFlag == StyleState.DIRTY_BRANCH) {
             super.processCSS(context)
@@ -163,23 +159,5 @@ open class AWTContainerElement(container: Container, val artificial: Boolean = f
 
             child.processCSS(context)
         }
-    }
-
-    // ***************************** Matching ***************************** //
-
-    override fun finishRestyle(context: StyleContext, data: ElementData, elementStyles: ResolvedElementStyles) {
-        if (artificial && FlareLookAndFeel.isLightweightMode()) {
-            data.setStyles(elementStyles)
-        } else {
-            super.finishRestyle(context, data, elementStyles)
-        }
-    }
-
-    // In theory it is possible to construct a Container meaning that needs a
-    // local name to styled. In practice hopefully no one will try to do it
-    // because even though the element will be considered when it comes to
-    // matching, we have no means to render using its computed styles.
-    override fun localName(): String {
-        return "container"
     }
 }

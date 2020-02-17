@@ -47,9 +47,8 @@ import java.awt.Component
 import java.awt.Dialog
 import java.awt.Font
 import java.awt.Graphics
-import java.awt.event.FocusEvent
-import java.awt.event.FocusListener
 import java.awt.event.HierarchyEvent
+import java.beans.PropertyChangeEvent
 import java.util.concurrent.atomic.AtomicInteger
 import javax.swing.JComponent
 import javax.swing.SwingUtilities
@@ -228,13 +227,13 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
      * children.
      */
     internal open fun doProcessCSS(context: EngineContext) {
-        if (cssFlag == StyleState.CLEAN) {
-            return
-        }
+        //if (cssFlag == StyleState.CLEAN || !isVisible) return
+        if (cssFlag == StyleState.CLEAN) return
 
         if (cssFlag == StyleState.REAPPLY) {
-            context.traceElement(this)
+            if (componentReference.hasVacated()) return
 
+            context.traceElement(this)
             context.styleContext.bloomFilter.insertParent(this)
 
             val styleResolver = ElementStyleResolver(this, context.styleContext)
@@ -318,11 +317,22 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
 
     init {
         component.addHierarchyListener { event ->
-            if (event.id == HierarchyEvent.HIERARCHY_CHANGED && (event.changeFlags and HierarchyEvent.PARENT_CHANGED.toLong()) != 0L) {
-                SwingUtilities.getWindowAncestor(event.changedParent)?.frame
+            if (event.id == HierarchyEvent.HIERARCHY_CHANGED) {
+
+                if ((event.changeFlags and HierarchyEvent.PARENT_CHANGED.toLong()) != 0L) {
+                    SwingUtilities.getWindowAncestor(event.changedParent)?.frame
+                } else if ((event.changeFlags and HierarchyEvent.SHOWING_CHANGED.toLong()) != 0L && event.changed === component) {
+                    if (component.isVisible) {
+                        applyCSS(origin = "visible")
+                    }
+                }
             }
         }
+        component.addPropertyChangeListener(::componentPropertyChanged)
     }
+
+    open val isVisible: Boolean
+        get() = component.isVisible
 
     // ***************************** Matching ***************************** //
 
@@ -333,7 +343,9 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
         get() = localName()
 
     init {
-        classes.addInvalidationListener { reapplyCSS(origin = "classes") }
+        classes.addInvalidationListener {
+            reapplyCSS(origin = "classes")
+        }
     }
 
     override fun namespace(): Option<NamespaceUrl> = namespace.into()
@@ -536,8 +548,11 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
     // ***************************** Renderer Override ***************************** //
 
 
-    init {
-        component.addPropertyChangeListener("enabled") { reapplyCSS("enabled") }
+    protected open fun componentPropertyChanged(event: PropertyChangeEvent) {
+        when (event.propertyName) {
+            "enabled" -> reapplyCSS(origin = "enabled")
+            "visible" -> if (event.newValue == true) applyCSS(origin = "visible")
+        }
     }
 
     fun hoverHint(hover: Boolean): Boolean {

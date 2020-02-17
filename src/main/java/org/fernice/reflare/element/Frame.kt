@@ -128,7 +128,7 @@ class Frame(frameInstance: Window) : Device, VacatingReferenceHolder {
         dirtyElements.add(element)
     }
 
-    private val debug_frameCount = FRAME_COUNT.get()
+    private val debug_frameCount = FRAME_COUNT.getAndIncrement()
 
     private fun doCSSPass() {
         val root = root

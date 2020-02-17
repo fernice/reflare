@@ -22,6 +22,7 @@ import org.fernice.reflare.internal.DefaultLookupHelper;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
 import org.fernice.reflare.platform.GTKKeybindings;
+import org.fernice.reflare.platform.Platform;
 import org.fernice.reflare.platform.WindowsKeybindings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,13 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
         if (!integrationInstalled.getAndSet(true)) {
             SharedHoverHandler.initialize();
             KeyboardFocusManager.getCurrentKeyboardFocusManager().addPropertyChangeListener("focusOwner", focusChangeListener);
+            if (Platform.isMac()) {
+                try {
+                    Class.forName("com.apple.laf.ScreenPopupFactory");
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
+                }
+            }
         }
     }
 
@@ -174,7 +182,7 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
 
             defaults.put("PopupMenuUI", basicPackageName + "FlarePopupMenuUI");
 
-            defaults.put("MenuBarUI", basicPackageName + "FlareMenuBarUI");
+            defaults.put("MenuBarUI", basicPackageName + (Platform.isMac() ? "FlareAppleMenuBarUI" : "FlareMenuBarUI"));
             defaults.put("MenuUI", basicPackageName + "FlareMenuUI");
             defaults.put("MenuItemUI", basicPackageName + "FlareMenuItemUI");
             defaults.put("CheckBoxMenuItemUI", basicPackageName + "FlareCheckBoxMenuItemUI");
@@ -193,7 +201,7 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
     }
 
     private static void installPreferredPopupFactory() {
-        if (isMac()) {
+        if (Platform.isMac()) {
             installApplePopupFactory();
         }
     }
@@ -211,9 +219,5 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
         } catch (Exception e) {
             LOG.error("cannot install apple popup factory", e);
         }
-    }
-
-    public static boolean isMac() {
-        return System.getProperty("os.name").toLowerCase().startsWith("mac");
     }
 }

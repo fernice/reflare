@@ -57,7 +57,7 @@ interface Script {
         }
     }
 
-    suspend fun lf()
+    suspend fun lf(delay: Int = 0)
     suspend fun ln(text: String, content: Attributable.() -> Unit = {})
     suspend fun action(actionBuilder: suspend ActionBuilder.() -> Unit = {})
 

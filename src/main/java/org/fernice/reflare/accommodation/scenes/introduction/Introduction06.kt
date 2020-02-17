@@ -9,41 +9,43 @@ package org.fernice.reflare.accommodation.scenes.introduction
 import org.fernice.reflare.accommodation.scene.Scene
 import org.fernice.reflare.accommodation.scene.SceneRunner
 import org.fernice.reflare.accommodation.scenes.cm
+import org.fernice.reflare.accommodation.scenes.dc
 import org.fernice.reflare.accommodation.scenes.dlf
-import org.fernice.reflare.accommodation.scenes.her
-import org.fernice.reflare.accommodation.scenes.him
 
-class Introduction02 : Scene {
+class Introduction06 : Scene {
 
     override fun run(runner: SceneRunner) {
         runner.script {
-            her()
-            ln("Have you seen my purse?")
-            delay(2)
-
-            dlf()
-            cm("She walks out of the bedroom.")
+            dc("loud blast")
             delay(4)
 
             dlf()
-            her()
-            ln("It has got to be here somewhere.")
+            cm("She is interrupted by a loud sound.")
+            delay(4)
+
+            dlf()
+            cm("They both feel the force acting on their bodies.")
+            delay(4)
+
+            dlf()
+            cm("As she faints away she takes on last look at him.")
             delay(3)
 
             dlf()
-            him()
-            ln("Have you taken a look downstairs?")
-            delay(2)
+            dc("don't go")
+            delay(4)
+
+            lf()
+            dc("don't...")
+            delay(4)
 
             dlf()
-            her()
-            ln("No, i thought i brought it upstairs with me.")
-            delay(2)
+            cm("She faints.")
+            delay(6)
 
             dlf()
-            her()
             action {
-                ac("Could you please take a look.") { goto("introduction/03") }
+                ac("") { goto("title-screen") }
             }
         }
     }
