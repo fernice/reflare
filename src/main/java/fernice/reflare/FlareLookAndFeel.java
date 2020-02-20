@@ -5,7 +5,6 @@ import java.awt.KeyboardFocusManager;
 import java.awt.Window;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.lang.reflect.Constructor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.JComponent;
 import javax.swing.PopupFactory;
@@ -19,6 +18,7 @@ import org.fernice.reflare.element.StyleTreeHelper;
 import org.fernice.reflare.element.support.SharedHoverHandler;
 import org.fernice.reflare.internal.AATextInfoHelper;
 import org.fernice.reflare.internal.DefaultLookupHelper;
+import org.fernice.reflare.internal.PopupFactoryHelper;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
 import org.fernice.reflare.platform.GTKKeybindings;
@@ -208,12 +208,7 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
 
     private static void installApplePopupFactory() {
         try {
-            Class<?> screenPopupFactoryClass = Class.forName("com.apple.laf.ScreenPopupFactory");
-
-            Constructor<?> constructor = screenPopupFactoryClass.getDeclaredConstructor();
-            constructor.setAccessible(true);
-
-            PopupFactory screenPopupFactory = (PopupFactory) constructor.newInstance();
+            PopupFactory screenPopupFactory = PopupFactoryHelper.createScreenPopupFactory();
 
             PopupFactory.setSharedInstance(screenPopupFactory);
         } catch (Exception e) {
