@@ -7,17 +7,13 @@ import javax.swing.JMenuItem
 
 class MenuBarElement(menuBar: JMenuBar) : ComponentElement(menuBar) {
 
-    override fun localName(): String {
-        return "menubar"
-    }
+    override val localName = "menubar"
 }
 
 
 open class MenuItemElement(menuItem: JMenuItem) : ButtonElement(menuItem) {
 
-    override fun localName(): String {
-        return "menuitem"
-    }
+    override val localName = "menuitem"
 }
 
 class MenuElement(menu: JMenu) : MenuItemElement(menu) {
@@ -38,7 +34,5 @@ class MenuElement(menu: JMenu) : MenuItemElement(menu) {
         }
     }
 
-    override fun localName(): String {
-        return "menu"
-    }
+    override val localName = "menu"
 }

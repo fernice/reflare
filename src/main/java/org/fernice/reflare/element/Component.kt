@@ -1,10 +1,6 @@
 package org.fernice.reflare.element
 
 import fernice.reflare.CSSEngine
-import fernice.std.None
-import fernice.std.Option
-import fernice.std.Some
-import fernice.std.into
 import mu.KotlinLogging
 import org.fernice.flare.EngineContext
 import org.fernice.flare.cssparser.Parser
@@ -27,11 +23,9 @@ import org.fernice.flare.style.parser.ParserContext
 import org.fernice.flare.style.parser.QuirksMode
 import org.fernice.flare.style.properties.PropertyDeclarationBlock
 import org.fernice.flare.style.properties.parsePropertyDeclarationList
-import org.fernice.flare.style.value.computed.SingleFontFamily
 import org.fernice.flare.url.Url
 import org.fernice.reflare.Defaults
-import org.fernice.reflare.internal.SunFontHelper
-import org.fernice.reflare.platform.Platform
+import org.fernice.reflare.font.FontStyleResolver
 import org.fernice.reflare.render.merlin.MerlinRenderer
 import org.fernice.reflare.statistics.Statistics
 import org.fernice.reflare.toAWTColor
@@ -39,13 +33,11 @@ import org.fernice.reflare.trace.TraceHelper
 import org.fernice.reflare.trace.trace
 import org.fernice.reflare.trace.traceElement
 import org.fernice.reflare.trace.traceRoot
-import org.fernice.reflare.util.ObservableMutableSet
 import org.fernice.reflare.util.Observables
 import org.fernice.reflare.util.VacatingRef
 import org.fernice.reflare.util.observableMutableSetOf
 import java.awt.Component
 import java.awt.Dialog
-import java.awt.Font
 import java.awt.Graphics
 import java.awt.event.HierarchyEvent
 import java.beans.PropertyChangeEvent
@@ -239,7 +231,7 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
             val styleResolver = ElementStyleResolver(this, context.styleContext)
             val styles = styleResolver.resolvePrimaryStyleWithDefaultParentStyles()
 
-            val data = ensureData()
+            val data = getData()
 
             finishRestyle(context.styleContext, data, styles)
         }
@@ -307,14 +299,6 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
 
     override fun isRoot(): Boolean = parent == null
 
-    override fun owner(): Option<Element> = Some(this)
-
-    override fun parent(): Option<Element> = parent.into()
-    override fun traversalParent(): Option<Element> = parent()
-    override fun inheritanceParent(): Option<Element> = parent()
-
-    override fun pseudoElement(): Option<PseudoElement> = None
-
     init {
         component.addHierarchyListener { event ->
             if (event.id == HierarchyEvent.HIERARCHY_CHANGED) {
@@ -338,19 +322,9 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
 
     final override var namespace: NamespaceUrl? = null
     final override var id: String? = null
-    final override val classes: ObservableMutableSet<String> = observableMutableSetOf()
-    final override val localName: String
-        get() = localName()
-
-    init {
-        classes.addInvalidationListener {
-            reapplyCSS(origin = "classes")
-        }
+    final override val classes: MutableSet<String> = observableMutableSetOf {
+        reapplyCSS(origin = "classes")
     }
-
-    override fun namespace(): Option<NamespaceUrl> = namespace.into()
-    override fun id(): Option<String> = id.into()
-    override fun classes(): Set<String> = classes
 
     override fun hasID(id: String): Boolean {
         return id == this.id
@@ -380,10 +354,6 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
 
     final override var styleAttribute: PropertyDeclarationBlock? = null
 
-    override fun styleAttribute(): Option<PropertyDeclarationBlock> {
-        return styleAttribute.into()
-    }
-
     var styleAttributeValue: String = ""
         set(value) {
             field = value
@@ -405,7 +375,7 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
 
     private var data: ElementData? = null
 
-    override fun ensureData(): ElementData {
+    override fun getData(): ElementData {
         val current = data
         return if (current != null) {
             current
@@ -421,7 +391,7 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
         }
     }
 
-    override fun getData(): ElementData? {
+    override fun getDataOrNull(): ElementData? {
         return data
     }
 
@@ -430,7 +400,7 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
     }
 
     fun getStyle(): ComputedValues? {
-        return getData()?.styles?.primary
+        return getDataOrNull()?.styles?.primary
     }
 
     private var forceApplyStyle = false
@@ -457,7 +427,7 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
             val oldFontSize = oldStyle.primary?.font?.fontSize
 
             if (oldFontSize != null && oldFontSize != fontSize) {
-                context.device.setRootFontSize(fontSize.size())
+                context.device.rootFontSize = fontSize.size()
             }
         }
 
@@ -500,33 +470,7 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
     }
 
     private var fontStyle: FontStyle by Observables.observable(FontStyle.initial) { _, _, fontStyle ->
-        val fontSize = fontStyle.fontSize.size().toPx().toInt()
-        val fontWeight = fontStyle.fontWeight.value
-
-        var awtFont: Font? = null
-
-        loop@
-        for (fontFamily in fontStyle.fontFamily.values) {
-            awtFont = when (fontFamily) {
-                is SingleFontFamily.Generic -> {
-                    when (fontFamily.name) {
-                        "serif" -> Platform.SystemSerifFont
-                        "sans-serif" -> Platform.SystemSansSerifFont
-                        "monospace" -> Platform.SystemMonospaceFont
-                        else -> Platform.SystemSerifFont
-                    }
-                }
-                is SingleFontFamily.FamilyName -> {
-                    SunFontHelper.findFont(fontFamily.name.value, fontWeight.toInt(), false) ?: continue@loop
-                }
-            }
-            break
-        }
-
-        if (awtFont != null) {
-            awtFont = awtFont.deriveFont(fontSize.toFloat())
-            component.font = awtFont
-        }
+        component.font = FontStyleResolver.resolve(fontStyle)
     }
 
     // ***************************** Render ***************************** //

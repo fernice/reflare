@@ -10,30 +10,22 @@ import org.fernice.reflare.render.CellRendererPane as ModernCellRenderPane
 
 class ComboBoxElement(comboBox: JComboBox<*>) : ComponentElement(comboBox) {
 
-    override fun localName(): String {
-        return "combobox"
-    }
+    override val localName = "combobox"
 }
 
 class ListElement(list: JList<*>) : ComponentElement(list) {
 
-    override fun localName(): String {
-        return "list"
-    }
+    override val localName = "list"
 }
 
 class ScrollPaneElement(scrollPane: JScrollPane) : ComponentElement(scrollPane) {
 
-    override fun localName(): String {
-        return "scrollpane"
-    }
+    override val localName = "scrollpane"
 }
 
 class ViewportElement(viewport: JViewport) : ComponentElement(viewport) {
 
-    override fun localName(): String {
-        return "viewport"
-    }
+    override val localName = "viewport"
 }
 
 /**
@@ -46,9 +38,7 @@ class CellRendererPaneElement(cellRendererPane: CellRendererPane) : AWTContainer
     override val isVisible: Boolean
         get() = true
 
-    override fun localName(): String {
-        return "-flr-renderer"
-    }
+    override val localName = "-flr-renderer"
 }
 
 class ModernCellRendererPaneElement(cellRendererPane: ModernCellRenderPane) : AWTContainerElement(cellRendererPane) {
@@ -56,12 +46,10 @@ class ModernCellRendererPaneElement(cellRendererPane: ModernCellRenderPane) : AW
     override val isVisible: Boolean
         get() = true
 
-    override fun localName(): String {
-        return "-flr-renderer"
-    }
+    override val localName = "-flr-renderer"
 }
 
 class ProgressBarElement(progressBar: JProgressBar) : ComponentElement(progressBar) {
 
-    override fun localName(): String = "progress"
+    override val localName = "progress"
 }

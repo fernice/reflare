@@ -6,9 +6,9 @@
 
 package org.fernice.reflare.util
 
-fun <E> List<E>.peekIterator(): PeekIterator<E> = PeekIterator(this)
+internal fun <E> List<E>.peekIterator(): PeekIterator<E> = PeekIterator(this)
 
-class PeekIterator<E>(private val list: List<E>, private var index: Int = 0) : Iterator<E> {
+internal class PeekIterator<E>(private val list: List<E>, private var index: Int = 0) : Iterator<E> {
 
     override fun hasNext(): Boolean = index < list.size
 

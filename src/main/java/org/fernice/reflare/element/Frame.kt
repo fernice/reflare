@@ -100,22 +100,13 @@ class Frame(frameInstance: Window) : Device, VacatingReferenceHolder {
 
     override fun hasVacated(): Boolean = frameReference.hasVacated()
 
-    override fun viewportSize(): Size2D<Au> {
-        return Size2D(Au.fromPx(frame.width), Au.fromPx(frame.height))
-    }
+    override val viewportSize: Size2D<Au>
+        get() = Size2D(Au.fromPx(frame.width), Au.fromPx(frame.height))
 
-    var fontSize: Au = Au.fromPx(16)
-        set(size) {
-            field = size.min(Au.fromPx(1))
+    override var rootFontSize: Au = Au.fromPx(16)
+        set(value) {
+            field = value.min(Au.fromPx(1))
         }
-
-    override fun rootFontSize(): Au {
-        return fontSize
-    }
-
-    override fun setRootFontSize(size: Au) {
-        fontSize = size
-    }
 
     override fun invalidate() {
         root?.reapplyCSS("frame:invalidate")

@@ -7,6 +7,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.PopupFactory;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
@@ -24,6 +25,7 @@ import org.fernice.reflare.meta.DefinedBy.Api;
 import org.fernice.reflare.platform.GTKKeybindings;
 import org.fernice.reflare.platform.Platform;
 import org.fernice.reflare.platform.WindowsKeybindings;
+import org.fernice.reflare.ui.text.FlareHTMLEditorKit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +52,7 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
                     throwable.printStackTrace();
                 }
             }
+            JEditorPane.registerEditorKitForContentType("text/html", FlareHTMLEditorKit.class.getName());
         }
     }
 

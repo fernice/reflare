@@ -10,13 +10,25 @@ internal fun <E> observableMutableSetOf(vararg elements: E): ObservableMutableSe
     return ObservableMutableSetWrapper(mutableSetOf(*elements))
 }
 
-interface ObservableCollection {
+internal inline fun <reified E> observableMutableSetOf(elements: Collection<E>, noinline listener: () -> Unit): ObservableMutableSet<E> {
+    val list = observableMutableSetOf(*elements.toTypedArray())
+    list.addInvalidationListener(listener)
+    return list
+}
+
+internal fun <E> observableMutableSetOf(listener: () -> Unit): ObservableMutableSet<E> {
+    val list = observableMutableSetOf<E>()
+    list.addInvalidationListener(listener)
+    return list
+}
+
+internal interface ObservableCollection {
 
     fun addInvalidationListener(listener: () -> Unit)
     fun removeInvalidationListener(listener: () -> Unit)
 }
 
-interface ObservableMutableSet<E> : MutableSet<E>, ObservableCollection
+internal interface ObservableMutableSet<E> : MutableSet<E>, ObservableCollection
 
 private abstract class ObservableCollectionWrapperBase<E, S : Collection<E>>(protected val delegate: S) : Collection<E>, ObservableCollection {
 

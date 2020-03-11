@@ -10,7 +10,5 @@ import javax.swing.JFileChooser
 
 class FileChooserElement(fileChooser: JFileChooser) : ComponentElement(fileChooser) {
 
-    override fun localName(): String {
-        return "filechooser"
-    }
+    override val localName = "filechooser"
 }

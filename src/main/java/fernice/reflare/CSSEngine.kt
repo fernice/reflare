@@ -204,17 +204,15 @@ sealed class Source {
 }
 
 private class LocalDevice(val component: Component) : Device {
-    override fun viewportSize(): Size2D<Au> {
-        return Size2D(Au.fromPx(component.width), Au.fromPx(component.height))
-    }
 
-    override fun rootFontSize(): Au {
-        return Au.fromPx(component.font.size)
-    }
+    override val viewportSize: Size2D<Au>
+        get() = Size2D(Au.fromPx(component.width), Au.fromPx(component.height))
 
-    override fun setRootFontSize(size: Au) {
-        component.font = component.font.deriveFont(size.toFloat())
-    }
+    override var rootFontSize: Au
+        get() = Au.fromPx(component.font.size)
+        set(value) {
+            component.font = component.font.deriveFont(value.toFloat())
+        }
 
     override fun invalidate() {
     }

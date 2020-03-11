@@ -34,3 +34,8 @@ interface VacatingReferenceHolder {
 
     fun hasVacated(): Boolean
 }
+
+
+operator fun <T> WeakReference<T>.component1(): T? {
+    return get()
+}

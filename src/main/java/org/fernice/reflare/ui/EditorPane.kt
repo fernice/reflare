@@ -18,7 +18,9 @@ import javax.swing.plaf.basic.BasicEditorPaneUI
 
 open class FlareEditorPaneUI(editorPane: JEditorPane) : BasicEditorPaneUI(), FlareUI {
 
-    override val element = EditorPaneElement(editorPane)
+    final override val element = createElement(editorPane)
+
+    protected open fun createElement(editorPane: JEditorPane): EditorPaneElement = EditorPaneElement(editorPane)
 
     override fun installDefaults() {
         super.installDefaults()
