@@ -10,7 +10,5 @@ import javax.swing.JScrollBar
 
 open class ScrollBarElement(scrollBar: JScrollBar) : ComponentElement(scrollBar) {
 
-    override fun localName(): String {
-        return "scrollbar"
-    }
+    override val localName = "scrollbar"
 }

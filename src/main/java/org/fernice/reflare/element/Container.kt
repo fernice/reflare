@@ -6,9 +6,6 @@
 
 package org.fernice.reflare.element
 
-import fernice.std.None
-import fernice.std.Option
-import fernice.std.Some
 import org.fernice.flare.EngineContext
 import org.fernice.flare.dom.Element
 import java.awt.Component
@@ -21,7 +18,8 @@ import javax.swing.JMenuItem
 
 abstract class AWTContainerElement(container: Container) : AWTComponentElement(container) {
 
-    internal val children: MutableList<AWTComponentElement> = CopyOnWriteArrayList()
+    private val _children: MutableList<AWTComponentElement> = CopyOnWriteArrayList()
+    override val children: List<AWTComponentElement> get() = _children
 
     init {
         container.addContainerListener(object : ContainerListener {
@@ -49,7 +47,7 @@ abstract class AWTContainerElement(container: Container) : AWTComponentElement(c
 
         childElement.frame = frame
         childElement.parent = this
-        children.add(index, childElement)
+        _children.add(index, childElement)
 
         // If the child had no parent before this and it is going to have
         // one now, then we have to check the style state of the child.
@@ -71,7 +69,7 @@ abstract class AWTContainerElement(container: Container) : AWTComponentElement(c
 
         childElement.frame = null
         childElement.parent = null
-        children.remove(childElement)
+        _children.remove(childElement)
 
         //traceReapplyOrigin("child:removed")
         //reapplyCSS()
@@ -93,47 +91,27 @@ abstract class AWTContainerElement(container: Container) : AWTComponentElement(c
         }
     }
 
-    override fun children(): List<Element> {
-        return children
-    }
+    override val previousSibling: Element?
+        get() = when (val parent = parent) {
+            null -> null
+            else -> {
+                val children = parent.children
 
-    override fun previousSibling(): Option<Element> {
-        return when (val parent = parent()) {
-            is Some -> {
-                val children = parent.value.children()
-
-                val index = children.indexOf(this) - 1
-
-                if (index >= 0) {
-                    Some(children[index])
-                } else {
-                    None
-                }
+                children.getOrNull(children.indexOf(this) - 1)
             }
-            is None -> parent
         }
-    }
 
-    override fun nextSibling(): Option<Element> {
-        return when (val parent = parent()) {
-            is Some -> {
-                val children = parent.value.children()
+    override val nextSibling: Element?
+        get() = when (val parent = parent) {
+            null -> null
+            else -> {
+                val children = parent.children
 
-                val index = children.indexOf(this) + 1
-
-                if (index < children.size) {
-                    Some(children[index])
-                } else {
-                    None
-                }
+                children.getOrNull(children.indexOf(this) + 1)
             }
-            is None -> parent
         }
-    }
 
-    override fun isEmpty(): Boolean {
-        return children.isEmpty()
-    }
+    override fun isEmpty(): Boolean = children.isEmpty()
 
     final override fun doProcessCSS(context: EngineContext) {
         // if (cssFlag == StyleState.CLEAN || !isVisible) return

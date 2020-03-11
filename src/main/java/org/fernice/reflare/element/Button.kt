@@ -70,28 +70,20 @@ open class ButtonElement(button: AbstractButton) : ComponentElement(button) {
         }
     }
 
-    override fun localName(): String {
-        return "button"
-    }
+    override val localName = "button"
 }
 
 open class ToggleButtonElement(toggleButton: JToggleButton) : ButtonElement(toggleButton) {
 
-    override fun localName(): String {
-        return "toggle"
-    }
+    override val localName = "toggle"
 }
 
 class RadioButtonElement(radioButton: JRadioButton) : ToggleButtonElement(radioButton) {
 
-    override fun localName(): String {
-        return "radio"
-    }
+    override val localName = "radio"
 }
 
 class CheckBoxElement(checkbox: JCheckBox) : ToggleButtonElement(checkbox) {
 
-    override fun localName(): String {
-        return "checkbox"
-    }
+    override val localName = "checkbox"
 }

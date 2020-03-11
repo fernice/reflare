@@ -6,14 +6,16 @@
 
 package org.fernice.reflare.ui
 
+import org.fernice.reflare.element.EditorPaneElement
 import org.fernice.reflare.element.TextPaneElement
 import javax.swing.JComponent
+import javax.swing.JEditorPane
 import javax.swing.JTextPane
 import javax.swing.plaf.ComponentUI
 
 class FlareTextPaneUI(textPane: JTextPane) : FlareEditorPaneUI(textPane), FlareUI {
 
-    override val element = TextPaneElement(textPane)
+    override fun createElement(editorPane: JEditorPane): EditorPaneElement = TextPaneElement(editorPane as JTextPane)
 
     companion object {
 

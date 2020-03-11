@@ -3,6 +3,7 @@ package org.fernice.reflare.ui;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.beans.PropertyChangeEvent;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.plaf.ComponentUI;
@@ -12,6 +13,7 @@ import org.fernice.reflare.element.LabelElement;
 import org.fernice.reflare.element.StyleTreeElementLookup;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
+import org.fernice.reflare.ui.text.FlareHTML;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
@@ -38,6 +40,29 @@ public class FlareLabelUI extends BasicLabelUI implements FlareUI {
     @Override
     protected void uninstallDefaults(JLabel label) {
         StyleTreeElementLookup.deregisterElement(label);
+    }
+
+    @Override
+    protected void installComponents(JLabel c) {
+        //        super.installComponents(c);
+        FlareHTML.updateRenderer(c, c.getText());
+        c.setInheritsPopupMenu(true);
+    }
+
+
+    @Override
+    public void propertyChange(@NotNull PropertyChangeEvent e) {
+        String name = e.getPropertyName();
+        if (name == "text" || "font" == name || "foreground" == name) {
+            // remove the old html view client property if one
+            // existed, and install a new one if the text installed
+            // into the JLabel is html source.
+            JLabel lbl = (JLabel) e.getSource();
+            String text = lbl.getText();
+            FlareHTML.updateRenderer(lbl, text);
+        } else {
+            super.propertyChange(e);
+        }
     }
 
     @Override

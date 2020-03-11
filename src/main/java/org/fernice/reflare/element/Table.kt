@@ -11,14 +11,10 @@ import javax.swing.table.JTableHeader
 
 open class TableElement(table: JTable) : ComponentElement(table) {
 
-    override fun localName(): String {
-        return "table"
-    }
+    override val localName = "table"
 }
 
 open class TableHeaderElement(header: JTableHeader) : ComponentElement(header) {
 
-    override fun localName(): String {
-        return "th"
-    }
+    override val localName = "th"
 }

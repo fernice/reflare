@@ -4,11 +4,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package org.fernice.reflare.element
+package fernice.reflare.style;
 
-import javax.swing.JToolTip
+import org.jetbrains.annotations.NotNull;
 
-open class ToolTipElement(tooltip: JToolTip) : ComponentElement(tooltip) {
+public interface StyleInvalidationListener {
 
-    override val localName = "tooltip"
+    void styleChanged(@NotNull StyleMatcher styleMatcher);
 }

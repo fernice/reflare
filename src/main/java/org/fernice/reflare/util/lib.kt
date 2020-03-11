@@ -6,16 +6,23 @@
 
 package org.fernice.reflare.util
 
-fun <K, V> fullyWeakReferenceHashMap(): ConcurrentReferenceHashMap<K, V> {
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
+
+internal fun <K, V> fullyWeakReferenceHashMap(): ConcurrentReferenceHashMap<K, V> {
     return ConcurrentReferenceHashMap(ConcurrentReferenceHashMap.ReferenceType.WEAK, ConcurrentReferenceHashMap.ReferenceType.WEAK)
 }
 
-fun <K, V> weakReferenceHashMap(): ConcurrentReferenceHashMap<K, V> {
+internal fun <K, V> weakReferenceHashMap(): ConcurrentReferenceHashMap<K, V> {
     return ConcurrentReferenceHashMap(ConcurrentReferenceHashMap.ReferenceType.WEAK, ConcurrentReferenceHashMap.ReferenceType.STRONG)
 }
 
-fun <K, V> weakReferenceHashMap(vararg initial: Pair<K, V>): ConcurrentReferenceHashMap<K, V> {
+internal fun <K, V> weakReferenceHashMap(vararg initial: Pair<K, V>): ConcurrentReferenceHashMap<K, V> {
     val map = weakReferenceHashMap<K, V>()
     map.putAll(mapOf(*initial))
     return map
 }
+
+internal fun <K, V> concurrentMap(): MutableMap<K, V> = ConcurrentHashMap()
+
+internal fun <E> concurrentList(): MutableList<E> = CopyOnWriteArrayList()

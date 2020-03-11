@@ -7,8 +7,6 @@
 package org.fernice.reflare.element
 
 import fernice.reflare.FlareLookAndFeel
-import fernice.std.None
-import fernice.std.Option
 import org.fernice.flare.dom.Element
 import org.fernice.flare.dom.ElementData
 import org.fernice.flare.style.ResolvedElementStyles
@@ -21,14 +19,14 @@ class ArtificialComponentElement(component: Component) : AWTComponentElement(com
     override fun parentChanged(old: Frame?, new: Frame?) {
     }
 
-    override fun localName(): String = "component"
+    override val localName get() = "component"
 
     override fun isEmpty(): Boolean = true
 
-    override fun previousSibling(): Option<Element> = None
-    override fun nextSibling(): Option<Element> = None
+    override val previousSibling: Element? get() = null
+    override val nextSibling: Element? get() = null
 
-    override fun children(): List<Element> = emptyList()
+    override val children: List<Element> = listOf()
 
     override fun finishRestyle(context: StyleContext, data: ElementData, elementStyles: ResolvedElementStyles) {
         if (FlareLookAndFeel.isLightweightMode()) {
@@ -45,7 +43,7 @@ class ArtificialContainerElement(container: Container) : AWTContainerElement(con
     // local name to styled. In practice hopefully no one will try to do it
     // because even though the element will be considered when it comes to
     // matching, we have no means to render using its computed styles.
-    override fun localName(): String = "container"
+    override val localName get() = "container"
 
     override fun finishRestyle(context: StyleContext, data: ElementData, elementStyles: ResolvedElementStyles) {
         if (FlareLookAndFeel.isLightweightMode()) {
