@@ -10,5 +10,5 @@ import javax.swing.JToolTip
 
 open class ToolTipElement(tooltip: JToolTip) : ComponentElement(tooltip) {
 
-    override val localName = "tooltip"
+    override val localName get() = "tooltip"
 }
