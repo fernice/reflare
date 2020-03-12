@@ -7,7 +7,7 @@ open class PopupMenuElement(popupMenu: JPopupMenu) : ComponentElement(popupMenu)
 //    override val isVisible: Boolean
 //        get() = true
 
-    override val localName = "popup"
+    override val localName get() = "popup"
 }
 
 class ComboBoxPopupElement(popupMenu: org.fernice.reflare.ui.FlareComboBoxPopup) : PopupMenuElement(popupMenu) {
@@ -15,5 +15,5 @@ class ComboBoxPopupElement(popupMenu: org.fernice.reflare.ui.FlareComboBoxPopup)
 //    override val isVisible: Boolean
 //        get() = true
 
-    override val localName = "combobox-popup"
+    override val localName get() = "combobox-popup"
 }

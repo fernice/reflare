@@ -18,7 +18,7 @@ import javax.swing.text.JTextComponent
 
 class LabelElement(label: JLabel) : ComponentElement(label) {
 
-    override val localName = "label"
+    override val localName get() = "label"
 
     override fun matchPseudoElement(pseudoElement: PseudoElement): Boolean {
         return when (pseudoElement) {
@@ -85,7 +85,7 @@ abstract class TextElement(textComponent: JTextComponent) : ComponentElement(tex
 }
 
 open class TextFieldElement(textField: JTextField) : TextElement(textField) {
-    override val localName = "text"
+    override val localName get() = "text"
 }
 
 class FormattedTextFieldElement(textField: JFormattedTextField) : TextFieldElement(textField)
@@ -93,15 +93,15 @@ class FormattedTextFieldElement(textField: JFormattedTextField) : TextFieldEleme
 class PasswordFieldElement(textField: JPasswordField) : TextFieldElement(textField)
 
 class TextAreaElement(textArea: JTextArea) : TextElement(textArea) {
-    override val localName = "textarea"
+    override val localName get() = "textarea"
 }
 
 open class EditorPaneElement(editorPane: JEditorPane) : TextElement(editorPane) {
 
-    override val localName = "text"
+    override val localName get() = "text"
 }
 
 open class TextPaneElement(textPane: JTextPane) : EditorPaneElement(textPane) {
 
-    override val localName = "textpane"
+    override val localName get() = "textpane"
 }
