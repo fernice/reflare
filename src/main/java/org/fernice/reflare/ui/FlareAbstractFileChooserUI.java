@@ -6,6 +6,7 @@
 
 package org.fernice.reflare.ui;
 
+import fernice.reflare.StyledImageIcon;
 import fernice.reflare.light.FButton;
 import java.awt.Component;
 import java.awt.ComponentOrientation;
@@ -30,7 +31,6 @@ import javax.swing.plaf.basic.BasicFileChooserUI;
 import org.fernice.reflare.element.ComponentElement;
 import org.fernice.reflare.element.FileChooserElement;
 import org.fernice.reflare.element.StyleTreeElementLookup;
-import org.fernice.reflare.render.icon.IconHelper;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class FlareAbstractFileChooserUI extends BasicFileChooserUI implements FlareUI {
@@ -146,8 +146,8 @@ public abstract class FlareAbstractFileChooserUI extends BasicFileChooserUI impl
     }
 
     protected void installIcons(JFileChooser var1) {
-        fileIcon = IconHelper.getIcon("/reflare/icons/file.png");
-        directoryIcon = IconHelper.getIcon("/reflare/icons/folder.png");
+        fileIcon = StyledImageIcon.fromResource("/reflare/icons/file.png");
+        directoryIcon = StyledImageIcon.fromResource("/reflare/icons/folder.png");
     }
 
     public abstract void setFileName(String var1);

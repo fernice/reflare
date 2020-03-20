@@ -19,9 +19,7 @@ import org.fernice.reflare.util.weakReferenceHashMap
 import java.awt.Component
 import java.awt.Graphics
 import java.awt.Image
-import java.util.WeakHashMap
 import javax.swing.Icon
-
 
 open class StyledImageIcon private constructor(internal val imageProvider: Lazy<Image>) : Icon {
 
@@ -34,7 +32,7 @@ open class StyledImageIcon private constructor(internal val imageProvider: Lazy<
         if (styledImageProvider == null) {
             styledImageProvider = ComponentStyledImageProvider(component)
 
-            this.styledImageProvider = styledImageProvider;
+            this.styledImageProvider = styledImageProvider
         }
 
         val styleImage = styledImageProvider.getStyledImage(component)
@@ -60,7 +58,7 @@ open class StyledImageIcon private constructor(internal val imageProvider: Lazy<
 
         override fun getStyledImage(component: Component): Image {
             if (component !== this.component) {
-                val styledImageProvider = MultiComponentStyledImageProvider(component to this)
+                val styledImageProvider = MultiComponentStyledImageProvider(this.component to this)
 
                 this@StyledImageIcon.styledImageProvider = styledImageProvider
 
@@ -97,14 +95,14 @@ open class StyledImageIcon private constructor(internal val imageProvider: Lazy<
 
         @JvmStatic
         fun fromResource(resource: String): StyledImageIcon {
-            val imageFuture = ImageCache.image(Url(resource)) {}
+            val imageFuture = ImageCache.fetch(Url(resource))
             val imageProvider = lazy { imageFuture.get() }
             return StyledImageIcon(imageProvider)
         }
 
         @JvmStatic
         fun fromUrl(url: String): StyledImageIcon {
-            val imageFuture = ImageCache.image(Url(url)) {}
+            val imageFuture = ImageCache.fetch(Url(url))
             val imageProvider = lazy { imageFuture.get() }
             return StyledImageIcon(imageProvider)
         }

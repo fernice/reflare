@@ -55,24 +55,6 @@ filechooser button:disabled {
   color: #636363;
 }
 
-filechooser button.icn-folder-up:active::icon,
-filechooser button.icn-folder-home:active::icon,
-filechooser button.icn-folder-new:active::icon{
-  fill: white;
-}
-
-filechooser button.icn-folder-up::icon {
-  background-image: url("/reflare/icons/folder.png");
-}
-
-filechooser button.icn-folder-home::icon {
-  background-image: url("/reflare/icons/folder-home.png");
-}
-
-filechooser button.icn-folder-new::icon {
-  background-image: url("/reflare/icons/folder-new.png");
-}
-
 filechooser list text, filechooser list text:hover,
 filechooser list text:focus, filechooser list text:active {
   border: none;

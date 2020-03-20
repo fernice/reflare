@@ -11,11 +11,13 @@ import fernice.reflare.classes
 import fernice.std.None
 import fernice.std.Option
 import fernice.std.Some
+import org.fernice.flare.cssparser.toCssString
 import org.fernice.flare.std.First
 import org.fernice.flare.std.Second
 import org.fernice.flare.style.ComputedValues
 import org.fernice.flare.style.ruletree.CascadeLevel
 import org.fernice.flare.style.ruletree.StyleSource
+import org.fernice.flare.style.ruletree.printTree
 import org.fernice.reflare.element.AWTComponentElement
 import org.fernice.reflare.element.element
 import org.fernice.reflare.layout.VerticalLayout
@@ -163,11 +165,17 @@ private class MatchingStylesPanel : JPanel() {
 
             val result = element.getMatchingStyles()
 
+            var count = 1
             for (node in result.ruleNode.selfAndAncestors()) {
+                if (count == 1) {
+                    result.ruleNode.printTree()
+                }
                 val source = node.source
                 if (source != null) {
+                    println("$count $node")
                     add(StylesPanel(source, node.level))
                 }
+                count++
             }
         }
 

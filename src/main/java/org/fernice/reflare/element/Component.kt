@@ -307,7 +307,7 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
                     SwingUtilities.getWindowAncestor(event.changedParent)?.frame
                 } else if ((event.changeFlags and HierarchyEvent.SHOWING_CHANGED.toLong()) != 0L && event.changed === component) {
                     if (component.isVisible) {
-                        applyCSS(origin = "visible")
+//                        applyCSS(origin = "visible")
                     }
                 }
             }
@@ -417,6 +417,7 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
                 }
             }
 
+            fireRestyleListeners(primaryStyle)
             return
         }
 
@@ -457,6 +458,8 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
                 LOG.trace { "[${repaintCount.getAndIncrement()}] repaint requested for ${this::class.simpleName}" }
             }
         }
+
+        fireRestyleListeners(primaryStyle)
     }
 
     protected open fun updateStyle(style: ComputedValues) {}

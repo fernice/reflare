@@ -6,6 +6,7 @@
 
 package org.fernice.reflare.resource
 
+import mu.KotlinLogging
 import org.fernice.flare.panic
 import org.fernice.flare.std.systemFlag
 import java.awt.Color
@@ -213,10 +214,12 @@ internal object ResourceAllocator {
             while (true) {
                 Thread.sleep(5000)
 
-                println("TInsets: ${tInsets.size}  TColors: ${tColors.size}  TRadii: ${tRadii.size}  TBounds: ${tBounds.size}  Rectangle: ${rectangles.size}  Dimension: ${dimensions.size}")
+                LOG.trace("TInsets: ${tInsets.size}  TColors: ${tColors.size}  TRadii: ${tRadii.size}  TBounds: ${tBounds.size}  Rectangle: ${rectangles.size}  Dimension: ${dimensions.size}")
             }
         }
     }
+
+    private val LOG = KotlinLogging.logger { }
 }
 
 private data class TInsetsImpl(

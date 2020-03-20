@@ -2,13 +2,14 @@ package org.fernice.reflare.cache
 
 import org.fernice.flare.url.Url
 import org.fernice.reflare.internal.ImageHelper
+import org.fernice.reflare.util.concurrentMap
 import java.awt.Image
 import java.lang.RuntimeException
 import java.net.URL
 import java.security.AccessController
 import java.security.PrivilegedAction
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Future
+import java.util.concurrent.Executor
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
@@ -18,41 +19,43 @@ import javax.imageio.ImageIO
 
 object ImageCache {
 
+    private val cachedImages = concurrentMap<Url, CompletableFuture<out Image>>()
+
     private val threadCount = AtomicInteger()
-    private val executor = ThreadPoolExecutor(0, 4, 50, TimeUnit.MILLISECONDS, LinkedBlockingQueue()) { runnable ->
-        val thread = Thread(runnable, "image-loader-${threadCount.getAndIncrement()}")
+    private val unboundExecutor = Executor { runnable ->
+        val thread = Thread(runnable, "fernice-image-loader-${threadCount.getAndIncrement()}")
+        thread.isDaemon = true
+        thread.start()
+
+    }
+    private val boundExecutor = ThreadPoolExecutor(0, 8, 50, TimeUnit.MILLISECONDS, LinkedBlockingQueue()) { runnable ->
+        val thread = Thread(runnable, "fernice-shared-image-loader-${threadCount.getAndIncrement()}")
         thread.isDaemon = true
         thread
     }
 
-    private val images: MutableMap<Url, CompletableFuture<out Image>> = mutableMapOf()
-
-    fun image(url: Url, invoker: () -> Unit): CompletableFuture<out Image> {
-        val cachedRequest = images[url]
-
-        if (cachedRequest != null) {
-            if (!cachedRequest.isDone) {
-                cachedRequest.thenRun(invoker)
+    fun fetch(url: Url, callback: (() -> Unit)? = null): CompletableFuture<out Image> {
+        val future = cachedImages.computeIfAbsent(url) {
+            execute(shareExecutor = callback != null) {
+                if (url.value.startsWith("/")) {
+                    ImageHelper.getMultiResolutionImageResource(url.value)
+                } else {
+                    ImageIO.read(URL(url.value)) ?: throw RuntimeException("image could not be processed: ImageIO.read() returned null")
+                }
             }
-
-            return cachedRequest
         }
 
-        val future = if (url.value.startsWith("/")) {
-            execute { ImageHelper.getMultiResolutionImageResource(url.value) }
-        } else {
-            execute { ImageIO.read(URL(url.value)) ?: throw RuntimeException("image could not be processed: ImageIO.read() returned null") }
+        if (callback != null && !future.isDone) {
+            future.thenRun(callback)
         }
 
-        future.thenRun(invoker)
-
-        images[url] = future
         return future
     }
 
-    private fun <T> execute(block: () -> T): CompletableFuture<T> {
+    private fun <T> execute(shareExecutor: Boolean, block: () -> T): CompletableFuture<T> {
+        val threadExecutor = if (shareExecutor) boundExecutor else unboundExecutor
         return CompletableFuture.supplyAsync(Supplier {
             AccessController.doPrivileged(PrivilegedAction { block() })
-        }, executor)
+        }, threadExecutor)
     }
 }
