@@ -7,6 +7,7 @@
 package org.fernice.reflare.ui;
 
 import fernice.reflare.StyleHelper;
+import fernice.reflare.StyledImageIcon;
 import fernice.reflare.light.FButton;
 import fernice.reflare.light.FComboBox;
 import fernice.reflare.light.FLabel;
@@ -163,7 +164,7 @@ public class FlareFileChooserUI extends FlareAbstractFileChooserUI {
         FileSystemView var6 = var1.getFileSystemView();
         FButton var7 = new FButton(this.getChangeToParentDirectoryAction());
         var7.setText((String) null);
-        StyleHelper.getClasses(var7).add("icn-folder-up");
+        var7.setIcon(StyledImageIcon.fromResource("/reflare/icons/folder.png"));
         var7.setToolTipText(this.upFolderToolTipText);
         var7.getAccessibleContext().setAccessibleName(this.upFolderAccessibleName);
         var7.setAlignmentX(0.0F);
@@ -178,7 +179,7 @@ public class FlareFileChooserUI extends FlareAbstractFileChooserUI {
         }
 
         FButton var10 = new FButton(this.homeFolderIcon);
-        StyleHelper.getClasses(var10).add("icn-folder-home");
+        var10.setIcon(StyledImageIcon.fromResource("/reflare/icons/folder-home.png"));
         var10.setToolTipText(var9);
         var10.getAccessibleContext().setAccessibleName(this.homeFolderAccessibleName);
         var10.setAlignmentX(0.0F);
@@ -189,9 +190,9 @@ public class FlareFileChooserUI extends FlareAbstractFileChooserUI {
         var4.add(Box.createRigidArea(hstrut5));
         if (!this.readOnly) {
             var10 = new FButton(this.filePane.getNewFolderAction());
-            StyleHelper.getClasses(var10).add("icn-folder-new");
-            var10.setText((String) null);
             var10.setIcon(this.newFolderIcon);
+            var10.setIcon(StyledImageIcon.fromResource("/reflare/icons/folder-new.png"));
+            var10.setText((String) null);
             var10.setToolTipText(this.newFolderToolTipText);
             var10.getAccessibleContext().setAccessibleName(this.newFolderAccessibleName);
             var10.setAlignmentX(0.0F);

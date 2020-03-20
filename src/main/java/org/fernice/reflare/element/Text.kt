@@ -3,10 +3,7 @@ package org.fernice.reflare.element
 import org.fernice.flare.selector.NonTSPseudoClass
 import org.fernice.flare.selector.PseudoElement
 import org.fernice.flare.style.ComputedValues
-import org.fernice.reflare.render.icon.ColorAndBackground
-import org.fernice.reflare.render.icon.setIcon
 import org.fernice.reflare.toAWTColor
-import org.fernice.reflare.util.Observables
 import javax.swing.JEditorPane
 import javax.swing.JFormattedTextField
 import javax.swing.JLabel
@@ -24,23 +21,6 @@ class LabelElement(label: JLabel) : ComponentElement(label) {
         return when (pseudoElement) {
             is PseudoElement.Icon -> true
             else -> super.matchPseudoElement(pseudoElement)
-        }
-    }
-
-    override fun updatePseudoElement(pseudoElement: PseudoElement, style: ComputedValues) {
-        when (pseudoElement) {
-            is PseudoElement.Icon -> {
-                iconStyle = ColorAndBackground.from(style)
-            }
-            else -> super.updatePseudoElement(pseudoElement, style)
-        }
-    }
-
-    private var iconStyle by Observables.observable(ColorAndBackground.Initial) { _, _, iconStyle ->
-        val component = component as JLabel
-
-        component.setIcon(iconStyle) {
-            component.setIcon(iconStyle)
         }
     }
 }

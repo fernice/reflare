@@ -22,6 +22,7 @@ import java.awt.Component
 import java.io.File
 import java.io.InputStream
 import java.lang.ref.WeakReference
+import java.net.URI
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.ConcurrentHashMap
 
@@ -84,7 +85,6 @@ object CSSEngine {
             addStylesheet(Source.Resource(platformStylesheet), Origin.USER_AGENT)
 
             addStylesheet(Source.Resource("/reflare/style/file_chooser.css"), Origin.USER_AGENT)
-            addStylesheet(Source.Resource("/reflare/style/material.css"), Origin.USER)
         }
     }
 
@@ -107,7 +107,7 @@ object CSSEngine {
             .bufferedReader(StandardCharsets.UTF_8)
             .use { reader -> reader.readText() }
 
-        val stylesheet = Stylesheet.from(text, origin)
+        val stylesheet = Stylesheet.from(text, origin, source.uri)
 
         stylesheets[source] = stylesheet
 
@@ -201,6 +201,12 @@ sealed class Source {
             is File -> path.inputStream()
         }
     }
+
+    val uri: URI
+        get() = when (this) {
+            is Resource -> URI(path)
+            is File -> path.toURI()
+        }
 }
 
 private class LocalDevice(val component: Component) : Device {

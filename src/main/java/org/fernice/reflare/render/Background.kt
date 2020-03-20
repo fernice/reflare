@@ -65,7 +65,7 @@ fun BackgroundLayers.Companion.computeBackgroundLayers(
                     is ComputedUrl.Invalid -> continue@loop
                 }
 
-                val future = ImageCache.image(url) {
+                val future = ImageCache.fetch(url) {
                     component.repaint()
                 }
 
