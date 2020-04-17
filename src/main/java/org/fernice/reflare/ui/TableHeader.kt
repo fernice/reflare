@@ -32,7 +32,7 @@ import javax.swing.table.TableColumn
 import kotlin.math.max
 
 
-class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(), FlareUI {
+open class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(), FlareUI {
 
     override val element = TableHeaderElement(tableHeader)
 
