@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.fernice</groupId>
         <artifactId>fernice-maven</artifactId>
-        <version>1.0.28</version>
+        <version>1.0.29</version>
     </parent>
     <artifactId>fernice-reflare</artifactId>
     <version>1.0.29-SNAPSHOT</version>
@@ -58,7 +58,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>21.0</version>
+            <version>30.1-jre</version>
         </dependency>
     </dependencies>
 

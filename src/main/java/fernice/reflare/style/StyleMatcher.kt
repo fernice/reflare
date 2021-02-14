@@ -41,7 +41,7 @@ import java.lang.ref.WeakReference
 class StyleMatcher(
     localName: String? = null,
     id: String? = null,
-    classes: Set<String> = setOf()
+    classes: Set<String> = setOf(),
 ) {
 
     var localName = localName
@@ -93,7 +93,9 @@ class StyleMatcher(
     val style: Style
         get() = getStyle(emptySet())
 
-    private fun getStyle(pseudoClasses: Set<PseudoClass>): Style {
+    fun getStyle(vararg pseudoClasses: PseudoClass): Style = getStyle(setOf(*pseudoClasses))
+
+    fun getStyle(pseudoClasses: Set<PseudoClass>): Style {
         return styles.computeIfAbsent(pseudoClasses) { matchStyle(it) }
     }
 
@@ -125,7 +127,7 @@ class StyleMatcher(
         val font: Font,
         val color: Color,
         val backgroundColor: Color,
-        val fill: Color?
+        val fill: Color?,
     ) {
         operator fun invoke(vararg pseudoClass: PseudoClass): Style = getStyle(setOf(*pseudoClass))
     }
