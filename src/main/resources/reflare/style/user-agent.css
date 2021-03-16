@@ -95,22 +95,20 @@ checkbox:disabled, radio:disabled {
   fill: #aaaaaa;
 }
 
-combobox-popup -flr-renderer > label, .flr-list-cell {
+.flr-list-cell {
   font-size: 12px;
   font-family: sans-serif;
   color: black;
   padding: 5px;
 }
 
-combobox-popup -flr-renderer > label:active, .flr-list-cell:active {
+.flr-list-cell:active {
   background-color: dodgerblue;
   color: white;
 }
 
 combobox-popup, popup {
   background-color: white;
-  border: 1px solid;
-  border-color: #d7d7d7 #d3d3d3 #bfbfbf;
 }
 
 ::selection {

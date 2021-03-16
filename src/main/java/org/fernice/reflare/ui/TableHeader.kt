@@ -11,7 +11,6 @@ import org.fernice.reflare.element.StyleTreeElementLookup
 import org.fernice.reflare.element.TableHeaderElement
 import org.fernice.reflare.element.element
 import org.fernice.reflare.render.CellRendererPane
-import sun.swing.DefaultLookup
 import java.awt.Component
 import java.awt.Dimension
 import java.awt.Graphics
@@ -24,6 +23,7 @@ import javax.swing.JTable
 import javax.swing.RowSorter
 import javax.swing.SortOrder
 import javax.swing.SwingUtilities
+import javax.swing.UIManager
 import javax.swing.plaf.ComponentUI
 import javax.swing.plaf.basic.BasicTableHeaderUI
 import javax.swing.table.JTableHeader
@@ -339,7 +339,7 @@ open class DefaultTableCellHeaderRenderer : DefaultTableCellRenderer.UIResource(
     }
 
     public override fun paintComponent(var1: Graphics) {
-        val var2 = DefaultLookup.getBoolean(this, this.ui, "TableHeader.rightAlignSortArrow", false)
+        val var2 = UIManager.getBoolean( "TableHeader.rightAlignSortArrow")
         if (var2 && this.sortArrow != null) {
             this.emptyIcon.width = this.sortArrow!!.iconWidth
             this.emptyIcon.height = this.sortArrow!!.iconHeight

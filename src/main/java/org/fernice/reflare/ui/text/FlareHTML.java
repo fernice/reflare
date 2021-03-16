@@ -30,6 +30,7 @@
  */
 package org.fernice.reflare.ui.text;
 
+import fernice.reflare.font.FontUtil;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Font;
@@ -37,7 +38,6 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.font.TextAttribute;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.URL;
@@ -58,7 +58,6 @@ import javax.swing.text.html.ImageView;
 import javax.swing.text.html.StyleSheet;
 import org.fernice.reflare.internal.SunFontHelper;
 import org.jetbrains.annotations.NotNull;
-import sun.swing.SwingUtilities2;
 
 public class FlareHTML {
 
@@ -112,7 +111,7 @@ public class FlareHTML {
      * the View client property, and if non-null the baseline is calculated
      * from it.  Otherwise the baseline is the value <code>y + ascent</code>.
      */
-    static int getBaseline(JComponent c, int y, int ascent, int w, int h) {
+    public static int getBaseline(JComponent c, int y, int ascent, int w, int h) {
         View view = (View) c.getClientProperty(FlareHTML.propertyKey);
         if (view != null) {
             int baseline = getHTMLBaseline(view, w, h);
@@ -375,8 +374,44 @@ public class FlareHTML {
          * a custom font or color.
          */
         private void setFontAndColor(Font font, Color fg) {
-            getStyleSheet().addRule(SwingUtilities2.
-                    displayPropertiesToCSS(font, fg));
+            getStyleSheet().addRule(displayPropertiesToCSS(font, fg));
+        }
+
+        private static String displayPropertiesToCSS(Font font, Color fg) {
+            StringBuilder rule = new StringBuilder("body {");
+            if (font != null) {
+                rule.append(" font-family: ");
+                rule.append(font.getFamily());
+                rule.append(" ; ");
+                rule.append(" font-size: ");
+                rule.append(font.getSize());
+                rule.append("pt ;");
+                int weight = FontUtil.getWeight(font);
+                if (weight != 400) {
+                    rule.append(" font-weight: ").append(weight).append(" ; ");
+                }
+                if (FontUtil.getItalic(font)) {
+                    rule.append(" font-style: italic ; ");
+                }
+            }
+            if (fg != null) {
+                rule.append(" color: #");
+                if (fg.getRed() < 16) {
+                    rule.append('0');
+                }
+                rule.append(Integer.toHexString(fg.getRed()));
+                if (fg.getGreen() < 16) {
+                    rule.append('0');
+                }
+                rule.append(Integer.toHexString(fg.getGreen()));
+                if (fg.getBlue() < 16) {
+                    rule.append('0');
+                }
+                rule.append(Integer.toHexString(fg.getBlue()));
+                rule.append(" ; ");
+            }
+            rule.append(" }");
+            return rule.toString();
         }
 
         @Override

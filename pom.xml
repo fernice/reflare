@@ -5,12 +5,12 @@
     <parent>
         <groupId>org.fernice</groupId>
         <artifactId>fernice-maven</artifactId>
-        <version>1.0.29</version>
+        <version>1.0.31</version>
     </parent>
     <artifactId>fernice-reflare</artifactId>
-    <version>1.0.29</version>
+    <version>1.0.31</version>
 
-    <name>reflare</name>
+    <name>fernice-reflare</name>
     <description>CSS integration through fernice-flare in Java Swing as a LookAndFeel</description>
     <url>https://github.com/fernice/reflare</url>
 

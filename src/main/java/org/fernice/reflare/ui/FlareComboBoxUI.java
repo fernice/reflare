@@ -1,5 +1,6 @@
 package org.fernice.reflare.ui;
 
+import fernice.reflare.StyleHelper;
 import fernice.reflare.StyledImageIcon;
 import fernice.reflare.light.FButton;
 import fernice.reflare.light.FLabel;
@@ -45,13 +46,16 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
 
     private ComponentElement element;
 
+    public FlareComboBoxUI() {
+        currentValuePane = new CellRendererPane();
+    }
+
     @Override
     protected void installDefaults() {
         super.installDefaults();
 
         element = new ComboBoxElement(comboBox);
 
-        currentValuePane = new CellRendererPane();
         squareButton = false;
         padding = Defaults.INSETS_EMPTY;
 
@@ -137,28 +141,36 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
     }
 
     @Override
-    protected Dimension getSizeForComponent(Component comp) {
-        if(comp.getParent()!= currentValuePane){
-        currentValuePane.add(comp);
-        }
-//        comp.setFont(comboBox.getFont());
-        Dimension d = comp.getPreferredSize();
-//        currentValuePane.remove(comp);
+    protected Dimension getDisplaySize() {
+        Dimension size = super.getDisplaySize();
+        currentValuePane.removeAll();
+        return size;
+    }
 
-        return d;
+    @Override
+    protected Dimension getDefaultSize() {
+        FlareComboBoxRenderer renderer = new FlareComboBoxRenderer();
+        Dimension size = getSizeForComponent(renderer.getListCellRendererComponent(listBox, " ", -1, false, false));
+        currentValuePane.removeAll();
+        return size;
+    }
+
+    @Override
+    protected Dimension getSizeForComponent(Component comp) {
+        StyleHelper.getClasses(comp).remove("flr-list-cell");
+        if (comp.getParent() != currentValuePane) {
+            currentValuePane.add(comp);
+        }
+        return comp.getPreferredSize();
     }
 
     // Prevents any background from being painted apart from our CSS Background
     @Override
     public void paintCurrentValue(Graphics g, Rectangle bounds, boolean hasFocus) {
-        ListCellRenderer renderer = getRendererWrapper();
-        Component c;
+        ListCellRenderer<Object> renderer = getRendererWrapper();
+        Component c = renderer.getListCellRendererComponent(listBox, comboBox.getSelectedItem(), -1, false, false);
 
-        if (hasFocus && !isPopupVisible(comboBox)) {
-            c = renderer.getListCellRendererComponent(listBox, comboBox.getSelectedItem(), -1, true, false);
-        } else {
-            c = renderer.getListCellRendererComponent(listBox, comboBox.getSelectedItem(), -1, false, false);
-        }
+        StyleHelper.getClasses(c).remove("flr-list-cell");
 
         boolean shouldValidate = false;
         if (c instanceof JPanel) {
@@ -186,7 +198,7 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
     }
 
     @Override
-    protected ListCellRenderer createRenderer() {
+    protected ListCellRenderer<Object> createRenderer() {
         return new FlareComboBoxRenderer();
     }
 
@@ -195,7 +207,7 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
         return new FlareComboBoxPopup(comboBox);
     }
 
-    private class FlareComboBoxRendererWrapper implements ListCellRenderer<Object>, UIResource {
+    private static final class FlareComboBoxRendererWrapper implements ListCellRenderer<Object>, UIResource {
 
         private final ListCellRenderer<Object> renderer;
 
@@ -208,6 +220,10 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
             Component component = renderer.getListCellRendererComponent(list, value, index, isSelected, focus);
 
             AWTComponentElement element = StyleTreeHelper.getElement(component);
+
+            if (index >= 0) {
+                element.getClasses().add("flr-list-cell");
+            }
 
             element.focusHint(focus);
             element.activeHint(isSelected);
@@ -268,7 +284,7 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
 
         @Override
         public void layoutContainer(Container parent) {
-            JComboBox cb = (JComboBox) parent;
+            JComboBox<?> cb = (JComboBox<?>) parent;
 
             if (arrowButton != null) {
                 int width = cb.getWidth();
