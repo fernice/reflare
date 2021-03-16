@@ -12,3 +12,8 @@ scrollbar {
 scrollbar:hover {
   color: #99999999;
 }
+
+tooltip, combobox-popup, popup {
+  border: 1px solid;
+  border-color: #d7d7d7 #d3d3d3 #bfbfbf;
+}

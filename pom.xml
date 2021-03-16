@@ -10,7 +10,7 @@
     <artifactId>fernice-reflare</artifactId>
     <version>1.0.30-SNAPSHOT</version>
 
-    <name>reflare</name>
+    <name>fernice-reflare</name>
     <description>CSS integration through fernice-flare in Java Swing as a LookAndFeel</description>
     <url>https://github.com/fernice/reflare</url>
 

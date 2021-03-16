@@ -138,20 +138,18 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
 
     @Override
     protected Dimension getSizeForComponent(Component comp) {
-        if(comp.getParent()!= currentValuePane){
-        currentValuePane.add(comp);
+        if (comp.getParent() != currentValuePane) {
+            currentValuePane.add(comp);
         }
-//        comp.setFont(comboBox.getFont());
         Dimension d = comp.getPreferredSize();
-//        currentValuePane.remove(comp);
-
+        //        currentValuePane.remove(comp);
         return d;
     }
 
     // Prevents any background from being painted apart from our CSS Background
     @Override
     public void paintCurrentValue(Graphics g, Rectangle bounds, boolean hasFocus) {
-        ListCellRenderer renderer = getRendererWrapper();
+        ListCellRenderer<Object> renderer = getRendererWrapper();
         Component c;
 
         if (hasFocus && !isPopupVisible(comboBox)) {
@@ -186,7 +184,7 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
     }
 
     @Override
-    protected ListCellRenderer createRenderer() {
+    protected ListCellRenderer<Object> createRenderer() {
         return new FlareComboBoxRenderer();
     }
 
@@ -195,7 +193,7 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
         return new FlareComboBoxPopup(comboBox);
     }
 
-    private class FlareComboBoxRendererWrapper implements ListCellRenderer<Object>, UIResource {
+    private static final class FlareComboBoxRendererWrapper implements ListCellRenderer<Object>, UIResource {
 
         private final ListCellRenderer<Object> renderer;
 
@@ -208,6 +206,12 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
             Component component = renderer.getListCellRendererComponent(list, value, index, isSelected, focus);
 
             AWTComponentElement element = StyleTreeHelper.getElement(component);
+
+            if (index >= 0) {
+                element.getClasses().add("flr-list-cell");
+            } else {
+                element.getClasses().remove("flr-list-cell");
+            }
 
             element.focusHint(focus);
             element.activeHint(isSelected);
@@ -268,7 +272,7 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
 
         @Override
         public void layoutContainer(Container parent) {
-            JComboBox cb = (JComboBox) parent;
+            JComboBox<?> cb = (JComboBox<?>) parent;
 
             if (arrowButton != null) {
                 int width = cb.getWidth();

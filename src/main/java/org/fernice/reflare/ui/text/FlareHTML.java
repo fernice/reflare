@@ -111,7 +111,7 @@ public class FlareHTML {
      * the View client property, and if non-null the baseline is calculated
      * from it.  Otherwise the baseline is the value <code>y + ascent</code>.
      */
-    static int getBaseline(JComponent c, int y, int ascent, int w, int h) {
+    public static int getBaseline(JComponent c, int y, int ascent, int w, int h) {
         View view = (View) c.getClientProperty(FlareHTML.propertyKey);
         if (view != null) {
             int baseline = getHTMLBaseline(view, w, h);

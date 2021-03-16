@@ -5,6 +5,7 @@
  */
 package org.fernice.reflare.ui;
 
+import fernice.reflare.StyledIcon;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -114,7 +115,7 @@ public class FlareButtonUI extends BasicButtonUI implements FlareUI {
 
         if (!b.isEnabled()) {
             Icon disabledIcon = b.getDisabledIcon();
-            if (disabledIcon != null && !(disabledIcon instanceof UIResource)) {
+            if (disabledIcon != null && (!(disabledIcon instanceof UIResource) || !(icon instanceof StyledIcon))) {
                 icon = disabledIcon;
             }
         }
@@ -128,8 +129,8 @@ public class FlareButtonUI extends BasicButtonUI implements FlareUI {
         int mnemonicIndex = b.getDisplayedMnemonicIndex();
 
         g.setColor(b.getForeground());
-        SwingUtilitiesHelper
-                .drawStringUnderlineCharAt(c, g, text, mnemonicIndex, textRect.x + getTextShiftOffset(), textRect.y + fm.getAscent() + getTextShiftOffset());
+        SwingUtilitiesHelper.drawStringUnderlineCharAt(c, g, text, mnemonicIndex, textRect.x + getTextShiftOffset(),
+                textRect.y + fm.getAscent() + getTextShiftOffset());
     }
 
     @Override

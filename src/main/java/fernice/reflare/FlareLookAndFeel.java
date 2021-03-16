@@ -1,11 +1,14 @@
 package fernice.reflare;
 
 import java.awt.Component;
+import java.awt.Image;
 import java.awt.KeyboardFocusManager;
 import java.awt.Window;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.swing.GrayFilter;
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.PopupFactory;
@@ -26,8 +29,11 @@ import org.fernice.reflare.platform.GTKKeybindings;
 import org.fernice.reflare.platform.Platform;
 import org.fernice.reflare.platform.WindowsKeybindings;
 import org.fernice.reflare.ui.text.FlareHTMLEditorKit;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.swing.ImageIconUIResource;
 
 public class FlareLookAndFeel extends BasicLookAndFeel {
 
@@ -217,5 +223,19 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
         } catch (Exception e) {
             LOG.error("cannot install apple popup factory", e);
         }
+    }
+
+    @Override
+    public Icon getDisabledIcon(JComponent component, Icon icon) {
+        Icon disabledIcon = createDisabledIcon(icon);
+        return disabledIcon != null ? disabledIcon : super.getDisabledIcon(component, icon);
+    }
+
+    public static @Nullable Icon createDisabledIcon(@NotNull Icon icon) {
+        Image image = ImageIcon.findImage(icon);
+        if (image != null) {
+            return new ImageIconUIResource(GrayFilter.createDisabledImage(image));
+        }
+        return null;
     }
 }

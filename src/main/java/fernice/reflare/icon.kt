@@ -21,7 +21,28 @@ import java.awt.Graphics
 import java.awt.Image
 import javax.swing.Icon
 
-open class StyledImageIcon private constructor(internal val imageProvider: Lazy<Image>) : Icon {
+interface ImageIcon : Icon {
+
+    val image: Image
+
+    companion object {
+        @JvmStatic
+        fun getImage(icon: Icon): Image = findImage(icon) ?: error("cannot retrieve image from icon: $icon")
+
+        @JvmStatic
+        fun findImage(icon: Icon): Image? {
+            return when (icon) {
+                is ImageIcon -> icon.image
+                is javax.swing.ImageIcon -> icon.image
+                else -> null
+            }
+        }
+    }
+}
+
+interface StyledIcon : Icon
+
+open class StyledImageIcon private constructor(internal val imageProvider: Lazy<Image>) : StyledIcon {
 
     private val image by imageProvider
 
