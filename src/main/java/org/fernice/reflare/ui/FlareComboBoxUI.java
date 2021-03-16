@@ -1,5 +1,6 @@
 package org.fernice.reflare.ui;
 
+import fernice.reflare.StyleHelper;
 import fernice.reflare.StyledImageIcon;
 import fernice.reflare.light.FButton;
 import fernice.reflare.light.FLabel;
@@ -45,13 +46,16 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
 
     private ComponentElement element;
 
+    public FlareComboBoxUI() {
+        currentValuePane = new CellRendererPane();
+    }
+
     @Override
     protected void installDefaults() {
         super.installDefaults();
 
         element = new ComboBoxElement(comboBox);
 
-        currentValuePane = new CellRendererPane();
         squareButton = false;
         padding = Defaults.INSETS_EMPTY;
 
@@ -137,26 +141,36 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
     }
 
     @Override
+    protected Dimension getDisplaySize() {
+        Dimension size = super.getDisplaySize();
+        currentValuePane.removeAll();
+        return size;
+    }
+
+    @Override
+    protected Dimension getDefaultSize() {
+        FlareComboBoxRenderer renderer = new FlareComboBoxRenderer();
+        Dimension size = getSizeForComponent(renderer.getListCellRendererComponent(listBox, " ", -1, false, false));
+        currentValuePane.removeAll();
+        return size;
+    }
+
+    @Override
     protected Dimension getSizeForComponent(Component comp) {
+        StyleHelper.getClasses(comp).remove("flr-list-cell");
         if (comp.getParent() != currentValuePane) {
             currentValuePane.add(comp);
         }
-        Dimension d = comp.getPreferredSize();
-        //        currentValuePane.remove(comp);
-        return d;
+        return comp.getPreferredSize();
     }
 
     // Prevents any background from being painted apart from our CSS Background
     @Override
     public void paintCurrentValue(Graphics g, Rectangle bounds, boolean hasFocus) {
         ListCellRenderer<Object> renderer = getRendererWrapper();
-        Component c;
+        Component c = renderer.getListCellRendererComponent(listBox, comboBox.getSelectedItem(), -1, false, false);
 
-        if (hasFocus && !isPopupVisible(comboBox)) {
-            c = renderer.getListCellRendererComponent(listBox, comboBox.getSelectedItem(), -1, true, false);
-        } else {
-            c = renderer.getListCellRendererComponent(listBox, comboBox.getSelectedItem(), -1, false, false);
-        }
+        StyleHelper.getClasses(c).remove("flr-list-cell");
 
         boolean shouldValidate = false;
         if (c instanceof JPanel) {
@@ -209,8 +223,6 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
 
             if (index >= 0) {
                 element.getClasses().add("flr-list-cell");
-            } else {
-                element.getClasses().remove("flr-list-cell");
             }
 
             element.focusHint(focus);
