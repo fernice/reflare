@@ -6,8 +6,8 @@
 
 package org.fernice.reflare.statistics
 
-import mu.KotlinLogging
 import org.fernice.flare.std.systemFlag
+import org.fernice.logging.FLogging
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.concurrent.thread
 
@@ -34,5 +34,5 @@ object Statistics {
         }
     }
 
-    private val LOG = KotlinLogging.logger { }
+    private val LOG = FLogging.logger { }
 }

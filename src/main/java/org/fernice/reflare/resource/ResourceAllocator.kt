@@ -6,9 +6,9 @@
 
 package org.fernice.reflare.resource
 
-import mu.KotlinLogging
 import org.fernice.flare.panic
 import org.fernice.flare.std.systemFlag
+import org.fernice.logging.FLogging
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.Rectangle
@@ -219,7 +219,7 @@ internal object ResourceAllocator {
         }
     }
 
-    private val LOG = KotlinLogging.logger { }
+    private val LOG = FLogging.logger { }
 }
 
 private data class TInsetsImpl(

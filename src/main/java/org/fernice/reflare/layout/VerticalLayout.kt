@@ -5,7 +5,7 @@ import java.awt.Container
 import java.awt.Dimension
 import java.awt.LayoutManager
 
-internal open class VerticalLayout(var gap: Int = 0) : LayoutManager {
+open class VerticalLayout(var gap: Int = 0) : LayoutManager {
 
     override fun addLayoutComponent(name: String, c: Component) {}
 
