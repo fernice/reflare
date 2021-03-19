@@ -7,6 +7,7 @@
 package fernice.reflare.light
 
 import org.fernice.reflare.ui.FlareLabelUI
+import org.fernice.reflare.ui.text.FlareHTML
 import javax.swing.Icon
 import javax.swing.JLabel
 import javax.swing.JToolTip
@@ -23,6 +24,12 @@ open class FLabel : JLabel {
 
     override fun updateUI() {
         super.setUI(integrationDependent(this) { FlareLabelUI() })
+    }
+
+    override fun repaint(tm: Long, x: Int, y: Int, width: Int, height: Int) {
+        if (FlareHTML.isFeedbackBehaviourEnabled(this)) {
+            super.repaint(tm, x, y, width, height)
+        }
     }
 
     override fun createToolTip(): JToolTip {

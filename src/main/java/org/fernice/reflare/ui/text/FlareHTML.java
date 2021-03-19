@@ -75,12 +75,33 @@ public class FlareHTML {
         Reader r = new StringReader(html);
         try {
             kit.read(r, doc, 0);
-        } catch (Throwable e) {
+        } catch (Throwable ignore) {
         }
         ViewFactory f = kit.getViewFactory();
         View hview = f.create(doc.getDefaultRootElement());
-        View v = new Renderer(c, f, hview);
-        return v;
+        return new Renderer(c, f, hview);
+    }
+
+    public static void disableFeedbackBehaviour(@NotNull JComponent component) {
+        View view = (View) component.getClientProperty(FlareHTML.propertyKey);
+        if (view instanceof Renderer) {
+            ((Renderer) view).feedbackEnabled = false;
+        }
+    }
+
+    public static void enableFeedbackBehaviour(@NotNull JComponent component) {
+        View view = (View) component.getClientProperty(FlareHTML.propertyKey);
+        if (view instanceof Renderer) {
+            ((Renderer) view).feedbackEnabled = true;
+        }
+    }
+
+    public static boolean isFeedbackBehaviourEnabled(@NotNull JComponent component) {
+        View view = (View) component.getClientProperty(FlareHTML.propertyKey);
+        if (view instanceof Renderer) {
+            return ((Renderer) view).feedbackEnabled;
+        }
+        return false;
     }
 
     /**
@@ -101,7 +122,8 @@ public class FlareHTML {
             throw new IllegalArgumentException("Width and height must be >= 0");
         }
         if (view instanceof Renderer) {
-            return getBaseline(view.getView(0), w, h);
+            Renderer renderer = (Renderer) view;
+            return renderer.getBaseline(w, h);
         }
         return -1;
     }
@@ -121,68 +143,6 @@ public class FlareHTML {
             return y + baseline;
         }
         return y + ascent;
-    }
-
-    /**
-     * Gets the baseline for the specified View.
-     */
-    static int getBaseline(View view, int w, int h) {
-        if (hasParagraph(view)) {
-            view.setSize(w, h);
-            return getBaseline(view, new Rectangle(0, 0, w, h));
-        }
-        return -1;
-    }
-
-    private static int getBaseline(View view, Shape bounds) {
-        if (view.getViewCount() == 0) {
-            return -1;
-        }
-        AttributeSet attributes = view.getElement().getAttributes();
-        Object name = null;
-        if (attributes != null) {
-            name = attributes.getAttribute(StyleConstants.NameAttribute);
-        }
-        int index = 0;
-        if (name == HTML.Tag.HTML && view.getViewCount() > 1) {
-            // For html on widgets the header is not visible, skip it.
-            index++;
-        }
-        bounds = view.getChildAllocation(index, bounds);
-        if (bounds == null) {
-            return -1;
-        }
-        View child = view.getView(index);
-        if (view instanceof javax.swing.text.ParagraphView) {
-            Rectangle rect;
-            if (bounds instanceof Rectangle) {
-                rect = (Rectangle) bounds;
-            } else {
-                rect = bounds.getBounds();
-            }
-            return rect.y + (int) (rect.height * child.getAlignment(View.Y_AXIS));
-        }
-        return getBaseline(child, bounds);
-    }
-
-    private static boolean hasParagraph(View view) {
-        if (view instanceof javax.swing.text.ParagraphView) {
-            return true;
-        }
-        if (view.getViewCount() == 0) {
-            return false;
-        }
-        AttributeSet attributes = view.getElement().getAttributes();
-        Object name = null;
-        if (attributes != null) {
-            name = attributes.getAttribute(StyleConstants.NameAttribute);
-        }
-        int index = 0;
-        if (name == HTML.Tag.HTML && view.getViewCount() > 1) {
-            // For html on widgets the header is not visible, skip it.
-            index = 1;
-        }
-        return hasParagraph(view.getView(index));
     }
 
     /**
@@ -457,7 +417,19 @@ public class FlareHTML {
      */
     static class Renderer extends View {
 
-        Renderer(JComponent c, ViewFactory f, View v) {
+        private final @NotNull JComponent host;
+
+        private final @NotNull View view;
+        private final @NotNull ViewFactory factory;
+
+        private int width;
+
+        private int externalWidth;
+        private int externalHeight;
+
+        boolean feedbackEnabled = true;
+
+        Renderer(@NotNull JComponent c, @NotNull ViewFactory f, @NotNull View v) {
             super(null);
             host = c;
             factory = f;
@@ -538,8 +510,10 @@ public class FlareHTML {
          * @param height true if the height preference has changed
          */
         public void preferenceChanged(View child, boolean width, boolean height) {
-            host.revalidate();
-            host.repaint();
+            if (feedbackEnabled) {
+                host.revalidate();
+                host.repaint();
+            }
         }
 
         /**
@@ -561,6 +535,7 @@ public class FlareHTML {
          */
         public void paint(Graphics g, Shape allocation) {
             Rectangle alloc = allocation.getBounds();
+            setExternalSize(alloc.width, alloc.height);
             view.setSize(alloc.width, alloc.height);
             view.paint(g, allocation);
         }
@@ -689,7 +664,13 @@ public class FlareHTML {
          */
         public void setSize(float width, float height) {
             this.width = (int) width;
+            setExternalSize(width, height);
             view.setSize(width, height);
+        }
+
+        private void setExternalSize(float width, float height) {
+            this.externalWidth = (int) width;
+            this.externalHeight = (int) height;
         }
 
         /**
@@ -718,10 +699,72 @@ public class FlareHTML {
             return factory;
         }
 
-        private int width;
-        private View view;
-        private ViewFactory factory;
-        private JComponent host;
+        /**
+         * Gets the baseline for the specified View.
+         */
+        int getBaseline(int w, int h) {
+            if (hasParagraph(view)) {
+                feedbackEnabled = false;
+                view.setSize(w, h);
+                try {
+                    return getBaseline(view, new Rectangle(0, 0, w, h));
+                } finally {
+                    view.setSize(externalWidth, externalHeight);
+                    feedbackEnabled = true;
+                }
+            }
+            return -1;
+        }
 
+        private static int getBaseline(View view, Shape bounds) {
+            if (view.getViewCount() == 0) {
+                return -1;
+            }
+            AttributeSet attributes = view.getElement().getAttributes();
+            Object name = null;
+            if (attributes != null) {
+                name = attributes.getAttribute(StyleConstants.NameAttribute);
+            }
+            int index = 0;
+            if (name == HTML.Tag.HTML && view.getViewCount() > 1) {
+                // For html on widgets the header is not visible, skip it.
+                index++;
+            }
+            bounds = view.getChildAllocation(index, bounds);
+            if (bounds == null) {
+                return -1;
+            }
+            View child = view.getView(index);
+            if (view instanceof javax.swing.text.ParagraphView) {
+                Rectangle rect;
+                if (bounds instanceof Rectangle) {
+                    rect = (Rectangle) bounds;
+                } else {
+                    rect = bounds.getBounds();
+                }
+                return rect.y + (int) (rect.height * child.getAlignment(View.Y_AXIS));
+            }
+            return getBaseline(child, bounds);
+        }
+
+        private static boolean hasParagraph(View view) {
+            if (view instanceof javax.swing.text.ParagraphView) {
+                return true;
+            }
+            if (view.getViewCount() == 0) {
+                return false;
+            }
+            AttributeSet attributes = view.getElement().getAttributes();
+            Object name = null;
+            if (attributes != null) {
+                name = attributes.getAttribute(StyleConstants.NameAttribute);
+            }
+            int index = 0;
+            if (name == HTML.Tag.HTML && view.getViewCount() > 1) {
+                // For html on widgets the header is not visible, skip it.
+                index = 1;
+            }
+            return hasParagraph(view.getView(index));
+        }
     }
 }
