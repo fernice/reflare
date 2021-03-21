@@ -1,7 +1,6 @@
 package org.fernice.reflare.element
 
 import fernice.reflare.CSSEngine
-import mu.KotlinLogging
 import org.fernice.flare.EngineContext
 import org.fernice.flare.cssparser.Parser
 import org.fernice.flare.cssparser.ParserInput
@@ -24,6 +23,7 @@ import org.fernice.flare.style.parser.QuirksMode
 import org.fernice.flare.style.properties.PropertyDeclarationBlock
 import org.fernice.flare.style.properties.parsePropertyDeclarationList
 import org.fernice.flare.url.Url
+import org.fernice.logging.FLogging
 import org.fernice.reflare.Defaults
 import org.fernice.reflare.font.FontStyleResolver
 import org.fernice.reflare.render.merlin.MerlinRenderer
@@ -557,4 +557,4 @@ enum class StyleState {
 
 private val repaintCount = AtomicInteger()
 
-private val LOG = KotlinLogging.logger { }
+private val LOG = FLogging.logger { }

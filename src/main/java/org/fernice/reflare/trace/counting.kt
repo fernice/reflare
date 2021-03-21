@@ -6,7 +6,7 @@
 
 package org.fernice.reflare.trace
 
-import mu.KotlinLogging
+import org.fernice.logging.FLogging
 import org.fernice.reflare.element.AWTComponentElement
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -61,6 +61,6 @@ class CountingTrace(private val name: String, private val pass: Int) : RestyleTr
     }
 
     companion object {
-        private val LOG = KotlinLogging.logger { }
+        private val LOG = FLogging.logger { }
     }
 }

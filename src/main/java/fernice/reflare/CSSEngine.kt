@@ -24,6 +24,7 @@ import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.net.URI
 import java.nio.charset.StandardCharsets
+import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
 
 private val SUPPRESS_USER_AGENT_STYLESHEETS = systemFlag("fernice.reflare.suppressUserAgentStylesheet")
@@ -70,7 +71,9 @@ object CSSEngine {
         return shared.matchStyle(localDevice, element)
     }
 
-    private val stylesheets: MutableMap<Source, Stylesheet> = ConcurrentHashMap()
+    private val mutableStylesheets: MutableMap<Source, Stylesheet> = ConcurrentHashMap()
+    val stylesheets: Map<Source, Stylesheet>
+        get() = Collections.unmodifiableMap(mutableStylesheets)
 
     init {
         if (!SUPPRESS_USER_AGENT_STYLESHEETS) {
@@ -99,7 +102,7 @@ object CSSEngine {
     }
 
     private fun addStylesheet(source: Source, origin: Origin) {
-        if (stylesheets.containsKey(source)) {
+        if (mutableStylesheets.containsKey(source)) {
             removeStylesheet(source)
         }
 
@@ -109,7 +112,7 @@ object CSSEngine {
 
         val stylesheet = Stylesheet.from(text, origin, source.uri)
 
-        stylesheets[source] = stylesheet
+        mutableStylesheets[source] = stylesheet
 
         shared.stylist.addStylesheet(stylesheet)
 
@@ -127,7 +130,7 @@ object CSSEngine {
     }
 
     private fun removeStylesheet(source: Source) {
-        val stylesheet = stylesheets.remove(source)
+        val stylesheet = mutableStylesheets.remove(source)
 
         if (stylesheet != null) {
             shared.stylist.removeStylesheet(stylesheet)
@@ -137,7 +140,7 @@ object CSSEngine {
     }
 
     fun reloadStylesheets() {
-        val stylesheets = stylesheets.toMap()
+        val stylesheets = mutableStylesheets.toMap()
 
         for ((source, _) in stylesheets) {
             removeStylesheet(source)
@@ -148,8 +151,9 @@ object CSSEngine {
         }
     }
 
+    @Deprecated(message = "Outdated naming scheme", replaceWith = ReplaceWith("stylesheets"))
     fun stylesheets(): List<Stylesheet> {
-        return stylesheets.values.toList()
+        return mutableStylesheets.values.toList()
     }
 
     private fun invalidateEngines() {
