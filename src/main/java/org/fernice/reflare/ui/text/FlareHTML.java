@@ -101,7 +101,7 @@ public class FlareHTML {
         if (view instanceof Renderer) {
             return ((Renderer) view).feedbackEnabled;
         }
-        return false;
+        return true;
     }
 
     /**
