@@ -16,6 +16,7 @@ import javax.swing.JEditorPane
 import javax.swing.plaf.ComponentUI
 import javax.swing.plaf.basic.BasicEditorPaneUI
 
+@Suppress("ACCIDENTAL_OVERRIDE")
 open class FlareEditorPaneUI(editorPane: JEditorPane) : BasicEditorPaneUI(), FlareUI {
 
     final override val element = createElement(editorPane)
@@ -68,7 +69,6 @@ open class FlareEditorPaneUI(editorPane: JEditorPane) : BasicEditorPaneUI(), Fla
 
     companion object {
 
-        @Suppress("ACCIDENTAL_OVERRIDE")
         @JvmStatic
         fun createUI(component: JComponent): ComponentUI {
             return FlareEditorPaneUI(component as JEditorPane)

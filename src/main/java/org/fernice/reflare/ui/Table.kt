@@ -23,6 +23,7 @@ import javax.swing.plaf.ComponentUI
 import javax.swing.plaf.basic.BasicTableUI
 import javax.swing.table.TableColumn
 
+@Suppress("ACCIDENTAL_OVERRIDE")
 class FlareTableUI(table: JTable) : BasicTableUI(), FlareUI {
 
     override val element = TableElement(table)
@@ -444,7 +445,6 @@ class FlareTableUI(table: JTable) : BasicTableUI(), FlareUI {
 
     companion object {
 
-        @Suppress("ACCIDENTAL_OVERRIDE")
         @JvmStatic
         fun createUI(component: JComponent): ComponentUI {
             return FlareTableUI(component as JTable)

@@ -31,7 +31,7 @@ import javax.swing.table.TableCellRenderer
 import javax.swing.table.TableColumn
 import kotlin.math.max
 
-
+@Suppress("ACCIDENTAL_OVERRIDE")
 open class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(), FlareUI {
 
     override val element = TableHeaderElement(tableHeader)
@@ -320,7 +320,6 @@ open class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(),
     }
 
     companion object {
-        @Suppress("ACCIDENTAL_OVERRIDE")
         @JvmStatic
         fun createUI(component: JComponent): ComponentUI {
             return FlareTableHeaderUI(component as JTableHeader)

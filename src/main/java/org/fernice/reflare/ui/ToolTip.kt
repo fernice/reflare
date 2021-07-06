@@ -6,8 +6,6 @@
 
 package org.fernice.reflare.ui
 
-import org.fernice.reflare.element.AWTComponentElement
-import org.fernice.reflare.element.StyleState
 import org.fernice.reflare.element.StyleTreeElementLookup
 import org.fernice.reflare.element.ToolTipElement
 import java.awt.Component
@@ -18,6 +16,7 @@ import javax.swing.JToolTip
 import javax.swing.plaf.ComponentUI
 import javax.swing.plaf.basic.BasicToolTipUI
 
+@Suppress("ACCIDENTAL_OVERRIDE")
 class FlareToolTipUI(tooltip: JToolTip) : BasicToolTipUI(), FlareUI {
 
     override val element = ToolTipElement(tooltip)
@@ -71,7 +70,6 @@ class FlareToolTipUI(tooltip: JToolTip) : BasicToolTipUI(), FlareUI {
 
     companion object {
 
-        @Suppress("ACCIDENTAL_OVERRIDE")
         @JvmStatic
         fun createUI(component: JComponent): ComponentUI {
             return FlareToolTipUI(component as JToolTip)

@@ -26,6 +26,7 @@ import javax.swing.UIManager
 import javax.swing.plaf.ComponentUI
 import javax.swing.plaf.basic.BasicScrollBarUI
 
+@Suppress("ACCIDENTAL_OVERRIDE")
 class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentElement = ScrollBarElement(scrollbar)) : BasicScrollBarUI(), FlareUI {
 
     private val showButtons = Platform.isWindows
@@ -322,7 +323,6 @@ class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentEle
 
     companion object {
 
-        @Suppress("ACCIDENTAL_OVERRIDE")
         @JvmStatic
         fun createUI(component: JComponent): ComponentUI {
             return FlareScrollBarUI(component as JScrollBar)
