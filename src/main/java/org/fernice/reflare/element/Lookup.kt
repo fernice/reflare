@@ -8,6 +8,7 @@
 
 package org.fernice.reflare.element
 
+import org.fernice.reflare.render.CellRendererPane
 import org.fernice.reflare.ui.FlareUI
 import org.fernice.reflare.util.ConcurrentReferenceHashMap
 import org.fernice.reflare.util.fullyWeakReferenceHashMap
@@ -16,7 +17,6 @@ import java.awt.Component
 import java.awt.Container
 import java.awt.Graphics
 import java.awt.Window
-import javax.swing.CellRendererPane
 import javax.swing.JLayeredPane
 import javax.swing.JRootPane
 
@@ -46,7 +46,6 @@ object StyleTreeElementLookup {
         return elements.computeIfAbsent(component) { component ->
             when (component) {
                 is CellRendererPane -> CellRendererPaneElement(component)
-                is org.fernice.reflare.render.CellRendererPane -> ModernCellRendererPaneElement(component)
                 is JLayeredPane -> LayeredPaneElement(component)
                 is JRootPane -> RootPaneElement(component)
                 is Container -> ArtificialContainerElement(component)
