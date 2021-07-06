@@ -13,13 +13,13 @@ import javax.swing.JEditorPane
 import javax.swing.JTextPane
 import javax.swing.plaf.ComponentUI
 
+@Suppress("ACCIDENTAL_OVERRIDE")
 class FlareTextPaneUI(textPane: JTextPane) : FlareEditorPaneUI(textPane), FlareUI {
 
     override fun createElement(editorPane: JEditorPane): EditorPaneElement = TextPaneElement(editorPane as JTextPane)
 
     companion object {
 
-        @Suppress("ACCIDENTAL_OVERRIDE")
         @JvmStatic
         fun createUI(component: JComponent): ComponentUI {
             return FlareTextPaneUI(component as JTextPane)

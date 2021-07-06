@@ -1,6 +1,5 @@
 package org.fernice.reflare.element
 
-import javax.swing.CellRendererPane
 import javax.swing.JComboBox
 import javax.swing.JList
 import javax.swing.JProgressBar
@@ -33,15 +32,7 @@ class ViewportElement(viewport: JViewport) : ComponentElement(viewport) {
  * list cell renderers as they often use a different style for common elements. Through this element
  * we can use the child combinator and reduce this case down to parent traversal.
  */
-class CellRendererPaneElement(cellRendererPane: CellRendererPane) : AWTContainerElement(cellRendererPane) {
-
-    override val isVisible: Boolean
-        get() = true
-
-    override val localName get() = "-flr-renderer"
-}
-
-class ModernCellRendererPaneElement(cellRendererPane: ModernCellRenderPane) : AWTContainerElement(cellRendererPane) {
+class CellRendererPaneElement(cellRendererPane: ModernCellRenderPane) : AWTContainerElement(cellRendererPane) {
 
     override val isVisible: Boolean
         get() = true
