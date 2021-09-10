@@ -8,6 +8,7 @@ import org.fernice.flare.style.value.generic.Size2D
 import org.fernice.reflare.trace.trace
 import org.fernice.reflare.trace.traceRoot
 import org.fernice.reflare.util.ConcurrentReferenceHashMap
+import org.fernice.reflare.util.VacatedReferenceException
 import org.fernice.reflare.util.VacatingRef
 import org.fernice.reflare.util.VacatingReferenceHolder
 import org.fernice.reflare.util.weakReferenceHashMap
@@ -85,10 +86,7 @@ class Frame(frameInstance: Window) : Device, VacatingReferenceHolder {
         childElement.frame = this
         root = childElement
 
-        //childElement.reapplyCSS(origin = "frame:added")
         childElement.applyCSS(origin = "frame:added")
-//        frame.revalidate()
-//        frame.repaint()
     }
 
     private fun childRemoved(child: Component) {
@@ -110,9 +108,6 @@ class Frame(frameInstance: Window) : Device, VacatingReferenceHolder {
 
     override fun invalidate() {
         root?.reapplyCSS("frame:invalidate")
-
-//        frame.revalidate()
-//        frame.repaint()
     }
 
     internal fun markElementDirty(element: AWTComponentElement) {
@@ -139,6 +134,11 @@ class Frame(frameInstance: Window) : Device, VacatingReferenceHolder {
         if (pulseRequested.getAndSet(false)) {
             try {
                 doCSSPass()
+            } catch (ignore: VacatedReferenceException) {
+                // The style tree does not strongly reference the component tree. This
+                // allows for the component tree to be garbage collected while a pulse
+                // is waiting/running. While calls to requestNextPulse() usually still
+                // hold a reference, nothing is captured by the pulse runnable.
             } finally {
                 dirtyElements.clear()
             }

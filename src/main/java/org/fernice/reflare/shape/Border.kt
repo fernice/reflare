@@ -119,7 +119,15 @@ private fun computeTopBorder(rect: TBounds, radii: TRadii, width: TInsets): Path
         true
     )
     path.append(
-        Arc2D.Float(rect.x + rect.width - max(radii.topRightWidth, width.right) - trs, rect.y + width.top, trs * 2, trt * 2, 45f, 45f, Arc2D.OPEN),
+        Arc2D.Float(
+            rect.x + rect.width - max(radii.topRightWidth, width.right) - trs,
+            rect.y + width.top,
+            trs * 2,
+            trt * 2,
+            45f,
+            45f,
+            Arc2D.OPEN
+        ),
         true
     )
 
@@ -127,11 +135,28 @@ private fun computeTopBorder(rect: TBounds, radii: TRadii, width: TInsets): Path
 
     path.append(
         Arc2D.Float(
-            rect.x + max(radii.topLeftWidth, width.left) - tls, rect.y + max(radii.topRightHeight, width.top) - tlt, tls * 2, tlt * 2, 90f, 45f,
-            Arc2D.OPEN
-        ), true
+            rect.x + max(radii.topLeftWidth, width.left) - tls,
+            rect.y + width.top,
+            tls * 2,
+            tlt * 2,
+            90f,
+            45f,
+            Arc2D.OPEN,
+        ),
+        true,
     )
-    path.append(Arc2D.Float(rect.x, rect.y, radii.topLeftWidth * 2, radii.topLeftHeight * 2, 135f, -45f, Arc2D.OPEN), true)
+    path.append(
+        Arc2D.Float(
+            rect.x,
+            rect.y,
+            radii.topLeftWidth * 2,
+            radii.topLeftHeight * 2,
+            135f,
+            -45f,
+            Arc2D.OPEN,
+        ),
+        true,
+    )
 
     return path
 }
@@ -204,8 +229,13 @@ private fun computeBottomBorder(rect: TBounds, radii: TRadii, width: TInsets): P
 
     path.append(
         Arc2D.Float(
-            rect.x + max(radii.bottomLeftWidth, width.left) - bls, rect.y + rect.height - max(radii.bottomLeftHeight, width.bottom) - blt, bls * 2,
-            blt * 2, -90f, -45f, Arc2D.OPEN
+            rect.x + max(radii.bottomLeftWidth, width.left) - bls,
+            rect.y + rect.height - max(radii.bottomLeftHeight, width.bottom) - blt,
+            bls * 2,
+            blt * 2,
+            -90f,
+            -45f,
+            Arc2D.OPEN
         ), true
     )
     path.append(
