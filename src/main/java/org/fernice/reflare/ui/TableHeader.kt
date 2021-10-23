@@ -11,9 +11,11 @@ import org.fernice.reflare.element.StyleTreeElementLookup
 import org.fernice.reflare.element.TableHeaderElement
 import org.fernice.reflare.element.element
 import org.fernice.reflare.render.CellRendererPane
+import java.awt.BasicStroke
 import java.awt.Component
 import java.awt.Dimension
 import java.awt.Graphics
+import java.awt.Graphics2D
 import java.awt.Point
 import java.awt.Rectangle
 import java.io.Serializable
@@ -172,16 +174,20 @@ open class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(),
         val verticalGap = if (table?.showVerticalLines == true) 1 else 0
         val horizontalGap = 1 // if (table?.showHorizontalLines == true) 1 else 0
 
-        paintCellGrid(g, table, columnIndex, cellRect)
-
         rendererPane.paintComponent(
             g, component, header, cellRect.x, cellRect.y,
             cellRect.width - verticalGap, cellRect.height - horizontalGap, true
         )
+
+        paintCellGrid(g, table, columnIndex, cellRect)
     }
 
     private fun paintCellGrid(g: Graphics, table: JTable?, column: Int, cellRect: Rectangle) {
         if (table != null) {
+            val g2 = g as Graphics2D
+
+            g2.stroke = BasicStroke(1f)
+
             val draggedColumn = header.draggedColumn
             if (draggedColumn != null && table.showVerticalLines && column == viewIndexForColumn(draggedColumn)) {
                 g.color = table.gridColor
