@@ -18,7 +18,7 @@ class WeakRef<T>(value: T) : WeakReference<T>(value), Ref<T>
 
 class VacatingRef<T>(value: T) : WeakReference<T>(value), Ref<T>, VacatingReferenceHolder {
 
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): T = get() ?: error("reference has vacated")
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): T = get() ?: throw VacatedReferenceException()
 
     override fun hasVacated(): Boolean {
         return get() == null
@@ -35,6 +35,7 @@ interface VacatingReferenceHolder {
     fun hasVacated(): Boolean
 }
 
+class VacatedReferenceException : RuntimeException("reference has vacated")
 
 operator fun <T> WeakReference<T>.component1(): T? {
     return get()

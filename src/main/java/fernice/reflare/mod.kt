@@ -3,6 +3,7 @@
 package fernice.reflare
 
 import org.fernice.reflare.element.element
+import org.intellij.lang.annotations.Language
 import java.awt.Component
 
 val Component.classes: MutableSet<String>
@@ -14,6 +15,7 @@ var Component.id: String?
         this.element.id = value
     }
 
+@set:Language(value = "CSS", prefix = "* {", suffix = "}")
 var Component.style: String
     get() = this.element.styleAttributeValue
     set(value) {

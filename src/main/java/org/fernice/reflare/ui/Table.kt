@@ -12,6 +12,7 @@ import org.fernice.reflare.element.StyleTreeElementLookup
 import org.fernice.reflare.element.TableElement
 import org.fernice.reflare.element.element
 import org.fernice.reflare.render.CellRendererPane
+import java.awt.Color
 import java.awt.Component
 import java.awt.Graphics
 import java.awt.Point
@@ -41,6 +42,8 @@ class FlareTableUI(table: JTable) : BasicTableUI(), FlareUI {
 
         table.setDefaultRenderer(Any::class.java, DefaultTableCellRenderer.UIResource())
 
+        table.gridColor = Color(0xbfbfbf)
+
         StyleTreeElementLookup.registerElement(table, this)
     }
 
@@ -50,8 +53,8 @@ class FlareTableUI(table: JTable) : BasicTableUI(), FlareUI {
         StyleTreeElementLookup.deregisterElement(table)
     }
 
-    override fun paint(g: Graphics?, c: JComponent?) {
-        val clip = g!!.clipBounds
+    override fun paint(g: Graphics, c: JComponent) {
+        val clip = g.clipBounds
 
         val bounds = table.bounds
         // account for the fact that the graphics has already been translated
@@ -122,9 +125,7 @@ class FlareTableUI(table: JTable) : BasicTableUI(), FlareUI {
             return
         }
 
-        var rect: Rectangle?
-
-        rect = getHDropLineRect(loc)
+        var rect = getHDropLineRect(loc)
         if (rect != null) {
             val x = rect.x
             val w = rect.width
