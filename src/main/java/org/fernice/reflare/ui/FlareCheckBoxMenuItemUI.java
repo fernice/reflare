@@ -74,7 +74,7 @@ public class FlareCheckBoxMenuItemUI extends BasicCheckBoxMenuItemUI implements 
 
     @Override
     protected void paintBackground(Graphics g, JMenuItem menuItem, Color bgColor) {
-        element.paintBackground(menuItem, g);
+        element.paintBackground(g);
     }
 
     @Override
@@ -105,8 +105,8 @@ public class FlareCheckBoxMenuItemUI extends BasicCheckBoxMenuItemUI implements 
     }
 
     @Override
-    public void paintBorder(@NotNull final Component c, @NotNull final Graphics g, final int x, final int y, final int width, final int height) {
-        element.paintBorder(c, g);
+    public void paintBorder(@NotNull final Component c, @NotNull final Graphics g) {
+        element.paintBorder(g);
     }
 
     @NotNull

@@ -6,6 +6,8 @@
 
 package org.fernice.reflare.ui
 
+import fernice.reflare.SCROLL_BAR_MINIMALISTIC_PROPERTY
+import fernice.reflare.isMinimalistic
 import fernice.reflare.light.FButton
 import org.fernice.reflare.Defaults
 import org.fernice.reflare.element.ComponentElement
@@ -18,6 +20,7 @@ import java.awt.Component
 import java.awt.Dimension
 import java.awt.Graphics
 import java.awt.Rectangle
+import java.beans.PropertyChangeListener
 import javax.swing.JButton
 import javax.swing.JComponent
 import javax.swing.JScrollBar
@@ -27,9 +30,9 @@ import javax.swing.plaf.ComponentUI
 import javax.swing.plaf.basic.BasicScrollBarUI
 
 @Suppress("ACCIDENTAL_OVERRIDE")
-class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentElement = ScrollBarElement(scrollbar)) : BasicScrollBarUI(), FlareUI {
+class FlareScrollBarUI(scrollbar: JScrollBar) : BasicScrollBarUI(), FlareUI {
 
-    private val showButtons = Platform.isWindows
+    override val element: ComponentElement = ScrollBarElement(scrollbar)
 
     override fun installDefaults() {
         super.installDefaults()
@@ -40,10 +43,12 @@ class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentEle
         incrGap = 0
         decrGap = 0
 
-        scrollBarWidth = if (showButtons) 16 else 12
+        scrollbar.isMinimalistic = Platform.isMac
         scrollbar.isOpaque = false
-        scrollbar.border = FlareBorder(this)
+        scrollbar.border = FlareBorder.create(this)
         scrollbar.font = Defaults.FONT_SERIF
+
+        updateScrollBar()
 
         StyleTreeElementLookup.registerElement(scrollbar, this)
     }
@@ -54,17 +59,34 @@ class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentEle
         StyleTreeElementLookup.deregisterElement(scrollbar)
     }
 
-    override fun getMinimumSize(c: JComponent): Dimension {
+    override fun createPropertyChangeListener(): PropertyChangeListener {
+        val propertyChangeListener = super.createPropertyChangeListener()
+        return PropertyChangeListener { event ->
+            when (event.propertyName) {
+                SCROLL_BAR_MINIMALISTIC_PROPERTY -> updateScrollBar()
+            }
+
+            propertyChangeListener.propertyChange(event)
+        }
+    }
+
+    private fun updateScrollBar(){
+        val minimalistic = scrollbar.isMinimalistic
+        scrollBarWidth = if (minimalistic) 12 else 16
+        if (minimalistic) element.classes.add("flr-scrollbar-minimalistic") else element.classes.remove("flr-scrollbar-minimalistic")
+    }
+
+    override fun getMinimumSize(c: JComponent): Dimension? {
         element.pulseForComputation()
         return super.getMinimumSize(c)
     }
 
-    override fun getPreferredSize(c: JComponent): Dimension {
+    override fun getPreferredSize(c: JComponent): Dimension? {
         element.pulseForComputation()
         return super.getPreferredSize(c)
     }
 
-    override fun getMaximumSize(c: JComponent): Dimension {
+    override fun getMaximumSize(c: JComponent): Dimension? {
         element.pulseForComputation()
         return super.getMaximumSize(c)
     }
@@ -75,12 +97,7 @@ class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentEle
         super.paint(graphics, component)
     }
 
-    override fun paintTrack(g: Graphics, c: JComponent, trackBounds: Rectangle) {
-        if (showButtons) {
-            g.color = c.background
-            //g.fillRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height)
-        }
-    }
+    override fun paintTrack(g: Graphics, c: JComponent, trackBounds: Rectangle) {}
 
     override fun paintThumb(g: Graphics, c: JComponent, thumbBounds: Rectangle) {
         if (thumbBounds.isEmpty || !scrollbar.isEnabled) {
@@ -88,6 +105,7 @@ class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentEle
         }
 
         val vertical = scrollbar.orientation == JScrollBar.VERTICAL
+        val showButtons = !scrollbar.isMinimalistic
 
         val w = thumbBounds.width
         val h = thumbBounds.height
@@ -110,16 +128,18 @@ class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentEle
     }
 
     private fun paintBackground(component: JComponent, g: Graphics) {
-        element.paintBackground(component, g)
+        element.paintBackground(g)
     }
 
-    override fun paintBorder(c: Component, g: Graphics, x: Int, y: Int, width: Int, height: Int) {
-        element.paintBorder(c, g)
+    override fun paintBorder(c: Component, g: Graphics) {
+        element.paintBorder(g)
     }
 
     override fun layoutVScrollbar(sb: JScrollBar) {
         val sbSize = sb.size
         val sbInsets = sb.insets
+
+        val showButtons = !scrollbar.isMinimalistic
 
         /*
          * Width and left edge of the buttons and thumb.
@@ -215,6 +235,8 @@ class FlareScrollBarUI(scrollbar: JScrollBar, override val element: ComponentEle
     override fun layoutHScrollbar(sb: JScrollBar) {
         val sbSize = sb.size
         val sbInsets = sb.insets
+
+        val showButtons = !scrollbar.isMinimalistic
 
         /* Height and top edge of the buttons and thumb.
          */
@@ -396,6 +418,7 @@ private class FlareArrowButton(var direction: Int) : FButton(), SwingConstants {
      *
      * @return `false`
      */
+    @Deprecated(message = "Deprecated in Java")
     @Suppress("OverridingDeprecatedMember")
     override fun isFocusTraversable(): Boolean {
         return false
@@ -416,7 +439,7 @@ private class FlareArrowButton(var direction: Int) : FButton(), SwingConstants {
      */
     private fun paintTriangle(
         g: Graphics, x: Int, y: Int, size: Int,
-        direction: Int, isEnabled: Boolean
+        direction: Int, isEnabled: Boolean,
     ) {
         var size0 = size
         val oldColor = g.color

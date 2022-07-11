@@ -6,10 +6,6 @@
 
 package org.fernice.reflare.render
 
-import fernice.std.None
-import fernice.std.Some
-import fernice.std.unwrap
-import fernice.std.unwrapOr
 import org.fernice.flare.panic
 import org.fernice.flare.style.value.computed.Angle
 import org.fernice.flare.style.value.computed.Au
@@ -109,9 +105,7 @@ private fun computeColorFractions(gradientItems: List<GradientItem>, containingL
     val iterator = gradientItems.peekIterator()
 
     var intervalStart = iterator.next().expectColorStop()
-    var startPosition = intervalStart.position
-        .unwrapOr(LengthOrPercentage.zero)
-        .toPercentage(containingLength)
+    var startPosition = (intervalStart.position ?: LengthOrPercentage.zero).toPercentage(containingLength)
     var lastPosition = startPosition
 
     gradientStops.add(GradientStop(intervalStart.color, startPosition))
@@ -124,7 +118,7 @@ private fun computeColorFractions(gradientItems: List<GradientItem>, containingL
             val next = iterator.peek()
 
             if (next is GradientItem.ColorStop) {
-                if (next.colorStop.position is None) {
+                if (next.colorStop.position == null) {
                     blankStops.add(next.colorStop)
                 } else {
                     break@blanks
@@ -139,9 +133,7 @@ private fun computeColorFractions(gradientItems: List<GradientItem>, containingL
             blankStops.isNotEmpty() -> blankStops.removeAt(blankStops.lastIndex)
             else -> break@loop
         }
-        var endPosition = intervalEnd.position
-            .unwrapOr(LengthOrPercentage.Hundred)
-            .toPercentage(containingLength)
+        var endPosition = (intervalEnd.position ?: LengthOrPercentage.Hundred).toPercentage(containingLength)
 
         if (endPosition < lastPosition) {
             endPosition = lastPosition + 0.00001f
@@ -162,9 +154,7 @@ private fun computeColorFractions(gradientItems: List<GradientItem>, containingL
 
         lastPosition = endPosition
         intervalStart = intervalEnd
-        startPosition = intervalStart.position
-            .unwrapOr(LengthOrPercentage.zero)
-            .toPercentage(containingLength)
+        startPosition = (intervalStart.position ?: LengthOrPercentage.zero).toPercentage(containingLength)
 
         if (!iterator.hasNext()) {
             break
@@ -188,7 +178,7 @@ private fun LengthOrPercentage.toPercentage(containingLength: Float): Float {
     return when (this) {
         is LengthOrPercentage.Percentage -> this.percentage.value
         is LengthOrPercentage.Calc -> {
-            val length = this.calc.toPixelLength(Some(Au.fromPx(containingLength))).unwrap()
+            val length = this.calc.toPixelLength(Au.fromPx(containingLength))  ?: error("calculation should have resulted in length")
 
             length.px() / containingLength
         }

@@ -45,7 +45,7 @@ public class FlareCheckBoxUI extends FlareToggleButtonUI {
     }
 
     @Override
-    public void paintBorder(@NotNull Component c, @NotNull Graphics g, int x, int y, int width, int height) {
-        super.paintBorder(c, g, x, y, width, height);
+    public void paintBorder(@NotNull Component c, @NotNull Graphics g) {
+        super.paintBorder(c, g);
     }
 }

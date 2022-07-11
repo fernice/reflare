@@ -440,8 +440,8 @@ class FlareTableUI(table: JTable) : BasicTableUI(), FlareUI {
         }
     }
 
-    override fun paintBorder(c: Component, g: Graphics, x: Int, y: Int, width: Int, height: Int) {
-        element.paintBorder(c, g)
+    override fun paintBorder(c: Component, g: Graphics) {
+        element.paintBorder(g)
     }
 
     companion object {

@@ -20,7 +20,7 @@ enum class OperatingSystem {
 object Platform {
 
     val operatingSystem by lazy {
-        val os = System.getProperty("fernice.reflare.platform")?.toLowerCase() ?: System.getProperty("os.name").toLowerCase()
+        val os = System.getProperty("fernice.reflare.platform")?.lowercase() ?: System.getProperty("os.name").lowercase()
         when {
             os.startsWith("mac") || os.startsWith("darwin") -> OperatingSystem.Mac
             os.startsWith("wind") -> OperatingSystem.Windows

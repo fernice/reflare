@@ -49,12 +49,12 @@ public class FlareComboBoxPopupUI extends BasicPopupMenuUI implements FlareUI {
 
     @Override
     public void paint(final Graphics graphics, JComponent component) {
-        element.paintBackground(component, graphics);
+        element.paintBackground(graphics);
     }
 
     @Override
-    public void paintBorder(@NotNull final Component c, @NotNull final Graphics g, final int x, final int y, final int width, final int height) {
-        element.paintBorder(c, g);
+    public void paintBorder(@NotNull final Component c, @NotNull final Graphics g) {
+        element.paintBorder(g);
     }
 
     @NotNull

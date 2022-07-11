@@ -156,7 +156,7 @@ public class CellRendererPane extends javax.swing.CellRendererPane implements Ac
         c.setBounds(x, y, w, h);
 
         if (c instanceof JComponent && !(((JComponent) c).getBorder() instanceof FlareBorder)) {
-            ((JComponent) c).setBorder(new FlareBorder(StyleTreeHelper.getUi(c)));
+            ((JComponent) c).setBorder(FlareBorder.create(StyleTreeHelper.getUi(c)));
         }
 
         c.validate();

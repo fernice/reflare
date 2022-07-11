@@ -66,7 +66,7 @@ public class FlareTextAreaUI extends BasicTextAreaUI implements FlareUI {
 
     @Override
     protected void paintSafely(final Graphics graphics) {
-        element.paintBackground(getComponent(), graphics);
+        element.paintBackground(graphics);
 
         super.paintSafely(graphics);
     }
@@ -77,8 +77,8 @@ public class FlareTextAreaUI extends BasicTextAreaUI implements FlareUI {
     }
 
     @Override
-    public void paintBorder(@NotNull final Component c, @NotNull final Graphics g, final int x, final int y, final int width, final int height) {
-        element.paintBorder(c, g);
+    public void paintBorder(@NotNull final Component c, @NotNull final Graphics g) {
+        element.paintBorder(g);
     }
 
     @NotNull

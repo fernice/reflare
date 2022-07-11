@@ -7,8 +7,11 @@
 package fernice.reflare.light
 
 import org.fernice.reflare.ui.FlareScrollBarUI
+import java.awt.Adjustable
 import javax.swing.JScrollBar
 import javax.swing.JToolTip
+import javax.swing.JViewport
+import javax.swing.Scrollable
 
 @Suppress("UNUSED")
 open class FScrollBar : JScrollBar {

@@ -26,7 +26,6 @@ import org.fernice.reflare.meta.DefinedBy.Api;
 import org.fernice.reflare.platform.Platform;
 import org.jetbrains.annotations.NotNull;
 import sun.swing.MenuItemLayoutHelper;
-import sun.swing.SwingUtilities2;
 
 @SuppressWarnings("unused")
 public class FlareMenuItemUI extends BasicMenuItemUI implements FlareUI {
@@ -178,7 +177,7 @@ public class FlareMenuItemUI extends BasicMenuItemUI implements FlareUI {
 
     @Override
     protected void paintBackground(Graphics g, JMenuItem menuItem, Color bgColor) {
-        element.paintBackground(menuItem, g);
+        element.paintBackground(g);
     }
 
     private void paintIcon(Graphics g, MenuItemLayoutHelper lh, MenuItemLayoutHelper.LayoutResult lr, Color holdc) {
@@ -224,7 +223,7 @@ public class FlareMenuItemUI extends BasicMenuItemUI implements FlareUI {
             ButtonModel model = lh.getMenuItem().getModel();
             g.setFont(lh.getAccFontMetrics().getFont());
             g.setColor(lh.getMenuItem().getForeground());
-            SwingUtilities2.drawString(lh.getMenuItem(), g, lh.getAccText(), lr.getAccRect().x, lr.getAccRect().y + lh.getAccFontMetrics().getAscent());
+            SwingUtilitiesHelper.drawString(lh.getMenuItem(), g, lh.getAccText(), lr.getAccRect().x, lr.getAccRect().y + lh.getAccFontMetrics().getAscent());
         }
     }
 
@@ -271,8 +270,8 @@ public class FlareMenuItemUI extends BasicMenuItemUI implements FlareUI {
     }
 
     @Override
-    public void paintBorder(@NotNull final Component c, @NotNull final Graphics g, final int x, final int y, final int width, final int height) {
-        element.paintBorder(c, g);
+    public void paintBorder(@NotNull final Component c, @NotNull final Graphics g) {
+        element.paintBorder(g);
     }
 
     @NotNull
