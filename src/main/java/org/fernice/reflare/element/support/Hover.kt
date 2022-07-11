@@ -6,7 +6,6 @@
 
 package org.fernice.reflare.element.support
 
-import org.fernice.flare.std.min
 import org.fernice.reflare.element.element
 import org.fernice.reflare.util.WeakRef
 import java.awt.AWTEvent
@@ -18,6 +17,7 @@ import java.awt.Window
 import java.awt.event.AWTEventListener
 import java.awt.event.MouseEvent
 import javax.swing.SwingUtilities
+import kotlin.math.min
 
 object SharedHoverHandler : AWTEventListener {
 
@@ -51,7 +51,7 @@ object SharedHoverHandler : AWTEventListener {
             return
         }
 
-        if (event !is MouseEvent || event.id != MouseEvent.MOUSE_MOVED) {
+        if (event.id != MouseEvent.MOUSE_MOVED || event !is MouseEvent || event.source !is Component) {
             return
         }
 
@@ -73,7 +73,7 @@ object SharedHoverHandler : AWTEventListener {
         val componentStack = component.selfAndAncestorsList()
         val pickStack = pick.selfAndAncestorsList()
 
-        val maxCommon = componentStack.size.min(pickStack.size)
+        val maxCommon = min(componentStack.size, pickStack.size)
 
         for (i in maxCommon until componentStack.size) {
             val exitedComponent = componentStack.removeFirst()

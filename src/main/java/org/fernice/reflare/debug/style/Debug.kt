@@ -9,7 +9,6 @@ import fernice.reflare.CSSEngine
 import fernice.reflare.addAll
 import fernice.reflare.classes
 import fernice.std.None
-import fernice.std.Option
 import fernice.std.Some
 import org.fernice.flare.cssparser.toCssString
 import org.fernice.flare.std.First
@@ -113,7 +112,7 @@ class DebugStylePanel : JPanel() {
 
                 val view = component.findComponentAt(mouseEvent.point)
 
-                matchingStylesPanel.element = Some(view.element)
+                matchingStylesPanel.element = view.element
 
                 mouseEvent.consume()
                 picking = false
@@ -138,19 +137,14 @@ private class MatchingStylesPanel : JPanel() {
 
     val restyleListener: (ComputedValues) -> Unit = { update() }
 
-    var element: Option<AWTComponentElement> = None
+    var element: AWTComponentElement? = null
         set(value) {
             val previous = field
-
-            if (previous is Some) {
-                previous.value.removeRestyleListener(restyleListener)
-            }
+            previous?.removeRestyleListener(restyleListener)
 
             field = value
 
-            if (value is Some) {
-                value.value.addRestyleListener(restyleListener)
-            }
+            value?.addRestyleListener(restyleListener)
 
             update()
         }
@@ -159,10 +153,8 @@ private class MatchingStylesPanel : JPanel() {
     private fun update() {
         removeAll()
 
-        val elementOption = element
-        if (elementOption is Some) {
-            val element = elementOption.value
-
+        val element = element
+        if (element !=null) {
             val result = element.getMatchingStyles()
 
             var count = 1

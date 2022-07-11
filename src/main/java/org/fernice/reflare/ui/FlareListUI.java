@@ -106,14 +106,14 @@ public class FlareListUI extends BasicListUI implements FlareUI {
 
     @Override
     public void paint(final Graphics graphics, JComponent component) {
-        element.paintBackground(component, graphics);
+        element.paintBackground(graphics);
 
         super.paint(graphics, component);
     }
 
     @Override
-    public void paintBorder(@NotNull final Component c, @NotNull final Graphics g, final int x, final int y, final int width, final int height) {
-        element.paintBorder(c, g);
+    public void paintBorder(@NotNull final Component c, @NotNull final Graphics g) {
+        element.paintBorder(g);
     }
 
     @Override

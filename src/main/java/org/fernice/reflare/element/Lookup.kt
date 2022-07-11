@@ -68,7 +68,7 @@ object StyleTreeElementLookup {
 
 private class ComponentUIWrapper(override val element: AWTComponentElement) : FlareUI {
 
-    override fun paintBorder(c: Component, g: Graphics, x: Int, y: Int, width: Int, height: Int) {
+    override fun paintBorder(c: Component, g: Graphics) {
     }
 }
 

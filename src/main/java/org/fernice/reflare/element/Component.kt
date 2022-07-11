@@ -52,7 +52,8 @@ private val REPAINT_TRACE_ENABLED = systemFlag("fernice.reflare.traceRepaint")
 abstract class AWTComponentElement(componentInstance: Component) : Element {
 
     private val componentReference = VacatingRef(componentInstance)
-    val component by componentReference
+    val component: Component
+        get() = componentReference.deref()
 
     // ***************************** Dirty ***************************** //
 
@@ -480,13 +481,13 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
 
     private val renderer by lazy { MerlinRenderer(componentReference, this) }
 
-    fun paintBackground(component: Component, g: Graphics) {
+    fun paintBackground(g: Graphics) {
         pulseForRendering()
 
         renderer.renderBackground(g, getStyle())
     }
 
-    open fun paintBorder(component: Component, g: Graphics) {
+    open fun paintBorder(g: Graphics) {
         pulseForRendering()
 
         renderer.renderBorder(g, getStyle())

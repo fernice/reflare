@@ -46,6 +46,17 @@ internal operator fun Insets.plusAssign(other: TInsets) {
     this.left = other.left.toInt()
 }
 
+internal operator fun TInsets.plus(other: Insets): TInsets {
+    checkResourceOperationAccess(this)
+
+    return ResourceContext.TInsets(
+        top + other.top,
+        right + other.right,
+        bottom + other.bottom,
+        left + other.left
+    )
+}
+
 internal fun TInsets.toAWTInsets(insets: Insets? = null): Insets {
     checkResourceAccess(this)
 

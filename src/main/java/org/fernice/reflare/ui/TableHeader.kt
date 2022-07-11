@@ -321,8 +321,8 @@ open class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(),
         header.repaint(header.getHeaderRect(newColumn))
     }
 
-    override fun paintBorder(c: Component, g: Graphics, x: Int, y: Int, width: Int, height: Int) {
-        element.paintBorder(c, g)
+    override fun paintBorder(c: Component, g: Graphics) {
+        element.paintBorder(g)
     }
 
     companion object {

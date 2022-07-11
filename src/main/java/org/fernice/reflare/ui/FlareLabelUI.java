@@ -20,12 +20,12 @@ import javax.swing.text.View;
 import org.fernice.reflare.element.ComponentElement;
 import org.fernice.reflare.element.LabelElement;
 import org.fernice.reflare.element.StyleTreeElementLookup;
+import org.fernice.reflare.internal.SwingUtilitiesHelper;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
 import org.fernice.reflare.ui.text.FlareHTML;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import sun.swing.SwingUtilities2;
 
 @SuppressWarnings("unused")
 public class FlareLabelUI extends BasicLabelUI implements FlareUI {
@@ -44,6 +44,8 @@ public class FlareLabelUI extends BasicLabelUI implements FlareUI {
         }
 
         UIDefaultsHelper.installDefaultProperties(this, label);
+
+        label.setIconTextGap(5);
 
         StyleTreeElementLookup.registerElement(label, this);
     }
@@ -144,7 +146,7 @@ public class FlareLabelUI extends BasicLabelUI implements FlareUI {
             return;
         }
 
-        FontMetrics fm = SwingUtilities2.getFontMetrics(label, g);
+        FontMetrics fm = SwingUtilitiesHelper.getFontMetrics(label, g);
         String clippedText = layout(label, text, icon, fm, label.getWidth(), label.getHeight());
 
         if (icon != null) {
@@ -201,12 +203,12 @@ public class FlareLabelUI extends BasicLabelUI implements FlareUI {
     }
 
     private void paintBackground(JComponent component, Graphics g) {
-        element.paintBackground(component, g);
+        element.paintBackground(g);
     }
 
     @Override
-    public void paintBorder(@NotNull final Component c, @NotNull final Graphics g, final int x, final int y, final int width, final int height) {
-        element.paintBorder(c, g);
+    public void paintBorder(@NotNull final Component c, @NotNull final Graphics g) {
+        element.paintBorder(g);
     }
 
     @NotNull

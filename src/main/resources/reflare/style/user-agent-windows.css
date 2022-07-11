@@ -4,15 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-scrollbar {
-  background: #99999933;
-  color: #99999977;
-}
-
-scrollbar:hover {
-  color: #99999999;
-}
-
 tooltip, combobox-popup, popup {
   border: 1px solid;
   border-color: #d7d7d7 #d3d3d3 #bfbfbf;

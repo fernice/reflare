@@ -21,6 +21,7 @@ import org.fernice.reflare.element.AWTComponentElement;
 import org.fernice.reflare.element.StyleTreeHelper;
 import org.fernice.reflare.element.support.SharedHoverHandler;
 import org.fernice.reflare.internal.AATextInfoHelper;
+import org.fernice.reflare.internal.CompatibilityHelper;
 import org.fernice.reflare.internal.DefaultLookupHelper;
 import org.fernice.reflare.internal.PopupFactoryHelper;
 import org.fernice.reflare.meta.DefinedBy;
@@ -36,6 +37,10 @@ import org.slf4j.LoggerFactory;
 import sun.swing.ImageIconUIResource;
 
 public class FlareLookAndFeel extends BasicLookAndFeel {
+
+    static {
+        CompatibilityHelper.ensureCompatibility();
+    }
 
     private static final Logger LOG = LoggerFactory.getLogger(FlareLookAndFeel.class);
 

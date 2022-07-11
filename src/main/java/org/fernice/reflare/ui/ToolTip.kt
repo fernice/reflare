@@ -61,11 +61,11 @@ class FlareToolTipUI(tooltip: JToolTip) : BasicToolTipUI(), FlareUI {
     }
 
     private fun paintBackground(component: JComponent, g: Graphics) {
-        element.paintBackground(component, g)
+        element.paintBackground(g)
     }
 
-    override fun paintBorder(c: Component, g: Graphics, x: Int, y: Int, width: Int, height: Int) {
-        element.paintBorder(c, g)
+    override fun paintBorder(c: Component, g: Graphics) {
+        element.paintBorder(g)
     }
 
     companion object {

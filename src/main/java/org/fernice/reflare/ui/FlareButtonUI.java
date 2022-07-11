@@ -85,7 +85,7 @@ public class FlareButtonUI extends BasicButtonUI implements FlareUI {
     }
 
     private void paintBackground(JComponent component, Graphics g) {
-        element.paintBackground(component, g);
+        element.paintBackground(g);
     }
 
     @Override
@@ -134,8 +134,8 @@ public class FlareButtonUI extends BasicButtonUI implements FlareUI {
     }
 
     @Override
-    public void paintBorder(@NotNull final Component c, @NotNull final Graphics g, final int x, final int y, final int width, final int height) {
-        element.paintBorder(c, g);
+    public void paintBorder(@NotNull final Component c, @NotNull final Graphics g) {
+        element.paintBorder(g);
     }
 
     @NotNull

@@ -24,7 +24,7 @@ private val propertyChangeListener = PropertyChangeListener { event ->
 
         val border = when (val value = event.oldValue) {
             is FlareBorder -> value
-            else -> FlareBorder(component.ui)
+            else -> FlareBorder.create(component.ui)
         }
 
         component.border = border
@@ -35,7 +35,7 @@ fun FlareUI.installBasicDefaultProperties(component: Component) {
     if (component is JComponent) {
         LookAndFeel.installProperty(component, "opaque", false)
 
-        component.border = FlareBorder(this)
+        component.border = FlareBorder.create(this)
 
         if (enforceBorder) {
             component.addPropertyChangeListener("border", propertyChangeListener)

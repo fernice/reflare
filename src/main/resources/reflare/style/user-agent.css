@@ -135,6 +135,24 @@ menuitem:disabled, menu:disabled {
   color: #636363;
 }
 
+scrollbar {
+  background: #99999933;
+  color: #99999977;
+}
+
+scrollbar:hover {
+  color: #99999999;
+}
+
+scrollbar.flr-scrollbar-minimalistic {
+  background: transparent;
+  color: #44444455;
+}
+
+scrollbar.flr-scrollbar-minimalistic:hover {
+  color: #44444477;
+}
+
 scrollbar > button, scrollbar > button:hover,
 scrollbar > button:focus, scrollbar > button:active {
   margin: 0;

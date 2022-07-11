@@ -13,6 +13,7 @@ import javax.swing.JScrollBar
 import javax.swing.JScrollPane
 import javax.swing.JToolTip
 import javax.swing.JViewport
+import javax.swing.Scrollable
 
 @Suppress("UNUSED")
 open class FScrollPane : JScrollPane {
@@ -23,7 +24,7 @@ open class FScrollPane : JScrollPane {
     constructor(vsbPolicy: Int, hsbPolicy: Int) : super(vsbPolicy, hsbPolicy)
 
     override fun updateUI() {
-        super.setUI(integrationDependent(this) { FlareScrollPaneUI() })
+        super.setUI(integrationDependent(this) { FlareScrollPaneUI(this) })
     }
 
     override fun createVerticalScrollBar(): JScrollBar {
@@ -44,10 +45,104 @@ open class FScrollPane : JScrollPane {
         return toolTip
     }
 
-    protected inner class ScrollBar(orientation: Int) : JScrollPane.ScrollBar(orientation) {
+    protected inner class ScrollBar(orientation: Int) : FScrollBar(orientation) {
+
+        init {
+            this.putClientProperty("JScrollBar.fastWheelScrolling", true)
+        }
 
         override fun updateUI() {
             super.setUI(integrationDependent(this) { FlareScrollBarUI(this) })
+        }
+
+        /**
+         * Set to true when the unit increment has been explicitly set.
+         * If this is false the viewport's view is obtained and if it
+         * is an instance of `Scrollable` the unit increment
+         * from it is used.
+         */
+        private var unitIncrementSet = false
+
+        /**
+         * Set to true when the block increment has been explicitly set.
+         * If this is false the viewport's view is obtained and if it
+         * is an instance of `Scrollable` the block increment
+         * from it is used.
+         */
+        private var blockIncrementSet = false
+
+        /**
+         * Messages super to set the value, and resets the
+         * `unitIncrementSet` instance variable to true.
+         *
+         * @param unitIncrement the new unit increment value, in pixels
+         */
+        override fun setUnitIncrement(unitIncrement: Int) {
+            unitIncrementSet = true
+            this.putClientProperty("JScrollBar.fastWheelScrolling", null)
+            super.setUnitIncrement(unitIncrement)
+        }
+
+        /**
+         * Computes the unit increment for scrolling if the viewport's
+         * view is a `Scrollable` object.
+         * Otherwise return `super.getUnitIncrement`.
+         *
+         * @param direction less than zero to scroll up/left,
+         * greater than zero for down/right
+         * @return an integer, in pixels, containing the unit increment
+         * @see Scrollable.getScrollableUnitIncrement
+         */
+        override fun getUnitIncrement(direction: Int): Int {
+            val vp = getViewport()
+            return if (!unitIncrementSet && vp != null &&
+                vp.view is Scrollable
+            ) {
+                val view = vp.view as Scrollable
+                val vr = vp.viewRect
+                view.getScrollableUnitIncrement(vr, getOrientation(), direction)
+            } else {
+                super.getUnitIncrement(direction)
+            }
+        }
+
+        /**
+         * Messages super to set the value, and resets the
+         * `blockIncrementSet` instance variable to true.
+         *
+         * @param blockIncrement the new block increment value, in pixels
+         */
+        override fun setBlockIncrement(blockIncrement: Int) {
+            blockIncrementSet = true
+            this.putClientProperty("JScrollBar.fastWheelScrolling", null)
+            super.setBlockIncrement(blockIncrement)
+        }
+
+        /**
+         * Computes the block increment for scrolling if the viewport's
+         * view is a `Scrollable` object.  Otherwise
+         * the `blockIncrement` equals the viewport's width
+         * or height.  If there's no viewport return
+         * `super.getBlockIncrement`.
+         *
+         * @param direction less than zero to scroll up/left,
+         * greater than zero for down/right
+         * @return an integer, in pixels, containing the block increment
+         * @see Scrollable.getScrollableBlockIncrement
+         */
+        override fun getBlockIncrement(direction: Int): Int {
+            val vp = getViewport()
+            return if (blockIncrementSet || vp == null) {
+                super.getBlockIncrement(direction)
+            } else if (vp.view is Scrollable) {
+                val view = vp.view as Scrollable
+                val vr = vp.viewRect
+                view.getScrollableBlockIncrement(vr, getOrientation(), direction)
+            } else if (getOrientation() == VERTICAL) {
+                vp.extentSize.height
+            } else {
+                vp.extentSize.width
+            }
         }
     }
 }

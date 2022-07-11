@@ -7,8 +7,8 @@
 package fernice.reflare.light
 
 import org.fernice.reflare.element.element
+import org.fernice.reflare.internal.SwingUtilitiesHelper
 import sun.swing.MenuItemLayoutHelper
-import sun.swing.SwingUtilities2
 import java.awt.Container
 import java.awt.Dimension
 import javax.swing.BoxLayout
@@ -28,7 +28,7 @@ open class FBoxLayout(target: Container?, axis: Int) : BoxLayout(target, axis) {
             target.putClientProperty(MenuItemLayoutHelper.MAX_TEXT_WIDTH, null)
             target.putClientProperty(MenuItemLayoutHelper.MAX_ICON_WIDTH, null)
             target.putClientProperty(MenuItemLayoutHelper.MAX_LABEL_WIDTH, null)
-            target.putClientProperty(SwingUtilities2.BASICMENUITEMUI_MAX_TEXT_OFFSET, null)
+            target.putClientProperty(SwingUtilitiesHelper.BASICMENUITEMUI_MAX_TEXT_OFFSET, null)
             if (target.componentCount == 0) {
                 return Dimension(0, 0)
             }

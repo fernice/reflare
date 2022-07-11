@@ -55,7 +55,7 @@ open class FlareEditorPaneUI(editorPane: JEditorPane) : BasicEditorPaneUI(), Fla
     }
 
     override fun paintSafely(graphics: Graphics) {
-        element.paintBackground(component, graphics)
+        element.paintBackground(graphics)
 
         super.paintSafely(graphics)
     }
@@ -63,8 +63,8 @@ open class FlareEditorPaneUI(editorPane: JEditorPane) : BasicEditorPaneUI(), Fla
     override fun paintBackground(g: Graphics?) {
     }
 
-    override fun paintBorder(c: Component, g: Graphics, x: Int, y: Int, width: Int, height: Int) {
-        element.paintBorder(c, g)
+    override fun paintBorder(c: Component, g: Graphics) {
+        element.paintBorder(g)
     }
 
     companion object {

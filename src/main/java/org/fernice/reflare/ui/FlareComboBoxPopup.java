@@ -5,6 +5,7 @@
  */
 package org.fernice.reflare.ui;
 
+import fernice.reflare.ScrollPaneHelper;
 import fernice.reflare.StyleHelper;
 import fernice.reflare.light.IntegrationHelper;
 import fernice.reflare.light.FList;
@@ -88,6 +89,7 @@ public class FlareComboBoxPopup extends BasicComboPopup {
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER );
         sp.setHorizontalScrollBar(null);
+        ScrollPaneHelper.setInline(sp, true);
         return sp;
     }
 
