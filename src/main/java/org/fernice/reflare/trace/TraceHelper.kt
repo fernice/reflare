@@ -6,7 +6,7 @@
 
 package org.fernice.reflare.trace
 
-import org.fernice.flare.std.systemFlag
+import org.fernice.std.systemFlag
 
 
 class TraceHelper private constructor() {

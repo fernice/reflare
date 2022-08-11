@@ -25,12 +25,12 @@ private val None = AWTInsets(0, 0, 0, 0)
 
 open class FlareBorder protected constructor(private val ui: FlareUI) : AbstractBorder() {
 
-    override fun paintBorder(c: Component, g: Graphics, x: Int, y: Int, width: Int, height: Int) {
-        ui.paintBorder(c, g)
+    override fun paintBorder(c: Component?, g: Graphics, x: Int, y: Int, width: Int, height: Int) {
+        ui.paintBorder(c ?: ui.element.component, g)
     }
 
-    override fun getBorderInsets(c: Component, insets: AWTInsets?): AWTInsets {
-        val componentInsets = getComponentInsets(c)
+    override fun getBorderInsets(c: Component?, insets: AWTInsets?): AWTInsets {
+        val componentInsets = if (c != null) getComponentInsets(c) else None
         return withResourceContext {
             computeInsets { bounds ->
                 margin.toTInsets(bounds) + border.toTInsets() + padding.toTInsets(bounds) + componentInsets

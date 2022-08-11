@@ -6,8 +6,8 @@
 
 package org.fernice.reflare.statistics
 
-import org.fernice.flare.std.systemFlag
 import org.fernice.logging.FLogging
+import org.fernice.std.systemFlag
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.concurrent.thread
 

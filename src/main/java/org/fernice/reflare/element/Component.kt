@@ -10,7 +10,6 @@ import org.fernice.flare.dom.ElementStyles
 import org.fernice.flare.selector.NamespaceUrl
 import org.fernice.flare.selector.NonTSPseudoClass
 import org.fernice.flare.selector.PseudoElement
-import org.fernice.flare.std.systemFlag
 import org.fernice.flare.style.ComputedValues
 import org.fernice.flare.style.ElementStyleResolver
 import org.fernice.flare.style.MatchingResult
@@ -23,7 +22,6 @@ import org.fernice.flare.style.parser.QuirksMode
 import org.fernice.flare.style.properties.PropertyDeclarationBlock
 import org.fernice.flare.style.properties.parsePropertyDeclarationList
 import org.fernice.flare.url.Url
-import org.fernice.logging.FLogging
 import org.fernice.reflare.Defaults
 import org.fernice.reflare.font.FontStyleResolver
 import org.fernice.reflare.render.merlin.MerlinRenderer
@@ -36,6 +34,7 @@ import org.fernice.reflare.trace.traceRoot
 import org.fernice.reflare.util.Observables
 import org.fernice.reflare.util.VacatingRef
 import org.fernice.reflare.util.observableMutableSetOf
+import org.fernice.std.systemFlag
 import java.awt.Component
 import java.awt.Dialog
 import java.awt.Graphics
@@ -558,4 +557,4 @@ enum class StyleState {
 
 private val repaintCount = AtomicInteger()
 
-private val LOG = FLogging.logger { }
+private val LOG = org.fernice.logging.FLogging.logger { }

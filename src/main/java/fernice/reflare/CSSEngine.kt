@@ -7,7 +7,6 @@ import org.fernice.flare.dom.Device
 import org.fernice.flare.dom.Element
 import org.fernice.flare.font.FontMetricsProvider
 import org.fernice.flare.font.FontMetricsQueryResult
-import org.fernice.flare.std.systemFlag
 import org.fernice.flare.style.MatchingResult
 import org.fernice.flare.style.properties.stylestruct.Font
 import org.fernice.flare.style.stylesheet.Origin
@@ -18,6 +17,7 @@ import org.fernice.reflare.element.AWTComponentElement
 import org.fernice.reflare.platform.OperatingSystem
 import org.fernice.reflare.platform.Platform
 import org.fernice.reflare.util.VacatingReferenceHolder
+import org.fernice.std.systemFlag
 import java.awt.Component
 import java.io.File
 import java.io.InputStream

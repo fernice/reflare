@@ -7,8 +7,8 @@
 package org.fernice.reflare.resource
 
 import org.fernice.flare.panic
-import org.fernice.flare.std.systemFlag
 import org.fernice.logging.FLogging
+import org.fernice.std.systemFlag
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.Rectangle
