@@ -8,11 +8,7 @@ package org.fernice.reflare.debug.style
 import fernice.reflare.CSSEngine
 import fernice.reflare.addAll
 import fernice.reflare.classes
-import fernice.std.None
-import fernice.std.Some
 import org.fernice.flare.cssparser.toCssString
-import org.fernice.flare.std.First
-import org.fernice.flare.std.Second
 import org.fernice.flare.style.ComputedValues
 import org.fernice.flare.style.ruletree.CascadeLevel
 import org.fernice.flare.style.ruletree.StyleSource
@@ -20,6 +16,8 @@ import org.fernice.flare.style.ruletree.printTree
 import org.fernice.reflare.element.AWTComponentElement
 import org.fernice.reflare.element.element
 import org.fernice.reflare.layout.VerticalLayout
+import org.fernice.std.First
+import org.fernice.std.Second
 import java.awt.AWTEvent
 import java.awt.BorderLayout
 import java.awt.Container
@@ -154,7 +152,7 @@ private class MatchingStylesPanel : JPanel() {
         removeAll()
 
         val element = element
-        if (element !=null) {
+        if (element != null) {
             val result = element.getMatchingStyles()
 
             var count = 1
@@ -184,8 +182,8 @@ private class StylesPanel(source: StyleSource, level: CascadeLevel) : JPanel() {
 
         val either = source.source
         val (selectors, declarations) = when (either) {
-            is First -> Some(either.value.selectors) to either.value.declarations
-            is Second -> None to either.value
+            is First -> either.value.selectors to either.value.declarations
+            is Second -> null to either.value
         }
 
         val headerPanel = JPanel(BorderLayout())
@@ -200,8 +198,8 @@ private class StylesPanel(source: StyleSource, level: CascadeLevel) : JPanel() {
         levelLabel.classes.add("dbg-cascade-level")
         headerPanel.add(levelLabel, BorderLayout.EAST)
 
-        if (selectors is Some) {
-            selectorLabel.text = (selectors.value.toCssString() + " {").wrappable()
+        if (selectors != null) {
+            selectorLabel.text = (selectors.toCssString() + " {").wrappable()
         } else {
             selectorLabel.classes.add("dbg-selector-none")
             selectorLabel.text = "element.style"

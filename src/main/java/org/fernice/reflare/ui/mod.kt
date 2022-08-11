@@ -8,9 +8,9 @@
 
 package org.fernice.reflare.ui
 
-import org.fernice.flare.std.systemFlag
 import org.fernice.reflare.Defaults
 import org.fernice.reflare.element.ui
+import org.fernice.std.systemFlag
 import java.awt.Component
 import java.beans.PropertyChangeListener
 import javax.swing.JComponent
