@@ -32,6 +32,7 @@ class FlareTableUI(table: JTable) : BasicTableUI(), FlareUI {
     override fun installDefaults() {
         super.installDefaults()
 
+        table.isOpaque = false
         installDefaultProperties(table)
         table.selectionBackground = Defaults.COLOR_TRANSPARENT
         table.selectionForeground = Defaults.COLOR_TRANSPARENT

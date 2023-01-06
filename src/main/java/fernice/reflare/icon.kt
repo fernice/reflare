@@ -13,7 +13,7 @@ import org.fernice.flare.url.Url
 import org.fernice.reflare.cache.ImageCache
 import org.fernice.reflare.element.element
 import org.fernice.reflare.render.filter.createTintedImage
-import org.fernice.reflare.toAWTColor
+import org.fernice.reflare.awt.toAWTColor
 import org.fernice.reflare.util.VacatingRef
 import org.fernice.reflare.util.weakReferenceHashMap
 import java.awt.Component
@@ -86,7 +86,7 @@ open class StyledImageIcon private constructor(internal val imageProvider: Lazy<
                 return styledImageProvider.getStyledImage(component)
             }
 
-            val fill = component.element.getStyle()?.color?.fill ?: Fill.None
+            val fill = component.element.styles?.primary?.color?.fill ?: Fill.None
             if (fill != this.fill) {
                 styledImage = when (fill) {
                     is Fill.None -> image

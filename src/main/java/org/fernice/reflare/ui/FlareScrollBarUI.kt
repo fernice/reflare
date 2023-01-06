@@ -7,6 +7,7 @@
 package org.fernice.reflare.ui
 
 import fernice.reflare.SCROLL_BAR_MINIMALISTIC_PROPERTY
+import fernice.reflare.classes
 import fernice.reflare.isMinimalistic
 import fernice.reflare.light.FButton
 import org.fernice.reflare.Defaults
@@ -356,6 +357,7 @@ private class FlareArrowButton(var direction: Int) : FButton(), SwingConstants {
 
     init {
         isRequestFocusEnabled = false
+        classes.add("flr-scrollbar-button")
     }
 
     override fun paint(g: Graphics?) {

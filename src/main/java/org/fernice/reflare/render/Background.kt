@@ -16,7 +16,7 @@ import org.fernice.flare.style.value.computed.HorizontalPosition
 import org.fernice.flare.style.value.computed.Image
 import org.fernice.flare.style.value.computed.VerticalPosition
 import org.fernice.reflare.cache.ImageCache
-import org.fernice.reflare.toAWTColor
+import org.fernice.reflare.awt.toAWTColor
 import java.awt.Color
 import java.awt.Component
 import java.awt.MultipleGradientPaint
@@ -26,7 +26,7 @@ import java.awt.Image as AWTImage
 class BackgroundLayers(
     val color: Color,
     val clip: Clip,
-    val layers: List<BackgroundLayer>
+    val layers: List<BackgroundLayer>,
 ) {
     companion object
 }
@@ -39,7 +39,7 @@ sealed class BackgroundLayer {
         val size: BackgroundSize,
         val positionX: HorizontalPosition,
         val positionY: VerticalPosition,
-        val origin: Origin
+        val origin: Origin,
     ) : BackgroundLayer() {
         companion object
     }
@@ -51,13 +51,19 @@ sealed class BackgroundLayer {
 
 fun BackgroundLayers.Companion.computeBackgroundLayers(
     component: Component,
-    computedValues: ComputedValues
+    computedValues: ComputedValues,
 ): BackgroundLayers {
     val background = computedValues.background
-    val layers: MutableList<BackgroundLayer> = mutableListOf()
+
+    val color = background.color.toAWTColor()
+
+    val iterator = background.reversedImageLayerIterator()
+    if (!iterator.hasNext()) return BackgroundLayers(color, background.clip, emptyList())
+
+    val layers = mutableListOf<BackgroundLayer>()
 
     loop@
-    for (layer in background.reversedImageLayerIterator()) {
+    for (layer in iterator) {
         when (val image = layer.image) {
             is Image.Url -> {
                 val url = when (image.url) {
@@ -73,6 +79,7 @@ fun BackgroundLayers.Companion.computeBackgroundLayers(
                     BackgroundLayer.Image(future, layer.attachment, layer.size, layer.positionX, layer.positionY, layer.origin)
                 )
             }
+
             is Image.Gradient -> {
                 layers.add(
                     BackgroundLayer.Gradient.computeGradient(image.gradient, component.size)
@@ -80,8 +87,6 @@ fun BackgroundLayers.Companion.computeBackgroundLayers(
             }
         }
     }
-
-    val color = background.color.toAWTColor()
 
     return BackgroundLayers(color, background.clip, layers)
 }

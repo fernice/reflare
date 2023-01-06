@@ -38,7 +38,3 @@ interface VacatingReferenceHolder {
 }
 
 class VacatedReferenceException : RuntimeException("reference has vacated")
-
-operator fun <T> WeakReference<T>.component1(): T? {
-    return get()
-}

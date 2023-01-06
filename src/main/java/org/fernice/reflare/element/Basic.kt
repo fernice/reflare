@@ -14,7 +14,7 @@ class LayeredPaneElement(layeredPane: JLayeredPane) : ComponentElement(layeredPa
 }
 
 class PanelElement(panel: JPanel) : ComponentElement(panel) {
-    override val localName get() = "panel"
+    override val localName get() = "div"
 }
 
 class TabbedPaneElement(tabbedPane: JTabbedPane) : ComponentElement(tabbedPane) {

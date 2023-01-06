@@ -8,6 +8,7 @@
 
 package org.fernice.reflare.element
 
+import fernice.reflare.FlareLookAndFeel
 import org.fernice.reflare.render.CellRendererPane
 import org.fernice.reflare.ui.FlareUI
 import org.fernice.reflare.util.ConcurrentReferenceHashMap
@@ -44,10 +45,14 @@ object StyleTreeElementLookup {
     internal fun ensureElement(component: Component): AWTComponentElement {
         require(component !is Window) { "windows cannot be elements" }
         return elements.computeIfAbsent(component) { component ->
+            if (!FlareLookAndFeel.isLightweightMode()) {
+                when (component) {
+                    is JLayeredPane -> return@computeIfAbsent LayeredPaneElement(component)
+                    is JRootPane -> return@computeIfAbsent RootPaneElement(component)
+                }
+            }
             when (component) {
                 is CellRendererPane -> CellRendererPaneElement(component)
-                is JLayeredPane -> LayeredPaneElement(component)
-                is JRootPane -> RootPaneElement(component)
                 is Container -> ArtificialContainerElement(component)
                 else -> ArtificialComponentElement(component)
             }

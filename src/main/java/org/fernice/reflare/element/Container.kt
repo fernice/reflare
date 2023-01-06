@@ -91,45 +91,14 @@ abstract class AWTContainerElement(container: Container) : AWTComponentElement(c
         }
     }
 
-    override val previousSibling: Element?
-        get() = when (val parent = parent) {
-            null -> null
-            else -> {
-                val children = parent.children
+    final override fun isEmpty(): Boolean = children.isEmpty()
 
-                children.getOrNull(children.indexOf(this) - 1)
-            }
-        }
-
-    override val nextSibling: Element?
-        get() = when (val parent = parent) {
-            null -> null
-            else -> {
-                val children = parent.children
-
-                children.getOrNull(children.indexOf(this) + 1)
-            }
-        }
-
-    override fun isEmpty(): Boolean = children.isEmpty()
-
-    final override fun doProcessCSS(context: EngineContext) {
-        // if (cssFlag == StyleState.CLEAN || !isVisible) return
+    final override fun processCSS(context: EngineContext) {
         if (cssFlag == StyleState.CLEAN) return
 
+        super.processCSS(context)
 
-        if (cssFlag == StyleState.DIRTY_BRANCH) {
-            super.processCSS(context)
-            return
-        }
-
-        super.doProcessCSS(context)
-
-        if (children.isEmpty()) {
-            return
-        }
-
-        for (child in children.toTypedArray()) {
+        for (child in children) {
             val childParent = child.parent
             if (childParent != null && childParent != this) {
                 continue

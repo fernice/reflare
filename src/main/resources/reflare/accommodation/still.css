@@ -24,5 +24,6 @@ button.acc-action {
 }
 
 button.acc-action:hover, button.acc-action:focus {
+  background: white !important;
   background: #ffffff22;
 }

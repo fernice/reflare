@@ -11,8 +11,8 @@ import org.fernice.flare.style.properties.stylestruct.Border
 import org.fernice.flare.style.properties.stylestruct.Margin
 import org.fernice.flare.style.properties.stylestruct.Padding
 import org.fernice.flare.style.value.computed.Au
-import org.fernice.flare.style.value.computed.Style
-import org.fernice.reflare.toAWTColor
+import org.fernice.flare.style.value.computed.BorderStyle
+import org.fernice.reflare.awt.toAWTColor
 import java.awt.Rectangle
 
 @RequiresResourceContext
@@ -38,10 +38,10 @@ internal fun Padding.toTInsets(bounds: Rectangle): TInsets {
 @RequiresResourceContext
 internal fun Border.toTInsets(): TInsets {
     return ResourceContext.TInsets(
-        if (topStyle != Style.None) this.topWidth.length.px() else 0f,
-        if (rightStyle != Style.None) this.rightWidth.length.px() else 0f,
-        if (bottomStyle != Style.None) this.bottomWidth.length.px() else 0f,
-        if (leftStyle != Style.None) this.leftWidth.length.px() else 0f
+        if (topStyle != BorderStyle.None) this.topWidth.length.px() else 0f,
+        if (rightStyle != BorderStyle.None) this.rightWidth.length.px() else 0f,
+        if (bottomStyle != BorderStyle.None) this.bottomWidth.length.px() else 0f,
+        if (leftStyle != BorderStyle.None) this.leftWidth.length.px() else 0f
     )
 }
 

@@ -39,6 +39,7 @@ open class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(),
     override val element = TableHeaderElement(tableHeader)
 
     override fun installDefaults() {
+        header.isOpaque = false
         installDefaultProperties(header)
         header.defaultRenderer = DefaultTableCellHeaderRenderer()
 
