@@ -55,18 +55,18 @@ open class DefaultListCellRenderer : FLabel(), ListCellRenderer<Any>, Serializab
      * and differs from the JList's background;
      * `false` otherwise
      */
-    override fun isOpaque(): Boolean {
-        val back = background
-        var p: Component? = parent
-        if (p != null) {
-            p = p.parent
-        }
-        // p should now be the JList.
-        val colorMatch = back != null && p != null &&
-                back == p.background &&
-                p.isOpaque
-        return !colorMatch && super.isOpaque()
-    }
+//    override fun isOpaque(): Boolean {
+//        val back = background
+//        var p: Component? = parent
+//        if (p != null) {
+//            p = p.parent
+//        }
+//        // p should now be the JList.
+//        val colorMatch = back != null && p != null &&
+//                back == p.background &&
+//                p.isOpaque
+//        return !colorMatch && super.isOpaque()
+//    }
 
     /**
      * Overridden for performance reasons.

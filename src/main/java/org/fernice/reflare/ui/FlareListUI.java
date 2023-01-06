@@ -49,7 +49,6 @@ public class FlareListUI extends BasicListUI implements FlareUI {
         list.add(rendererPane);
 
         list.setOpaque(false);
-        list.setBorder(new FlareBorder(this));
         UIDefaultsHelper.installDefaultProperties(this, list);
         list.setSelectionBackground(Defaults.COLOR_TRANSPARENT);
 

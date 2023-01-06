@@ -49,19 +49,8 @@ open class DefaultTableCellRenderer : FLabel(), TableCellRenderer, Serializable 
         table: JTable?, value: Any?,
         isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int
     ): Component {
-        var isSelected = isSelected
         if (table == null) {
             return this
-        }
-
-        val dropLocation = table.dropLocation
-        if (dropLocation != null
-            && !dropLocation.isInsertRow
-            && !dropLocation.isInsertColumn
-            && dropLocation.row == row
-            && dropLocation.column == column
-        ) {
-            isSelected = true
         }
 
         setValue(value)
@@ -82,19 +71,19 @@ open class DefaultTableCellRenderer : FLabel(), TableCellRenderer, Serializable 
      * See the [Implementation Note](#override)
      * for more information.
      */
-    override fun isOpaque(): Boolean {
-        val back = background
-        var p: Component? = parent
-        if (p != null) {
-            p = p.parent
-        }
-
-        // p should now be the JTable.
-        val colorMatch = back != null && p != null &&
-                back == p.background &&
-                p.isOpaque
-        return !colorMatch && super.isOpaque()
-    }
+//    override fun isOpaque(): Boolean {
+//        val back = background
+//        var p: Component? = parent
+//        if (p != null) {
+//            p = p.parent
+//        }
+//
+//        // p should now be the JTable.
+//        val colorMatch = back != null && p != null &&
+//                back == p.background &&
+//                p.isOpaque
+//        return !colorMatch && super.isOpaque()
+//    }
 
     /**
      * Overridden for performance reasons.

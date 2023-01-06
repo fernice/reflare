@@ -42,6 +42,13 @@ open class ButtonElement(button: AbstractButton) : ComponentElement(button) {
         }
     }
 
+    override fun hasPseudoElement(pseudoElement: PseudoElement): Boolean {
+        return when (pseudoElement) {
+            is PseudoElement.Icon -> true
+            else -> super.matchPseudoElement(pseudoElement)
+        }
+    }
+
     override fun matchPseudoElement(pseudoElement: PseudoElement): Boolean {
         return when (pseudoElement) {
             is PseudoElement.Icon -> true

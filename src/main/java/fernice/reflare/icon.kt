@@ -86,7 +86,7 @@ open class StyledImageIcon private constructor(internal val imageProvider: Lazy<
                 return styledImageProvider.getStyledImage(component)
             }
 
-            val fill = component.element.getStyle()?.color?.fill ?: Fill.None
+            val fill = component.element.styles?.primary?.color?.fill ?: Fill.None
             if (fill != this.fill) {
                 styledImage = when (fill) {
                     is Fill.None -> image

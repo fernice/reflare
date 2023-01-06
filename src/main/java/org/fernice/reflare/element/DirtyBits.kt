@@ -8,6 +8,6 @@ package org.fernice.reflare.element
 
 enum class DirtyBits(val mask: Int) {
 
-    NODE_CSS(0x100b);
+    NODE_CSS(0x100);
 
 }

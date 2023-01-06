@@ -13,7 +13,8 @@ import org.fernice.flare.style.properties.longhand.background.Origin
 import org.fernice.flare.style.properties.stylestruct.Border
 import org.fernice.flare.style.value.computed.Au
 import org.fernice.flare.style.value.computed.BackgroundSize
-import org.fernice.flare.style.value.computed.Style
+import org.fernice.flare.style.value.computed.BorderStyle
+import org.fernice.reflare.alpha
 import org.fernice.reflare.element.AWTComponentElement
 import org.fernice.reflare.render.BackgroundLayer
 import org.fernice.reflare.render.BackgroundLayers
@@ -33,8 +34,10 @@ import org.fernice.reflare.shape.BackgroundShape
 import org.fernice.reflare.shape.BorderShape
 import org.fernice.reflare.toAWTColor
 import org.fernice.reflare.util.VacatingRef
+import org.fernice.std.Second
 import java.awt.Color
 import java.awt.Component
+import java.awt.Dimension
 import java.awt.Graphics
 import java.awt.Graphics2D
 import javax.swing.SwingUtilities
@@ -67,41 +70,74 @@ class MerlinRenderer(componentReference: VacatingRef<Component>, private val ele
         g.use { g2 -> paintBorder(g2, style) }
     }
 
-    // ***************************** Background ***************************** //
+    // ***************************** Caching ***************************** //
 
-    private val backgroundShapeCache = Array(3) { Cachable<BackgroundShape>() }
+    private var backgroundShapes = arrayOfNulls<BackgroundShape?>(3)
+    private var backgroundLayers: BackgroundLayers? = null
 
-    internal fun getBackgroundShape(computedValues: ComputedValues, clip: Clip): BackgroundShape {
-        return backgroundShapeCache[clip.ordinal].getOrPut(
-            computedValues.margin,
-            computedValues.border,
-            computedValues.padding,
-            component.getBounds(ResourceContext.Rectangle())
-        ) {
-            BackgroundShape.computeBackgroundShape(computedValues, component, clip)
+    private var borderShape: BorderShape? = null
+
+    fun invalidateShapes() {
+        val backgroundShapes = backgroundShapes
+        for (index in backgroundShapes.indices) {
+            backgroundShapes[index] = null
+        }
+        borderShape = null
+    }
+
+    fun invalidateLayers() {
+        backgroundLayers = null
+    }
+
+    private val validatedSize = Dimension()
+
+    private fun validate() {
+        val validatedSize = validatedSize
+        val width = validatedSize.width
+        val height = validatedSize.height
+        component.getSize(validatedSize)
+
+        if (width != validatedSize.width || height != validatedSize.height) {
+            invalidateShapes()
+            invalidateLayers()
         }
     }
 
-    private val backgroundLayersCache = Cachable<BackgroundLayers>()
+    private fun getBackgroundShape(computedValues: ComputedValues, clip: Clip): BackgroundShape {
+        val backgroundShapes = backgroundShapes
+        var backgroundShape = backgroundShapes[clip.ordinal]
+        if (backgroundShape == null) {
+            backgroundShape = BackgroundShape.computeBackgroundShape(computedValues, component, clip)
+            backgroundShapes[clip.ordinal] = backgroundShape
+        }
+        return backgroundShape
+    }
 
     private fun getBackgroundLayers(computedValues: ComputedValues): BackgroundLayers {
-        return backgroundLayersCache.getOrPut(
-            computedValues.margin,
-            computedValues.border,
-            computedValues.padding,
-            computedValues.background,
-            component.getBounds(ResourceContext.Rectangle())
-        ) {
-            BackgroundLayers.computeBackgroundLayers(component, computedValues)
+        var backgroundLayers = this.backgroundLayers
+        if (backgroundLayers == null) {
+            backgroundLayers = BackgroundLayers.computeBackgroundLayers(component, computedValues)
+            this.backgroundLayers = backgroundLayers
         }
+        return backgroundLayers
     }
 
-    fun paintBackground(g2: Graphics2D, computedValues: ComputedValues) {
-        val bounds = component.getBounds(ResourceContext.Rectangle())
+    private fun getBorderShape(computedValues: ComputedValues): BorderShape {
+        var borderShape = this.borderShape
+        if (borderShape == null) {
+            borderShape = BorderShape.computeBorderShape(computedValues, component)
+            this.borderShape = borderShape
+        }
+        return borderShape
+    }
 
-        val margin = computedValues.margin.toTInsets(bounds)
-        val borderInsets = computedValues.border.toTInsets()
-        val padding = computedValues.padding.toTInsets(bounds)
+    // ***************************** Background ***************************** //
+
+    fun paintBackground(g2: Graphics2D, computedValues: ComputedValues) {
+        validate()
+
+        val background = computedValues.background
+        if (background.color.alpha == 0 && background.image.none { it is Second }) return
 
         val backgroundShape = getBackgroundShape(computedValues, computedValues.background.clip)
         val backgroundLayers = getBackgroundLayers(computedValues)
@@ -110,11 +146,18 @@ class MerlinRenderer(componentReference: VacatingRef<Component>, private val ele
         g2.fill(backgroundShape.shape)
 
         if (backgroundLayers.layers.isNotEmpty()) {
+            val bounds = component.getBounds(ResourceContext.Rectangle())
+
+            val margin = computedValues.margin.toTInsets(bounds)
+            val borderInsets = computedValues.border.toTInsets()
+            val padding = computedValues.padding.toTInsets(bounds)
+
             for (layer in backgroundLayers.layers) {
                 when (layer) {
                     is BackgroundLayer.Image -> {
                         paintBackgroundImage(g2, component, computedValues, layer, backgroundLayers.clip, layer.origin, padding, borderInsets, margin)
                     }
+
                     is BackgroundLayer.Gradient -> {
                         g2.paint = layer.gradient
                         g2.fill(backgroundShape.shape)
@@ -133,7 +176,7 @@ class MerlinRenderer(componentReference: VacatingRef<Component>, private val ele
         backgroundOrigin: Origin,
         padding: TInsets,
         borderInsets: TInsets,
-        margin: TInsets
+        margin: TInsets,
     ) {
         if (!layer.image.isDone || layer.image.isCompletedExceptionally) return
 
@@ -141,7 +184,8 @@ class MerlinRenderer(componentReference: VacatingRef<Component>, private val ele
 
         val componentBounds = when (layer.attachment) {
             is Attachment.Scroll,
-            is Attachment.Local -> {
+            is Attachment.Local,
+            -> {
                 val bounds = TBounds.fromDimension(component.getSize(ResourceContext.Dimension()))
 
                 when (backgroundOrigin) {
@@ -150,6 +194,7 @@ class MerlinRenderer(componentReference: VacatingRef<Component>, private val ele
                     is Origin.ContentBox -> bounds - margin - borderInsets - padding
                 }
             }
+
             is Attachment.Fixed -> {
                 val root = SwingUtilities.getRoot(component)
 
@@ -186,6 +231,7 @@ class MerlinRenderer(componentReference: VacatingRef<Component>, private val ele
                     )
                 }
             }
+
             is BackgroundSize.Contain -> {
                 val componentRatio = componentBounds.height / componentBounds.width
                 val imageRatio = image.height.toFloat() / image.width.toFloat()
@@ -202,6 +248,7 @@ class MerlinRenderer(componentReference: VacatingRef<Component>, private val ele
                     )
                 }
             }
+
             is BackgroundSize.Explicit -> {
                 Pair(
                     backgroundSize.width.toPixelLength(Au.fromPx(componentBounds.width), Au.fromPx(image.width)).px(),
@@ -227,20 +274,9 @@ class MerlinRenderer(componentReference: VacatingRef<Component>, private val ele
 
     // ***************************** Border ***************************** //
 
-    private val borderShapeCache = Cachable<BorderShape>()
-
-    private fun getBorderShape(computedValues: ComputedValues): BorderShape {
-        return borderShapeCache.getOrPut(
-            computedValues.margin,
-            computedValues.border,
-            computedValues.padding,
-            component.getBounds(ResourceContext.Rectangle())
-        ) {
-            BorderShape.computeBorderShape(computedValues, component, renderer = this)
-        }
-    }
-
     private fun paintBorder(g2: Graphics2D, computedValues: ComputedValues) {
+        validate()
+
         val border = computedValues.border
         if (border.isNone()) {
             return
@@ -256,6 +292,7 @@ class MerlinRenderer(componentReference: VacatingRef<Component>, private val ele
                 g2.color = border.topColor.toAWTColor()
                 g2.fill(borderShape.shape)
             }
+
             is BorderShape.Complex -> {
                 val borderColor = border.toTColors(computedValues.color.color)
 
@@ -275,7 +312,7 @@ class MerlinRenderer(componentReference: VacatingRef<Component>, private val ele
     }
 
     private fun Border.isNone(): Boolean {
-        return topStyle == Style.None && rightStyle == Style.None && bottomStyle == Style.None && leftStyle == Style.None
+        return topStyle == BorderStyle.None && rightStyle == BorderStyle.None && bottomStyle == BorderStyle.None && leftStyle == BorderStyle.None
     }
 
     private fun TInsets.isAllZero(): Boolean {

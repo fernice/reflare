@@ -17,6 +17,13 @@ class LabelElement(label: JLabel) : ComponentElement(label) {
 
     override val localName get() = "label"
 
+    override fun hasPseudoElement(pseudoElement: PseudoElement): Boolean {
+        return when (pseudoElement) {
+            is PseudoElement.Icon -> true
+            else -> super.matchPseudoElement(pseudoElement)
+        }
+    }
+
     override fun matchPseudoElement(pseudoElement: PseudoElement): Boolean {
         return when (pseudoElement) {
             is PseudoElement.Icon -> true
@@ -35,6 +42,19 @@ abstract class TextElement(textComponent: JTextComponent) : ComponentElement(tex
         }
     }
 
+    override fun updateStyle(style: ComputedValues) {
+        val component = component as JTextComponent
+
+        component.caretColor = style.color.color.toAWTColor()
+    }
+
+    override fun hasPseudoElement(pseudoElement: PseudoElement): Boolean {
+        return when (pseudoElement) {
+            is PseudoElement.Selection -> true
+            else -> super.matchPseudoElement(pseudoElement)
+        }
+    }
+
     override fun matchPseudoElement(pseudoElement: PseudoElement): Boolean {
         return when (pseudoElement) {
             is PseudoElement.Selection -> true
@@ -42,24 +62,16 @@ abstract class TextElement(textComponent: JTextComponent) : ComponentElement(tex
         }
     }
 
-    override fun updateStyle(style: ComputedValues) {
-        val component = component as JTextComponent
-
-        component.caretColor = style.color.color.toAWTColor()
-    }
-
     override fun updatePseudoElement(pseudoElement: PseudoElement, style: ComputedValues) {
-        super.updatePseudoElement(pseudoElement, style)
-
-        val component = component as JTextComponent
-
         when (pseudoElement) {
             is PseudoElement.Selection -> {
+                val component = component as JTextComponent
+
                 component.selectedTextColor = style.color.color.toAWTColor()
                 component.selectionColor = style.background.color.toAWTColor()
             }
-            else -> {
-            }
+
+            else -> super.updatePseudoElement(pseudoElement, style)
         }
     }
 }
