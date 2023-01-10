@@ -9,8 +9,9 @@ import org.fernice.flare.font.FontMetricsProvider
 import org.fernice.flare.font.FontMetricsQueryResult
 import org.fernice.flare.style.MatchingResult
 import org.fernice.flare.style.properties.stylestruct.Font
-import org.fernice.flare.style.stylesheet.Origin
-import org.fernice.flare.style.stylesheet.Stylesheet
+import org.fernice.flare.style.Origin
+import org.fernice.flare.style.StyleRoot
+import org.fernice.flare.style.parser.QuirksMode
 import org.fernice.flare.style.value.computed.Au
 import org.fernice.flare.style.value.generic.Size2D
 import org.fernice.reflare.element.AWTComponentElement
@@ -24,17 +25,18 @@ import java.io.InputStream
 import java.lang.ref.WeakReference
 import java.net.URI
 import java.nio.charset.StandardCharsets
-import java.util.Collections
-import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
+import org.fernice.flare.style.stylesheet.Stylesheet as StylesheetPeer
 
 private val SUPPRESS_USER_AGENT_STYLESHEETS = systemFlag("fernice.reflare.suppressUserAgentStylesheet")
 
 object CSSEngine {
 
-    val shared = SharedEngine.new(
+    internal val sharedEngine = SharedEngine.new(
         object : FontMetricsProvider {
             override fun query(font: Font, fontSize: Au, device: Device): FontMetricsQueryResult {
-                return FontMetricsQueryResult.NotAvailable()
+                return FontMetricsQueryResult.NotAvailable
             }
         }
     )
@@ -44,7 +46,7 @@ object CSSEngine {
     fun createEngine(device: Device): Engine {
         val engine = Engine(
             device,
-            shared
+            sharedEngine
         )
 
         removeVacatedEngines()
@@ -56,28 +58,34 @@ object CSSEngine {
     fun createLocalEngineContext(element: Element): EngineContext {
         val localDevice = LocalDevice((element as AWTComponentElement).component)
 
-        return shared.createEngineContext(localDevice)
+        return sharedEngine.createEngineContext(localDevice)
     }
 
     fun styleWithLocalContext(element: Element) {
         val localDevice = LocalDevice((element as AWTComponentElement).component)
 
-        shared.style(localDevice, element)
+        sharedEngine.style(localDevice, element)
     }
 
     fun matchStyleWithLocalContext(element: Element): MatchingResult {
         val localDevice = LocalDevice((element as AWTComponentElement).component)
 
-        return shared.matchStyle(localDevice, element)
+        return sharedEngine.matchStyle(localDevice, element)
     }
 
-    private val mutableStylesheets: MutableMap<Source, Stylesheet> = ConcurrentHashMap()
-    val stylesheets: Map<Source, Stylesheet>
-        get() = Collections.unmodifiableMap(mutableStylesheets)
+    private val lock = ReentrantLock()
+
+    private val mutableStylesheets = mutableListOf<Stylesheet>()
+
+    @JvmStatic
+    val stylesheets: List<Stylesheet>
+        get() = lock.withLock { mutableStylesheets.toList() }
 
     init {
         if (!SUPPRESS_USER_AGENT_STYLESHEETS) {
-            addStylesheet(Source.Resource("/reflare/style/user-agent.css"), Origin.USER_AGENT)
+            val styleRoot = sharedEngine.stylist.styleRoot
+
+            styleRoot.addStylesheet(Stylesheet(Origin.UserAgent, "/reflare/style/user-agent.css"))
 
             val platformStylesheet = when (Platform.operatingSystem) {
                 OperatingSystem.Windows -> "/reflare/style/user-agent-windows.css"
@@ -85,75 +93,30 @@ object CSSEngine {
                 OperatingSystem.Linux -> "/reflare/style/user-agent-linux.css"
             }
 
-            addStylesheet(Source.Resource(platformStylesheet), Origin.USER_AGENT)
-
-            addStylesheet(Source.Resource("/reflare/style/file_chooser.css"), Origin.USER_AGENT)
+            styleRoot.addStylesheet(Stylesheet(Origin.UserAgent, platformStylesheet))
         }
     }
 
     @JvmStatic
-    fun addStylesheetResource(resource: String) {
-        addStylesheet(Source.Resource(resource), Origin.AUTHOR)
+    fun addStylesheet(stylesheet: Stylesheet) {
+        lock.withLock {
+            mutableStylesheets.add(stylesheet)
+            sharedEngine.stylist.styleRoot.addStylesheet(stylesheet.peer)
+        }
+        invalidate()
     }
 
     @JvmStatic
-    fun addStylesheet(file: File) {
-        addStylesheet(Source.File(file), Origin.AUTHOR)
+    fun removeStylesheet(stylesheet: Stylesheet) {
+        lock.withLock {
+            mutableStylesheets.remove(stylesheet)
+            sharedEngine.stylist.styleRoot.removeStylesheet(stylesheet.peer)
+        }
+        invalidate()
     }
 
-    private fun addStylesheet(source: Source, origin: Origin) {
-        if (mutableStylesheets.containsKey(source)) {
-            removeStylesheet(source)
-        }
-
-        val text = source.inputStream()
-            .bufferedReader(StandardCharsets.UTF_8)
-            .use { reader -> reader.readText() }
-
-        val stylesheet = Stylesheet.from(text, origin, source.uri)
-
-        mutableStylesheets[source] = stylesheet
-
-        shared.stylist.addStylesheet(stylesheet)
-
+    fun invalidate() {
         invalidateEngines()
-    }
-
-    @JvmStatic
-    fun removeStylesheet(file: File) {
-        removeStylesheet(Source.File(file))
-    }
-
-    @JvmStatic
-    fun removeStylesheetResource(resource: String) {
-        removeStylesheet(Source.Resource(resource))
-    }
-
-    private fun removeStylesheet(source: Source) {
-        val stylesheet = mutableStylesheets.remove(source)
-
-        if (stylesheet != null) {
-            shared.stylist.removeStylesheet(stylesheet)
-
-            invalidateEngines()
-        }
-    }
-
-    fun reloadStylesheets() {
-        val stylesheets = mutableStylesheets.toMap()
-
-        for ((source, _) in stylesheets) {
-            removeStylesheet(source)
-        }
-
-        for ((source, stylesheet) in stylesheets) {
-            addStylesheet(source, stylesheet.origin)
-        }
-    }
-
-    @Deprecated(message = "Outdated naming scheme", replaceWith = ReplaceWith("stylesheets"))
-    fun stylesheets(): List<Stylesheet> {
-        return mutableStylesheets.values.toList()
     }
 
     private fun invalidateEngines() {
@@ -191,26 +154,54 @@ object CSSEngine {
             }
         }
     }
-}
 
-sealed class Source {
-
-    data class Resource(val path: String) : Source()
-
-    data class File(val path: java.io.File) : Source()
-
-    fun inputStream(): InputStream {
-        return when (this) {
-            is Resource -> FlareLookAndFeel::class.java.getResourceAsStream(path)
-            is File -> path.inputStream()
-        }
+    @Deprecated(
+        message = "use Stylesheet instead",
+        replaceWith = ReplaceWith("addStylesheet(Stylesheet.fromResource(resource))", "fernice.reflare.CSSEngine.addStylesheet")
+    )
+    @JvmStatic
+    fun addStylesheetResource(resource: String) {
+        addStylesheet(Stylesheet.fromResource(resource))
     }
 
-    val uri: URI
-        get() = when (this) {
-            is Resource -> URI(path)
-            is File -> path.toURI()
-        }
+    @Deprecated(
+        message = "use Stylesheet instead",
+        replaceWith = ReplaceWith("addStylesheet(Stylesheet.fromFile(file))", "fernice.reflare.CSSEngine.addStylesheet")
+    )
+    @JvmStatic
+    fun addStylesheet(file: File) {
+        addStylesheet(Stylesheet.fromFile(file))
+    }
+
+    @Deprecated(message = "use Stylesheet instead")
+    @JvmStatic
+    fun removeStylesheet(file: File) {
+        val uri = file.toURI()
+        val stylesheet = stylesheets.firstOrNull { it.source == uri } ?: return
+        removeStylesheet(stylesheet)
+    }
+
+    @Deprecated(message = "use Stylesheet instead")
+    @JvmStatic
+    fun removeStylesheetResource(resource: String) {
+        val url = CSSEngine::class.java.getResource(resource) ?: return
+        val uri = url.toURI()
+        val stylesheet = stylesheets.firstOrNull { it.source == uri } ?: return
+        removeStylesheet(stylesheet)
+    }
+
+    @Deprecated(message = "no longer supported")
+    fun reloadStylesheets() {
+    }
+}
+
+private fun Stylesheet(origin: Origin, resource: String): StylesheetPeer {
+    val url = CSSEngine::class.java.getResource(resource) ?: error("cannot locate user agent stylesheet: $resource")
+
+    val text = url.openStream().bufferedReader(StandardCharsets.UTF_8).use { it.readText() }
+    val source = url.toURI()
+
+    return StylesheetPeer.from(origin, text, source)
 }
 
 private class LocalDevice(val component: Component) : Device {
@@ -224,6 +215,7 @@ private class LocalDevice(val component: Component) : Device {
             component.font = component.font.deriveFont(value.toFloat())
         }
 
-    override fun invalidate() {
-    }
+    override val systemFontSize: Au = Au.fromPx(16)
+
+    override fun invalidate() {}
 }

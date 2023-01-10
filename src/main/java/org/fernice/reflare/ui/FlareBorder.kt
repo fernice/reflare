@@ -26,7 +26,9 @@ private val None = AWTInsets(0, 0, 0, 0)
 open class FlareBorder protected constructor(private val ui: FlareUI) : AbstractBorder() {
 
     override fun paintBorder(c: Component?, g: Graphics, x: Int, y: Int, width: Int, height: Int) {
-        ui.paintBorder(c ?: ui.element.component, g)
+        if (c != null) {
+            ui.paintBorder(c, g)
+        }
     }
 
     override fun getBorderInsets(c: Component?, insets: AWTInsets?): AWTInsets {
@@ -51,7 +53,7 @@ open class FlareBorder protected constructor(private val ui: FlareUI) : Abstract
 
     @RequiresResourceContext
     private inline fun computeInsets(block: ComputedValues.(Rectangle) -> TInsets): TInsets {
-        val style = ui.element.getStyle()
+        val style = ui.element.styles?.primary
         return if (style != null) {
             val bounds = ui.element.component.getBounds(ResourceContext.Rectangle())
 

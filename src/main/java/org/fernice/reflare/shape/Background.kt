@@ -15,6 +15,8 @@ import java.awt.Dimension
 import java.awt.Shape
 import java.awt.geom.Arc2D
 import java.awt.geom.Path2D
+import java.awt.geom.Rectangle2D
+import java.awt.geom.RoundRectangle2D
 
 internal class BackgroundShape(val shape: Shape) {
 
@@ -26,7 +28,7 @@ internal class BackgroundShape(val shape: Shape) {
             borderWidth: TInsets,
             borderRadius: TRadii,
             margin: TInsets,
-            padding: TInsets
+            padding: TInsets,
         ): BackgroundShape {
             return BackgroundShape(
                 computeBackgroundClip(clip, size, borderWidth, borderRadius, margin, padding)
@@ -36,7 +38,7 @@ internal class BackgroundShape(val shape: Shape) {
         fun computeBackgroundShape(
             computedValues: ComputedValues,
             component: Component,
-            backgroundClip: Clip = computedValues.background.clip
+            backgroundClip: Clip,
         ): BackgroundShape {
             val border = computedValues.border
 
@@ -60,7 +62,7 @@ internal fun computeBackgroundClip(
     borderWidth: TInsets,
     borderRadius: TRadii,
     margin: TInsets,
-    padding: TInsets
+    padding: TInsets,
 ): Shape {
 
     val (width, bounds) = when (clip) {
@@ -70,12 +72,14 @@ internal fun computeBackgroundClip(
                 TBounds.fromDimension(size) - (padding + borderWidth + margin)
             )
         }
+
         Clip.PaddingBox -> {
             Pair(
                 borderWidth,
                 TBounds.fromDimension(size) - (borderWidth + margin)
             )
         }
+
         Clip.BorderBox -> {
             Pair(
                 ResourceContext.TInsets(),
@@ -98,7 +102,14 @@ internal fun computeBackgroundClip(
  * @param radii the corner radius at the corner of the virtual space
  * @return the rounded rectangle
  */
-private fun computeRoundedRectangle(rect: TBounds, radii: TRadii): Path2D {
+private fun computeRoundedRectangle(rect: TBounds, radii: TRadii): Shape {
+    if (radii.isSymmetric()) {
+        if (radii.topLeftWidth == 0f && radii.topLeftHeight == 0f) {
+            return Rectangle2D.Float(rect.x, rect.y, rect.width, rect.height)
+        }
+        return RoundRectangle2D.Float(rect.x, rect.y, rect.width, rect.height, radii.topLeftWidth * 2, radii.topLeftHeight * 2)
+    }
+
     val path = Path2D.Float()
 
     path.moveTo(rect.x + radii.topLeftWidth, rect.y)
@@ -129,7 +140,7 @@ private fun computeRoundedRectangle(rect: TBounds, radii: TRadii): Path2D {
 //    path.quadTo(rect.x.toDouble(), rect.y.toDouble(), (rect.x + radii.topLeftWidth).toDouble(), rect.y.toDouble())
     path.arcTo(
         rect.x,
-        rect.y ,
+        rect.y,
         radii.topLeftWidth,
         radii.topLeftHeight,
         -180f,
@@ -149,4 +160,9 @@ private fun Path2D.arcTo(x: Float, y: Float, width: Float, height: Float, start:
             Arc2D.OPEN
         ), true
     )
+}
+
+private fun TRadii.isSymmetric(): Boolean {
+    return topLeftWidth == topRightWidth && topRightWidth == bottomRightWidth && bottomRightWidth == bottomLeftWidth
+            && topLeftHeight == topRightHeight && topRightHeight == bottomRightHeight && bottomRightHeight == bottomLeftHeight
 }

@@ -106,6 +106,8 @@ class Frame(frameInstance: Window) : Device, VacatingReferenceHolder {
             field = value.min(Au.fromPx(1))
         }
 
+    override val systemFontSize: Au = Au.fromPx(12)
+
     override fun invalidate() {
         root?.reapplyCSS("frame:invalidate")
     }

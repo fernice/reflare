@@ -17,7 +17,7 @@ public interface Defaults {
 
     Color COLOR_TRANSPARENT = new FlareColorResource(0, 0, 0, 0);
     Color COLOR_GRAY_TRANSLUCENT = new FlareColorResource(0, 0, 0, 40);
-    Color COLOR_BLACK = new FlareColorResource(255, 255, 255, 255);
+    Color COLOR_BLACK = new FlareColorResource(0, 0, 0, 255);
     Color COLOR_WHITE = new FlareColorResource(255, 255, 255, 255);
 
     Insets INSETS_EMPTY = new FlareInsetsResource(0, 0, 0, 0);

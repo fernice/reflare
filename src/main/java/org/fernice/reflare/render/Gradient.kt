@@ -19,7 +19,7 @@ import org.fernice.flare.style.value.computed.RGBAColor
 import org.fernice.flare.style.value.specified.X
 import org.fernice.flare.style.value.specified.Y
 import org.fernice.reflare.geom0.Point
-import org.fernice.reflare.toAWTColor
+import org.fernice.reflare.awt.toAWTColor
 import org.fernice.reflare.util.peekIterator
 import java.awt.Color
 import java.awt.Dimension
@@ -100,7 +100,7 @@ private fun Point.toAWTPoint(): AWTPoint {
     return AWTPoint(this.x.toInt(), this.y.toInt())
 }
 
-private fun computeColorFractions(gradientItems: List<GradientItem>, containingLength: Float): Pair<Array<Color>, FloatArray> {
+private fun computeColorFractions(gradientItems: List<GradientItem>, containingLength: Float): Pair<Array<out Color>, FloatArray> {
     val gradientStops: MutableList<GradientStop> = mutableListOf()
     val iterator = gradientItems.peekIterator()
 

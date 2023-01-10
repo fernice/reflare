@@ -63,10 +63,27 @@ filechooser list text:focus, filechooser list text:active {
   background-color: white;
 }
 
-filechooser combobox button, filechooser combobox button:hover,
-filechooser combobox button:focus, filechooser combobox button:active {
+filechooser combobox > button, filechooser combobox > button:hover,
+filechooser combobox > button:focus, filechooser combobox > button:active {
   border: none;
   margin: 0;
   padding: 0;
-  background-color: transparent;
+  background: dodgerblue;
+  border-radius: 0 3px 3px 0;
+}
+
+filechooser combobox > button:disabled {
+  background: #636363;
+}
+
+filechooser combobox > text, filechooser combobox > text:hover,
+filechooser combobox > text:focus, filechooser combobox > text:active {
+  border: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+filechooser combobox button {
+  fill: white;
 }

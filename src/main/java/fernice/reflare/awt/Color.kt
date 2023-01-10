@@ -4,11 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package fernice.reflare.style;
+package fernice.reflare.awt
 
-import org.jetbrains.annotations.NotNull;
+import java.awt.Color
 
-public interface StyleInvalidationListener {
-
-    void styleChanged(@NotNull StyleMatcher styleMatcher);
-}
+class FlareColor(r: Float, g: Float, b: Float, a: Float = 1f) : Color(r, g, b, a)

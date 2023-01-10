@@ -11,13 +11,14 @@ import fernice.reflare.classes
 import org.fernice.flare.cssparser.toCssString
 import org.fernice.flare.style.ComputedValues
 import org.fernice.flare.style.ruletree.CascadeLevel
-import org.fernice.flare.style.ruletree.StyleSource
 import org.fernice.flare.style.ruletree.printTree
+import org.fernice.flare.style.source.StyleAttribute
+import org.fernice.flare.style.source.StyleRule
+import org.fernice.flare.style.source.StyleSource
 import org.fernice.reflare.element.AWTComponentElement
+import org.fernice.reflare.element.ElementRestyleListener
 import org.fernice.reflare.element.element
 import org.fernice.reflare.layout.VerticalLayout
-import org.fernice.std.First
-import org.fernice.std.Second
 import java.awt.AWTEvent
 import java.awt.BorderLayout
 import java.awt.Container
@@ -133,16 +134,16 @@ private class MatchingStylesPanel : JPanel() {
         classes.add("dbg-matching")
     }
 
-    val restyleListener: (ComputedValues) -> Unit = { update() }
+    val restyleListener = ElementRestyleListener{ update() }
 
     var element: AWTComponentElement? = null
         set(value) {
             val previous = field
-            previous?.removeRestyleListener(restyleListener)
+            previous?.removeElementRestyleListener(restyleListener)
 
             field = value
 
-            value?.addRestyleListener(restyleListener)
+            value?.addElementRestyleListener(restyleListener)
 
             update()
         }
@@ -155,15 +156,14 @@ private class MatchingStylesPanel : JPanel() {
         if (element != null) {
             val result = element.getMatchingStyles()
 
+            result.ruleNode.printTree()
+
             var count = 1
             for (node in result.ruleNode.selfAndAncestors()) {
-                if (count == 1) {
-                    result.ruleNode.printTree()
-                }
-                val source = node.source
-                if (source != null) {
+                val declarations = node.declarations?.get()
+                if (declarations != null) {
                     println("$count $node")
-                    add(StylesPanel(source, node.level))
+                    add(StylesPanel(declarations.source, node.level))
                 }
                 count++
             }
@@ -180,10 +180,9 @@ private class StylesPanel(source: StyleSource, level: CascadeLevel) : JPanel() {
         layout = VerticalLayout()
         classes.add("dbg-styles")
 
-        val either = source.source
-        val (selectors, declarations) = when (either) {
-            is First -> either.value.selectors to either.value.declarations
-            is Second -> null to either.value
+        val (selectors, declarations) = when (source) {
+            is StyleRule -> source.selectors to source.declarations
+            is StyleAttribute -> null to source.declarations
         }
 
         val headerPanel = JPanel(BorderLayout())
@@ -205,7 +204,7 @@ private class StylesPanel(source: StyleSource, level: CascadeLevel) : JPanel() {
             selectorLabel.text = "element.style"
         }
 
-        for ((declaration, importance) in declarations.declarationImportanceSequence()) {
+        for (declaration in declarations.asSequence()) {
             val declarationLabel = JLabel()
             declarationLabel.text = declaration.toCssString().wrappable()
             declarationLabel.classes.add("dbg-declaration")

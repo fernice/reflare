@@ -22,6 +22,12 @@ var Component.style: String
         this.element.styleAttributeValue = value
     }
 
+var Component.styleRoot: StyleRoot?
+    get() = this.element.styleRootValue
+    set(value) {
+        this.element.styleRootValue = value
+    }
+
 fun <E> MutableSet<E>.addAll(vararg values: E) {
     for (value in values) {
         this.add(value)

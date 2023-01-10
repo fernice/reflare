@@ -2,7 +2,6 @@ package org.fernice.reflare.shape
 
 import org.fernice.flare.style.ComputedValues
 import org.fernice.flare.style.properties.longhand.background.Clip
-import org.fernice.reflare.render.merlin.MerlinRenderer
 import org.fernice.reflare.resource.ResourceContext
 import org.fernice.reflare.resource.TBounds
 import org.fernice.reflare.resource.TColors
@@ -37,7 +36,7 @@ internal sealed class BorderShape {
 
     companion object {
 
-        fun computeBorderShape(computedValues: ComputedValues, component: Component, renderer: MerlinRenderer? = null): BorderShape {
+        fun computeBorderShape(computedValues: ComputedValues, component: Component): BorderShape {
             val border = computedValues.border
 
             val borderWidth = border.toTInsets()
@@ -52,20 +51,10 @@ internal sealed class BorderShape {
             val padding = computedValues.padding.toTInsets(bounds)
 
             return if (hasOnlyOneColor(borderColor)) {
-                if (renderer != null) simple(computedValues, renderer) else simple(size, borderWidth, borderRadius, margin, padding)
+                simple(size, borderWidth, borderRadius, margin, padding)
             } else {
                 complex(size, borderWidth, borderRadius, margin)
             }
-        }
-
-        internal fun simple(computedValues: ComputedValues, renderer: MerlinRenderer): BorderShape {
-            val borderClip = renderer.getBackgroundShape(computedValues, Clip.BorderBox)
-            val paddingClip = renderer.getBackgroundShape(computedValues, Clip.PaddingBox)
-
-            val clip = Area(borderClip.shape)
-            clip.subtract(Area(paddingClip.shape))
-
-            return Simple(clip)
         }
 
         fun simple(

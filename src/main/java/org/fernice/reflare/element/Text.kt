@@ -3,7 +3,7 @@ package org.fernice.reflare.element
 import org.fernice.flare.selector.NonTSPseudoClass
 import org.fernice.flare.selector.PseudoElement
 import org.fernice.flare.style.ComputedValues
-import org.fernice.reflare.toAWTColor
+import org.fernice.reflare.awt.toAWTColor
 import javax.swing.JEditorPane
 import javax.swing.JFormattedTextField
 import javax.swing.JLabel
@@ -16,6 +16,13 @@ import javax.swing.text.JTextComponent
 class LabelElement(label: JLabel) : ComponentElement(label) {
 
     override val localName get() = "label"
+
+    override fun hasPseudoElement(pseudoElement: PseudoElement): Boolean {
+        return when (pseudoElement) {
+            is PseudoElement.Icon -> true
+            else -> super.matchPseudoElement(pseudoElement)
+        }
+    }
 
     override fun matchPseudoElement(pseudoElement: PseudoElement): Boolean {
         return when (pseudoElement) {
@@ -35,6 +42,19 @@ abstract class TextElement(textComponent: JTextComponent) : ComponentElement(tex
         }
     }
 
+    override fun updateStyle(style: ComputedValues) {
+        val component = component as JTextComponent
+
+        component.caretColor = style.color.color.toAWTColor()
+    }
+
+    override fun hasPseudoElement(pseudoElement: PseudoElement): Boolean {
+        return when (pseudoElement) {
+            is PseudoElement.Selection -> true
+            else -> super.matchPseudoElement(pseudoElement)
+        }
+    }
+
     override fun matchPseudoElement(pseudoElement: PseudoElement): Boolean {
         return when (pseudoElement) {
             is PseudoElement.Selection -> true
@@ -42,24 +62,16 @@ abstract class TextElement(textComponent: JTextComponent) : ComponentElement(tex
         }
     }
 
-    override fun updateStyle(style: ComputedValues) {
-        val component = component as JTextComponent
-
-        component.caretColor = style.color.color.toAWTColor()
-    }
-
     override fun updatePseudoElement(pseudoElement: PseudoElement, style: ComputedValues) {
-        super.updatePseudoElement(pseudoElement, style)
-
-        val component = component as JTextComponent
-
         when (pseudoElement) {
             is PseudoElement.Selection -> {
+                val component = component as JTextComponent
+
                 component.selectedTextColor = style.color.color.toAWTColor()
                 component.selectionColor = style.background.color.toAWTColor()
             }
-            else -> {
-            }
+
+            else -> super.updatePseudoElement(pseudoElement, style)
         }
     }
 }
