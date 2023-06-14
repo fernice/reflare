@@ -16,7 +16,7 @@ import javax.swing.text.html.HTMLDocument
 import javax.swing.text.html.HTMLEditorKit
 import javax.swing.text.html.StyleSheet
 
-class FlareHTMLEditorKit : HTMLEditorKit() {
+open class FlareHTMLEditorKit : HTMLEditorKit() {
 
     override fun createDefaultDocument(): Document {
         val styles = styleSheet
@@ -31,7 +31,7 @@ class FlareHTMLEditorKit : HTMLEditorKit() {
         return doc
     }
 
-    class FlareHTMLDocument(styleSheet: StyleSheet) : HTMLDocument(styleSheet) {
+    open class FlareHTMLDocument(styleSheet: StyleSheet) : HTMLDocument(styleSheet) {
 
         override fun getFont(attr: AttributeSet): Font? {
             val fontFamily = StyleConstants.getFontFamily(attr)
