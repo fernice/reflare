@@ -7,9 +7,8 @@
 package fernice.reflare.style
 
 import fernice.reflare.CSSEngine
+import fernice.reflare.StyleRoot
 import org.fernice.flare.EngineContext
-import org.fernice.flare.cssparser.Parser
-import org.fernice.flare.cssparser.ParserInput
 import org.fernice.flare.dom.Device
 import org.fernice.flare.dom.Element
 import org.fernice.flare.dom.ElementStyles
@@ -18,19 +17,13 @@ import org.fernice.flare.selector.NonTSPseudoClass
 import org.fernice.flare.selector.PseudoElement
 import org.fernice.flare.style.ComputedValues
 import org.fernice.flare.style.ElementStyleResolver
-import org.fernice.flare.style.StyleRoot
 import org.fernice.flare.style.context.StyleContext
-import org.fernice.flare.style.parser.ParseMode
-import org.fernice.flare.style.parser.ParserContext
-import org.fernice.flare.style.parser.QuirksMode
-import org.fernice.flare.style.properties.PropertyDeclarationBlock
 import org.fernice.flare.style.source.StyleAttribute
 import org.fernice.flare.style.value.computed.Au
 import org.fernice.flare.style.value.computed.Fill
 import org.fernice.flare.style.value.generic.Size2D
-import org.fernice.flare.url.Url
-import org.fernice.reflare.font.FontStyleResolver
 import org.fernice.reflare.awt.toAWTColor
+import org.fernice.reflare.font.FontStyleResolver
 import org.fernice.reflare.util.concurrentList
 import org.fernice.reflare.util.observableMutableSetOf
 import org.fernice.reflare.util.setAll
@@ -38,6 +31,7 @@ import java.awt.Color
 import java.awt.Font
 import java.lang.ref.WeakReference
 import javax.swing.SwingUtilities
+import org.fernice.flare.style.StyleRoot as StyleRootPeer
 
 class StyleMatcher(
     localName: String? = null,
@@ -59,20 +53,23 @@ class StyleMatcher(
             notifyStyleInvalidated()
         }
 
-    private var styleAttributeBlock: PropertyDeclarationBlock? = null
+    private var styleAttributeBlock: StyleAttribute? = null
     var styleAttribute: String? = null
         set(value) {
             field = value
 
-            styleAttributeBlock = if (!value.isNullOrBlank()) {
-                val input = Parser.from(ParserInput(value))
-                val context = ParserContext(ParseMode.Default, QuirksMode.NoQuirks, Url(""))
-
-                PropertyDeclarationBlock.parse(context, input)
+            styleAttributeBlock = if (value != null) {
+                StyleAttribute.from(value, element)
             } else {
                 null
             }
 
+            notifyStyleInvalidated()
+        }
+
+    var styleRoot: StyleRoot? = null
+        set(value) {
+            field = value
             notifyStyleInvalidated()
         }
 
@@ -108,6 +105,8 @@ class StyleMatcher(
         element.id = id
         element.classes.setAll(classes)
         element.pseudoClasses.setAll(pseudoClasses.mapTo(mutableSetOf()) { it.toNonTSPseudoClass() })
+        element.styleAttribute = styleAttributeBlock
+        element.root.styleRoot = styleRoot?.peer
 
         val styles = StyleMatcherEngine.style(element)
 
@@ -192,7 +191,7 @@ private fun PseudoClass.toNonTSPseudoClass(): NonTSPseudoClass {
     }
 }
 
-private object StyleMatcherRootElement : Element {
+private class StyleMatcherRootElement : Element {
 
     override val namespace: NamespaceUrl? = null
 
@@ -223,7 +222,7 @@ private object StyleMatcherRootElement : Element {
     override val children: List<Element> = listOf()
 
     override val styleAttribute: StyleAttribute? get() = null
-    override val styleRoot: StyleRoot? get() = null
+    override var styleRoot: StyleRootPeer? = null
 
     override val pseudoElement: PseudoElement? get() = null
 
@@ -256,11 +255,13 @@ private class StyleMatcherElement : Element {
 
     override fun isRoot(): Boolean = false
 
-    override val owner: Element? get() = null
-    override val parent: Element get() = StyleMatcherRootElement
+    val root = StyleMatcherRootElement()
 
-    override val traversalParent: Element get() = StyleMatcherRootElement
-    override val inheritanceParent: Element get() = StyleMatcherRootElement
+    override val owner: Element? get() = null
+    override val parent: Element get() = root
+
+    override val traversalParent: Element get() = root
+    override val inheritanceParent: Element get() = root
 
     override fun isEmpty(): Boolean = true
 
@@ -268,8 +269,8 @@ private class StyleMatcherElement : Element {
     override val nextSibling: Element? get() = null
     override val children: List<Element> = listOf()
 
-    override val styleAttribute: StyleAttribute? get() = null
-    override val styleRoot: StyleRoot? get() = null
+    override var styleAttribute: StyleAttribute? = null
+    override val styleRoot: StyleRootPeer? get() = null
 
     override val pseudoElement: PseudoElement? get() = null
 
