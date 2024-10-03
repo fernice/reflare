@@ -75,23 +75,19 @@ abstract class AWTContainerElement(container: Container) : AWTComponentElement(c
         //reapplyCSS()
     }
 
-    fun addVirtualChild(childElement: AWTComponentElement) {
-        childElement.frame = frame
-        childElement.parent = this
-    }
+    final override fun isEmpty(): Boolean = children.isEmpty()
 
-    fun removeVirtualChild(childElement: AWTComponentElement) {
-        childElement.frame = null
-        childElement.parent = null
-    }
+    override val firstChild: Element?
+        get() = children.firstOrNull()
+
+    override val lastChild: Element?
+        get() = children.lastOrNull()
 
     final override fun parentChanged(old: Frame?, new: Frame?) {
         for (child in children) {
             child.frame = new
         }
     }
-
-    final override fun isEmpty(): Boolean = children.isEmpty()
 
     final override fun processCSS(context: EngineContext) {
         if (cssFlag == StyleState.CLEAN) return

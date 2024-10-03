@@ -23,6 +23,8 @@ class ArtificialComponentElement(component: Component) : AWTComponentElement(com
     override fun isEmpty(): Boolean = true
 
     override val children: List<Element> = listOf()
+    override val firstChild: Element? get() = null
+    override val lastChild: Element? get() = null
 
     override fun finishRestyle(context: StyleContext, previousStyles: ElementStyles?, styles: ElementStyles) {
         if (FlareLookAndFeel.isLightweightMode()) {

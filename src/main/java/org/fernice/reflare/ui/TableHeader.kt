@@ -7,6 +7,7 @@
 package org.fernice.reflare.ui
 
 import fernice.reflare.light.DefaultTableCellRenderer
+import org.fernice.flare.selector.NonTSPseudoClass
 import org.fernice.reflare.element.StyleTreeElementLookup
 import org.fernice.reflare.element.TableHeaderElement
 import org.fernice.reflare.element.element
@@ -134,14 +135,14 @@ open class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(),
         val aColumn = header.columnModel.getColumn(columnIndex)
         var renderer: TableCellRenderer? = aColumn.headerRenderer
         if (renderer == null) {
-            renderer = header.defaultRenderer
+            renderer = header.defaultRenderer!!
         }
 
         val hasFocus = (!header.isPaintingForPrint
                 && columnIndex == getSelectedColumnIndex()
                 && header.hasFocus())
 
-        val component = renderer!!.getTableCellRendererComponent(
+        val component = renderer.getTableCellRendererComponent(
             header.table,
             aColumn.headerValue,
             false, hasFocus,
@@ -150,9 +151,9 @@ open class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(),
 
         val element = component.element
 
-        element.activeHint(false)
-        element.hoverHint(columnIndex == rolloverColumn)
-        element.focusHint(hasFocus)
+        element.hint(NonTSPseudoClass.Hover, columnIndex == rolloverColumn)
+        element.hint(NonTSPseudoClass.Active, false)
+        element.hint(NonTSPseudoClass.Focus, hasFocus)
 
         return component
     }
@@ -345,7 +346,7 @@ open class DefaultTableCellHeaderRenderer : DefaultTableCellRenderer.UIResource(
     }
 
     public override fun paintComponent(var1: Graphics) {
-        val var2 = UIManager.getBoolean( "TableHeader.rightAlignSortArrow")
+        val var2 = UIManager.getBoolean("TableHeader.rightAlignSortArrow")
         if (var2 && this.sortArrow != null) {
             this.emptyIcon.width = this.sortArrow!!.iconWidth
             this.emptyIcon.height = this.sortArrow!!.iconHeight

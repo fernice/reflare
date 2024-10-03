@@ -1,8 +1,8 @@
 package fernice.reflare
 
-import org.fernice.flare.Engine
+import org.fernice.flare.EngineInstance
 import org.fernice.flare.EngineContext
-import org.fernice.flare.SharedEngine
+import org.fernice.flare.Engine
 import org.fernice.flare.dom.Device
 import org.fernice.flare.dom.Element
 import org.fernice.flare.font.FontMetricsProvider
@@ -10,20 +10,17 @@ import org.fernice.flare.font.FontMetricsQueryResult
 import org.fernice.flare.style.MatchingResult
 import org.fernice.flare.style.properties.stylestruct.Font
 import org.fernice.flare.style.Origin
-import org.fernice.flare.style.StyleRoot
-import org.fernice.flare.style.parser.QuirksMode
+import org.fernice.flare.style.QuirksMode
 import org.fernice.flare.style.value.computed.Au
 import org.fernice.flare.style.value.generic.Size2D
+import org.fernice.flare.url.Url
 import org.fernice.reflare.element.AWTComponentElement
 import org.fernice.reflare.platform.OperatingSystem
 import org.fernice.reflare.platform.Platform
 import org.fernice.reflare.util.VacatingReferenceHolder
 import org.fernice.std.systemFlag
 import java.awt.Component
-import java.io.File
-import java.io.InputStream
 import java.lang.ref.WeakReference
-import java.net.URI
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -33,7 +30,9 @@ private val SUPPRESS_USER_AGENT_STYLESHEETS = systemFlag("fernice.reflare.suppre
 
 object CSSEngine {
 
-    internal val sharedEngine = SharedEngine.new(
+    internal val device: Device = SharedDevice()
+    internal val engine = Engine.new(
+        device,
         object : FontMetricsProvider {
             override fun query(font: Font, fontSize: Au, device: Device): FontMetricsQueryResult {
                 return FontMetricsQueryResult.NotAvailable
@@ -41,36 +40,37 @@ object CSSEngine {
         }
     )
 
-    private val engines: MutableList<WeakReference<Engine>> = mutableListOf()
+    private val engineInstances: MutableList<WeakReference<EngineInstance>> = mutableListOf()
 
-    fun createEngine(device: Device): Engine {
-        val engine = Engine(
-            device,
-            sharedEngine
-        )
+    fun createEngine(device: Device): EngineInstance {
+        val engine = engine.createEngineInstance { device }
 
-        removeVacatedEngines()
-        engines.add(WeakReference(engine))
+        removeVacatedEngineInstances()
+        engineInstances.add(WeakReference(engine))
 
         return engine
     }
 
     fun createLocalEngineContext(element: Element): EngineContext {
-        val localDevice = LocalDevice((element as AWTComponentElement).component)
+        val localDevice = createLocalDevice(element)
 
-        return sharedEngine.createEngineContext(localDevice)
+        return engine.createEngineContext(localDevice)
     }
 
     fun styleWithLocalContext(element: Element) {
-        val localDevice = LocalDevice((element as AWTComponentElement).component)
+        val localDevice = createLocalDevice(element)
 
-        sharedEngine.style(localDevice, element)
+        engine.restyle(localDevice, element)
     }
 
     fun matchStyleWithLocalContext(element: Element): MatchingResult {
-        val localDevice = LocalDevice((element as AWTComponentElement).component)
+        val localDevice = createLocalDevice(element)
 
-        return sharedEngine.matchStyle(localDevice, element)
+        return engine.matchStyle(localDevice, element)
+    }
+
+    private fun createLocalDevice(element: Element): Device {
+        return LocalDevice((element as AWTComponentElement).component, device)
     }
 
     private val lock = ReentrantLock()
@@ -83,7 +83,7 @@ object CSSEngine {
 
     init {
         if (!SUPPRESS_USER_AGENT_STYLESHEETS) {
-            val styleRoot = sharedEngine.stylist.styleRoot
+            val styleRoot = engine.stylist.styleRoot
 
             styleRoot.addStylesheet(Stylesheet(Origin.UserAgent, "/reflare/style/user-agent.css"))
 
@@ -101,7 +101,7 @@ object CSSEngine {
     fun addStylesheet(stylesheet: Stylesheet) {
         lock.withLock {
             mutableStylesheets.add(stylesheet)
-            sharedEngine.stylist.styleRoot.addStylesheet(stylesheet.peer)
+            engine.stylist.styleRoot.addStylesheet(stylesheet.peer)
         }
         invalidate()
     }
@@ -110,17 +110,17 @@ object CSSEngine {
     fun removeStylesheet(stylesheet: Stylesheet) {
         lock.withLock {
             mutableStylesheets.remove(stylesheet)
-            sharedEngine.stylist.styleRoot.removeStylesheet(stylesheet.peer)
+            engine.stylist.styleRoot.removeStylesheet(stylesheet.peer)
         }
         invalidate()
     }
 
     fun invalidate() {
-        invalidateEngines()
+        invalidateEngineInstances()
     }
 
-    private fun invalidateEngines() {
-        val iter = engines.iterator()
+    private fun invalidateEngineInstances() {
+        val iter = engineInstances.iterator()
         while (iter.hasNext()) {
             val ref = iter.next()
             val value = ref.get()
@@ -138,8 +138,8 @@ object CSSEngine {
         }
     }
 
-    private fun removeVacatedEngines() {
-        val iter = engines.iterator()
+    private fun removeVacatedEngineInstances() {
+        val iter = engineInstances.iterator()
         while (iter.hasNext()) {
             val ref = iter.next()
             val value = ref.get()
@@ -154,45 +154,6 @@ object CSSEngine {
             }
         }
     }
-
-    @Deprecated(
-        message = "use Stylesheet instead",
-        replaceWith = ReplaceWith("addStylesheet(Stylesheet.fromResource(resource))", "fernice.reflare.CSSEngine.addStylesheet")
-    )
-    @JvmStatic
-    fun addStylesheetResource(resource: String) {
-        addStylesheet(Stylesheet.fromResource(resource))
-    }
-
-    @Deprecated(
-        message = "use Stylesheet instead",
-        replaceWith = ReplaceWith("addStylesheet(Stylesheet.fromFile(file))", "fernice.reflare.CSSEngine.addStylesheet")
-    )
-    @JvmStatic
-    fun addStylesheet(file: File) {
-        addStylesheet(Stylesheet.fromFile(file))
-    }
-
-    @Deprecated(message = "use Stylesheet instead")
-    @JvmStatic
-    fun removeStylesheet(file: File) {
-        val uri = file.toURI()
-        val stylesheet = stylesheets.firstOrNull { it.source == uri } ?: return
-        removeStylesheet(stylesheet)
-    }
-
-    @Deprecated(message = "use Stylesheet instead")
-    @JvmStatic
-    fun removeStylesheetResource(resource: String) {
-        val url = CSSEngine::class.java.getResource(resource) ?: return
-        val uri = url.toURI()
-        val stylesheet = stylesheets.firstOrNull { it.source == uri } ?: return
-        removeStylesheet(stylesheet)
-    }
-
-    @Deprecated(message = "no longer supported")
-    fun reloadStylesheets() {
-    }
 }
 
 private fun Stylesheet(origin: Origin, resource: String): StylesheetPeer {
@@ -201,10 +162,29 @@ private fun Stylesheet(origin: Origin, resource: String): StylesheetPeer {
     val text = url.openStream().bufferedReader(StandardCharsets.UTF_8).use { it.readText() }
     val source = url.toURI()
 
-    return StylesheetPeer.from(origin, text, source)
+    return StylesheetPeer.from(text, Url(""), origin, QuirksMode.NoQuirks, source)
 }
 
-private class LocalDevice(val component: Component) : Device {
+internal class SharedDevice : Device {
+
+    override val viewportSize: Size2D<Au>
+        get() = error("use derived device")
+
+    override var rootFontSize: Au
+        get() = error("use derived device")
+        set(_) {
+            error("use derived device")
+        }
+
+    override val systemFontSize: Au = Au.fromPx(16)
+
+    override fun invalidate() {}
+}
+
+private class LocalDevice(
+    private val component: Component,
+    private val sharedDevice: Device,
+) : Device {
 
     override val viewportSize: Size2D<Au>
         get() = Size2D(Au.fromPx(component.width), Au.fromPx(component.height))

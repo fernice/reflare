@@ -7,7 +7,6 @@
 package org.fernice.reflare.element.support
 
 import org.fernice.reflare.element.element
-import org.fernice.reflare.util.WeakRef
 import java.awt.AWTEvent
 import java.awt.Component
 import java.awt.Container
@@ -16,6 +15,7 @@ import java.awt.Toolkit
 import java.awt.Window
 import java.awt.event.AWTEventListener
 import java.awt.event.MouseEvent
+import java.lang.ref.WeakReference
 import javax.swing.SwingUtilities
 import kotlin.math.min
 
@@ -32,7 +32,7 @@ object SharedHoverHandler : AWTEventListener {
         )
     }
 
-    private var component: WeakRef<Component>? = null
+    private var component: WeakReference<Component>? = null
 
     override fun eventDispatched(event: AWTEvent) {
         fun <E> MutableList<E>.removeFirst(): E {
@@ -44,7 +44,7 @@ object SharedHoverHandler : AWTEventListener {
             val window = SwingUtilities.getWindowAncestor(component)
             if (window != null && !window.isInside(event.locationOnScreen)) {
                 for (exitedComponent in component.selfAndAncestorsIterator()) {
-                    exitedComponent.element.hoverHint(false)
+                    exitedComponent.element.isHovered = false
                 }
                 this.component = null
             }
@@ -68,7 +68,7 @@ object SharedHoverHandler : AWTEventListener {
         }
 
         val component = component?.get()
-        this.component = pick?.let(::WeakRef)
+        this.component = pick?.let(::WeakReference)
 
         val componentStack = component.selfAndAncestorsList()
         val pickStack = pick.selfAndAncestorsList()
@@ -78,13 +78,13 @@ object SharedHoverHandler : AWTEventListener {
         for (i in maxCommon until componentStack.size) {
             val exitedComponent = componentStack.removeFirst()
 
-            exitedComponent.element.hoverHint(false)
+            exitedComponent.element.isHovered = false
         }
 
         for (i in maxCommon until pickStack.size) {
             val enteredComponent = pickStack.removeFirst()
 
-            enteredComponent.element.hoverHint(true)
+            enteredComponent.element.isHovered = true
         }
 
         for (i in 0 until maxCommon) {
@@ -94,8 +94,8 @@ object SharedHoverHandler : AWTEventListener {
             if (exitedComponent == enteredComponent) {
                 return
             } else {
-                exitedComponent.element.hoverHint(false)
-                enteredComponent.element.hoverHint(true)
+                exitedComponent.element.isHovered = false
+                enteredComponent.element.isHovered = true
             }
         }
     }

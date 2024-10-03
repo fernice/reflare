@@ -18,6 +18,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicListUI;
+
+import org.fernice.flare.selector.NonTSPseudoClass;
 import org.fernice.reflare.Defaults;
 import org.fernice.reflare.element.AWTComponentElement;
 import org.fernice.reflare.element.ComponentElement;
@@ -126,8 +128,8 @@ public class FlareListUI extends BasicListUI implements FlareUI {
 
         AWTComponentElement element = StyleTreeHelper.getElement(rendererComponent);
 
-        element.activeHint(isSelected);
-        element.focusHint(cellHasFocus);
+        element.hint(NonTSPseudoClass.Active, isSelected);
+        element.hint(NonTSPseudoClass.Focus, cellHasFocus);
 
         int cx = rowBounds.x;
         int cy = rowBounds.y;

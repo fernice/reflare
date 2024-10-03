@@ -7,16 +7,13 @@
 package org.fernice.reflare.ui
 
 import fernice.reflare.light.DefaultTableCellRenderer
+import org.fernice.flare.selector.NonTSPseudoClass
 import org.fernice.reflare.Defaults
 import org.fernice.reflare.element.StyleTreeElementLookup
 import org.fernice.reflare.element.TableElement
 import org.fernice.reflare.element.element
 import org.fernice.reflare.render.CellRendererPane
-import java.awt.Color
-import java.awt.Component
-import java.awt.Graphics
-import java.awt.Point
-import java.awt.Rectangle
+import java.awt.*
 import javax.swing.JComponent
 import javax.swing.JTable
 import javax.swing.UIManager
@@ -431,8 +428,8 @@ class FlareTableUI(table: JTable) : BasicTableUI(), FlareUI {
 
             val element = component.element
 
-            element.activeHint(isSelected)
-            element.focusHint(hasFocus)
+            element.hint(NonTSPseudoClass.Active, isSelected)
+            element.hint(NonTSPseudoClass.Focus, hasFocus)
 
             rendererPane.paintComponent(
                 g, component, table, cellRect.x, cellRect.y,

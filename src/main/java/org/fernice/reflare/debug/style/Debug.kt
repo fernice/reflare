@@ -6,10 +6,10 @@
 package org.fernice.reflare.debug.style
 
 import fernice.reflare.CSSEngine
+import fernice.reflare.Stylesheet
 import fernice.reflare.addAll
 import fernice.reflare.classes
 import org.fernice.flare.cssparser.toCssString
-import org.fernice.flare.style.ComputedValues
 import org.fernice.flare.style.ruletree.CascadeLevel
 import org.fernice.flare.style.ruletree.printTree
 import org.fernice.flare.style.source.StyleAttribute
@@ -19,19 +19,10 @@ import org.fernice.reflare.element.AWTComponentElement
 import org.fernice.reflare.element.ElementRestyleListener
 import org.fernice.reflare.element.element
 import org.fernice.reflare.layout.VerticalLayout
-import java.awt.AWTEvent
-import java.awt.BorderLayout
-import java.awt.Container
-import java.awt.Dialog
-import java.awt.Toolkit
+import java.awt.*
 import java.awt.event.AWTEventListener
 import java.awt.event.MouseEvent
-import javax.swing.JButton
-import javax.swing.JFrame
-import javax.swing.JLabel
-import javax.swing.JPanel
-import javax.swing.JScrollPane
-import javax.swing.WindowConstants
+import javax.swing.*
 
 object DebugHelper : JPanel() {
     private val frame: JFrame by lazy {
@@ -44,7 +35,7 @@ object DebugHelper : JPanel() {
 
         frame.contentPane = debugHelper
 
-        CSSEngine.addStylesheetResource("/reflare/style/debug/debug.css")
+        CSSEngine.addStylesheet(Stylesheet.Companion.fromResource("/reflare/style/debug/debug.css"))
 
         frame
     }
@@ -83,13 +74,6 @@ class DebugStylePanel : JPanel() {
             pickButton.text = "Picking..."
         }
         actionPanel.add(pickButton, BorderLayout.WEST)
-
-        val reloadButton = JButton("Reload Stylesheets")
-        reloadButton.classes.add("dbg-button")
-        reloadButton.addActionListener {
-            CSSEngine.reloadStylesheets()
-        }
-        actionPanel.add(reloadButton, BorderLayout.EAST)
 
         matchingStylesPanel = MatchingStylesPanel()
 
@@ -160,10 +144,10 @@ private class MatchingStylesPanel : JPanel() {
 
             var count = 1
             for (node in result.ruleNode.selfAndAncestors()) {
-                val declarations = node.declarations?.get()
+                val declarations = node.source?.get()
                 if (declarations != null) {
                     println("$count $node")
-                    add(StylesPanel(declarations.source, node.level))
+                    add(StylesPanel(declarations, node.priority.level))
                 }
                 count++
             }
