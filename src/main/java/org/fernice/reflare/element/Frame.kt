@@ -9,7 +9,7 @@ import org.fernice.reflare.trace.trace
 import org.fernice.reflare.trace.traceRoot
 import org.fernice.reflare.util.ConcurrentReferenceHashMap
 import org.fernice.reflare.util.VacatedReferenceException
-import org.fernice.reflare.util.VacatingRef
+import org.fernice.reflare.util.VacatingReference
 import org.fernice.reflare.util.VacatingReferenceHolder
 import org.fernice.reflare.util.weakReferenceHashMap
 import java.awt.Component
@@ -43,13 +43,15 @@ object StyleTreeFrameLookup {
 
 class Frame(frameInstance: Window) : Device, VacatingReferenceHolder {
 
-    private val frameReference = VacatingRef(frameInstance)
-    private val frame by frameReference
+    private val frameReference = VacatingReference(frameInstance)
+    private val frame: Window
+        get() = frameReference.deref()
 
     // early creation to prevent null pointer exception
     // through forward calls to requestNextPulse()
     private val pulseRunnable = { pulse() }
 
+    private val sharedDevice = CSSEngine.device
     private val cssEngine = CSSEngine.createEngine(this)
 
     var root: AWTComponentElement? = null
@@ -157,4 +159,3 @@ class Frame(frameInstance: Window) : Device, VacatingReferenceHolder {
         return cssEngine.matchStyles(element)
     }
 }
-

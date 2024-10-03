@@ -14,7 +14,7 @@ import org.fernice.reflare.cache.ImageCache
 import org.fernice.reflare.element.element
 import org.fernice.reflare.render.filter.createTintedImage
 import org.fernice.reflare.awt.toAWTColor
-import org.fernice.reflare.util.VacatingRef
+import org.fernice.reflare.util.VacatingReference
 import org.fernice.reflare.util.weakReferenceHashMap
 import java.awt.Component
 import java.awt.Graphics
@@ -71,8 +71,8 @@ open class StyledImageIcon private constructor(internal val imageProvider: Lazy<
 
     private inner class ComponentStyledImageProvider(componentInstance: Component) : StyledImageProvider {
 
-        private val componentReference = VacatingRef(componentInstance)
-        private val component by componentReference
+        private val componentReference = VacatingReference(componentInstance)
+        private val component: Component get() = componentReference.deref()
 
         private var fill: Fill = Fill.None
         private var styledImage = image

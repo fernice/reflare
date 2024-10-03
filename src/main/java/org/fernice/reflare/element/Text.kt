@@ -4,6 +4,7 @@ import org.fernice.flare.selector.NonTSPseudoClass
 import org.fernice.flare.selector.PseudoElement
 import org.fernice.flare.style.ComputedValues
 import org.fernice.reflare.awt.toAWTColor
+import java.awt.Component
 import javax.swing.JEditorPane
 import javax.swing.JFormattedTextField
 import javax.swing.JLabel
@@ -19,14 +20,14 @@ class LabelElement(label: JLabel) : ComponentElement(label) {
 
     override fun hasPseudoElement(pseudoElement: PseudoElement): Boolean {
         return when (pseudoElement) {
-            is PseudoElement.Icon -> true
+            PseudoElement.Flare_Icon -> true
             else -> super.matchPseudoElement(pseudoElement)
         }
     }
 
     override fun matchPseudoElement(pseudoElement: PseudoElement): Boolean {
         return when (pseudoElement) {
-            is PseudoElement.Icon -> true
+            PseudoElement.Flare_Icon -> true
             else -> super.matchPseudoElement(pseudoElement)
         }
     }
@@ -34,11 +35,11 @@ class LabelElement(label: JLabel) : ComponentElement(label) {
 
 abstract class TextElement(textComponent: JTextComponent) : ComponentElement(textComponent) {
 
-    override fun matchNonTSPseudoClass(pseudoClass: NonTSPseudoClass): Boolean {
+    override fun matchNonTSPseudoClass(pseudoClass: NonTSPseudoClass, component: Component): Boolean {
         return when (pseudoClass) {
-            is NonTSPseudoClass.ReadWrite -> (component as JTextComponent).isEditable
-            is NonTSPseudoClass.ReadOnly -> !(component as JTextComponent).isEditable
-            else -> super.matchNonTSPseudoClass(pseudoClass)
+            NonTSPseudoClass.ReadWrite -> (component as JTextComponent).isEditable
+            NonTSPseudoClass.ReadOnly -> !(component as JTextComponent).isEditable
+            else -> super.matchNonTSPseudoClass(pseudoClass, component)
         }
     }
 
@@ -50,21 +51,21 @@ abstract class TextElement(textComponent: JTextComponent) : ComponentElement(tex
 
     override fun hasPseudoElement(pseudoElement: PseudoElement): Boolean {
         return when (pseudoElement) {
-            is PseudoElement.Selection -> true
+            PseudoElement.Selection -> true
             else -> super.matchPseudoElement(pseudoElement)
         }
     }
 
     override fun matchPseudoElement(pseudoElement: PseudoElement): Boolean {
         return when (pseudoElement) {
-            is PseudoElement.Selection -> true
+            PseudoElement.Selection -> true
             else -> super.matchPseudoElement(pseudoElement)
         }
     }
 
     override fun updatePseudoElement(pseudoElement: PseudoElement, style: ComputedValues) {
         when (pseudoElement) {
-            is PseudoElement.Selection -> {
+            PseudoElement.Selection -> {
                 val component = component as JTextComponent
 
                 component.selectedTextColor = style.color.color.toAWTColor()

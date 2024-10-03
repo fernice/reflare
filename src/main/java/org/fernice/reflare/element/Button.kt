@@ -2,6 +2,7 @@ package org.fernice.reflare.element
 
 import org.fernice.flare.selector.NonTSPseudoClass
 import org.fernice.flare.selector.PseudoElement
+import java.awt.Component
 import javax.swing.AbstractButton
 import javax.swing.ButtonModel
 import javax.swing.JCheckBox
@@ -26,32 +27,34 @@ open class ButtonElement(button: AbstractButton) : ComponentElement(button) {
         new?.addChangeListener(modelChangeListener)
     }
 
-    override fun matchNonTSPseudoClass(pseudoClass: NonTSPseudoClass): Boolean {
+    override fun matchNonTSPseudoClass(pseudoClass: NonTSPseudoClass, component: Component): Boolean {
         return when (pseudoClass) {
-            is NonTSPseudoClass.Active -> {
+            NonTSPseudoClass.Active -> {
                 val button = component as AbstractButton
 
-                button.model.isArmed || active
+                button.model.isArmed || isHinted(NonTSPseudoClass.Active)
             }
-            is NonTSPseudoClass.Checked -> {
+
+            NonTSPseudoClass.Checked -> {
                 val button = component as AbstractButton
 
                 button.isSelected
             }
-            else -> super.matchNonTSPseudoClass(pseudoClass)
+
+            else -> super.matchNonTSPseudoClass(pseudoClass, component)
         }
     }
 
     override fun hasPseudoElement(pseudoElement: PseudoElement): Boolean {
         return when (pseudoElement) {
-            is PseudoElement.Icon -> true
+            PseudoElement.Flare_Icon -> true
             else -> super.matchPseudoElement(pseudoElement)
         }
     }
 
     override fun matchPseudoElement(pseudoElement: PseudoElement): Boolean {
         return when (pseudoElement) {
-            is PseudoElement.Icon -> true
+            PseudoElement.Flare_Icon -> true
             else -> super.matchPseudoElement(pseudoElement)
         }
     }

@@ -5,6 +5,7 @@ import fernice.reflare.StyledImageIcon;
 import fernice.reflare.light.FButton;
 import fernice.reflare.light.FLabel;
 import fernice.reflare.light.FTextField;
+
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
@@ -26,6 +27,8 @@ import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicComboBoxEditor;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 import javax.swing.plaf.basic.ComboPopup;
+
+import org.fernice.flare.selector.NonTSPseudoClass;
 import org.fernice.reflare.Defaults;
 import org.fernice.reflare.element.AWTComponentElement;
 import org.fernice.reflare.element.ComboBoxElement;
@@ -225,8 +228,8 @@ public class FlareComboBoxUI extends BasicComboBoxUI implements FlareUI {
                 element.getClasses().add("flr-list-cell");
             }
 
-            element.focusHint(focus);
-            element.activeHint(isSelected);
+            element.hint(NonTSPseudoClass.Active, isSelected);
+            element.hint(NonTSPseudoClass.Focus, focus);
 
             return component;
         }

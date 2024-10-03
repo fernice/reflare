@@ -6,7 +6,7 @@
 
 package fernice.reflare
 
-import org.fernice.flare.style.parser.QuirksMode
+import org.fernice.flare.style.QuirksMode
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import org.fernice.flare.style.StyleRoot as StyleRootPeer
@@ -14,7 +14,7 @@ import org.fernice.flare.style.StyleRoot as StyleRootPeer
 class StyleRoot {
 
     private val lock = ReentrantLock()
-    internal val peer = StyleRootPeer(QuirksMode.NoQuirks)
+    internal val peer = StyleRootPeer(CSSEngine.device, QuirksMode.NoQuirks)
 
     private val mutableStylesheets = mutableListOf<Stylesheet>()
 

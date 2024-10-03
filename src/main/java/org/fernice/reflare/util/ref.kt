@@ -9,22 +9,11 @@ package org.fernice.reflare.util
 import java.lang.ref.WeakReference
 import kotlin.reflect.KProperty
 
-interface Ref<T> {
-
-    fun get(): T?
-}
-
-class WeakRef<T>(value: T) : WeakReference<T>(value), Ref<T>
-
-class VacatingRef<T : Any>(value: T) : WeakReference<T>(value), Ref<T>, VacatingReferenceHolder {
-
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): T = get() ?: throw VacatedReferenceException()
+class VacatingReference<T : Any>(value: T) : WeakReference<T>(value), VacatingReferenceHolder {
 
     fun deref(): T = get() ?: throw VacatedReferenceException()
 
-    override fun hasVacated(): Boolean {
-        return get() == null
-    }
+    override fun hasVacated(): Boolean = get() == null
 
     override fun toString(): String {
         val value = get()

@@ -6,6 +6,7 @@
 
 package fernice.reflare.light
 
+import org.fernice.flare.selector.NonTSPseudoClass
 import org.fernice.reflare.element.element
 import java.awt.Component
 import javax.swing.JList
@@ -18,8 +19,8 @@ interface StyledListCellRenderer<T> : ListCellRenderer<T> {
 
         val element = component.element
 
-        element.activeHint(isSelected)
-        element.focusHint(cellHasFocus)
+        element.hint(NonTSPseudoClass.Active, isSelected)
+        element.hint(NonTSPseudoClass.Focus, cellHasFocus)
 
         return component
     }

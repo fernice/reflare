@@ -7,6 +7,8 @@
 package fernice.reflare
 
 import org.fernice.flare.style.Origin
+import org.fernice.flare.style.QuirksMode
+import org.fernice.flare.url.Url
 import java.io.File
 import java.io.InputStream
 import java.io.Reader
@@ -80,7 +82,7 @@ class Stylesheet private constructor(
 
         @JvmStatic
         fun from(text: String, source: URI): Stylesheet {
-            return Stylesheet(StylesheetPeer.from(Origin.Author, text, source))
+            return Stylesheet(StylesheetPeer.from(text, Url(""), Origin.Author, QuirksMode.NoQuirks, source))
         }
     }
 }

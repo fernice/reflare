@@ -8,20 +8,22 @@ package fernice.reflare.style
 
 import fernice.reflare.CSSEngine
 import fernice.reflare.StyleRoot
-import org.fernice.flare.EngineContext
 import org.fernice.flare.dom.Device
 import org.fernice.flare.dom.Element
 import org.fernice.flare.dom.ElementStyles
 import org.fernice.flare.selector.NamespaceUrl
+import org.fernice.flare.selector.NonTSFPseudoClass
 import org.fernice.flare.selector.NonTSPseudoClass
 import org.fernice.flare.selector.PseudoElement
 import org.fernice.flare.style.ComputedValues
-import org.fernice.flare.style.ElementStyleResolver
+import org.fernice.flare.style.QuirksMode
 import org.fernice.flare.style.context.StyleContext
 import org.fernice.flare.style.source.StyleAttribute
+import org.fernice.flare.style.stylesheet.CssRuleType
 import org.fernice.flare.style.value.computed.Au
 import org.fernice.flare.style.value.computed.Fill
 import org.fernice.flare.style.value.generic.Size2D
+import org.fernice.flare.url.Url
 import org.fernice.reflare.awt.toAWTColor
 import org.fernice.reflare.font.FontStyleResolver
 import org.fernice.reflare.util.concurrentList
@@ -59,7 +61,7 @@ class StyleMatcher(
             field = value
 
             styleAttributeBlock = if (value != null) {
-                StyleAttribute.from(value, element)
+                StyleAttribute.from(value, Url(""), QuirksMode.NoQuirks, CssRuleType.Style)
             } else {
                 null
             }
@@ -206,8 +208,10 @@ private class StyleMatcherRootElement : Element {
     override fun matchPseudoElement(pseudoElement: PseudoElement): Boolean = false
 
     override fun matchNonTSPseudoClass(pseudoClass: NonTSPseudoClass): Boolean = false
+    override fun matchNonTSFPseudoClass(pseudoClass: NonTSFPseudoClass): Boolean = false
 
     override fun isRoot(): Boolean = true
+    override fun isLink(): Boolean = false
 
     override val owner: Element? get() = null
     override val parent: Element? get() = null
@@ -220,6 +224,8 @@ private class StyleMatcherRootElement : Element {
     override val previousSibling: Element? get() = null
     override val nextSibling: Element? get() = null
     override val children: List<Element> = listOf()
+    override val firstChild: Element? get() = children.firstOrNull()
+    override val lastChild: Element? get() = children.lastOrNull()
 
     override val styleAttribute: StyleAttribute? get() = null
     override var styleRoot: StyleRootPeer? = null
@@ -252,8 +258,10 @@ private class StyleMatcherElement : Element {
     override fun matchPseudoElement(pseudoElement: PseudoElement): Boolean = false
 
     override fun matchNonTSPseudoClass(pseudoClass: NonTSPseudoClass): Boolean = pseudoClasses.contains(pseudoClass)
+    override fun matchNonTSFPseudoClass(pseudoClass: NonTSFPseudoClass): Boolean = false
 
     override fun isRoot(): Boolean = false
+    override fun isLink(): Boolean = false
 
     val root = StyleMatcherRootElement()
 
@@ -268,6 +276,8 @@ private class StyleMatcherElement : Element {
     override val previousSibling: Element? get() = null
     override val nextSibling: Element? get() = null
     override val children: List<Element> = listOf()
+    override val firstChild: Element? get() = null
+    override val lastChild: Element? get() = null
 
     override var styleAttribute: StyleAttribute? = null
     override val styleRoot: StyleRootPeer? get() = null
@@ -298,21 +308,10 @@ object StyleMatcherEngine {
 
         val context = engine.createEngineContext()
 
-        applyStyles(element.parent, context)
-        return applyStyles(element, context)
-    }
-
-    private fun applyStyles(element: Element, context: EngineContext): ElementStyles {
-        context.styleContext.prepare(element)
-
-        val styleResolver = ElementStyleResolver(element, context.styleContext)
-        val styles = styleResolver.resolveStyleWithDefaultParentStyles()
-
-        val previousStyles = element.styles
-
-        element.finishRestyle(context.styleContext, previousStyles, styles)
-
-        return styles
+        // style the parent
+        engine.style(element.parent, context)
+        // so it cascades to the element
+        return engine.style(element, context)
     }
 
     private val invalidationListeners = concurrentList<WeakReference<StyleInvalidationListener>>()

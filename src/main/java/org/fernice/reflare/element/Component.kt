@@ -5,33 +5,34 @@ import org.fernice.flare.EngineContext
 import org.fernice.flare.dom.Element
 import org.fernice.flare.dom.ElementStyles
 import org.fernice.flare.selector.NamespaceUrl
+import org.fernice.flare.selector.NonTSFPseudoClass
 import org.fernice.flare.selector.NonTSPseudoClass
 import org.fernice.flare.selector.PseudoElement
-import org.fernice.flare.style.ComputedValues
-import org.fernice.flare.style.ElementStyleResolver
-import org.fernice.flare.style.MatchingResult
-import org.fernice.flare.style.StyleRoot
+import org.fernice.flare.style.*
 import org.fernice.flare.style.context.StyleContext
 import org.fernice.flare.style.source.StyleAttribute
-import org.fernice.reflare.font.FontStyleResolver
-import org.fernice.reflare.render.merlin.MerlinRenderer
-import org.fernice.reflare.statistics.Statistics
+import org.fernice.flare.style.stylesheet.CssRuleType
+import org.fernice.flare.url.Url
 import org.fernice.reflare.awt.toAWTColor
 import org.fernice.reflare.awt.toOpaqueAWTColor
+import org.fernice.reflare.element.support.isFocusWithin
+import org.fernice.reflare.font.FontStyleResolver
+import org.fernice.reflare.render.merlin.MerlinRenderer
 import org.fernice.reflare.trace.TraceHelper
 import org.fernice.reflare.trace.trace
 import org.fernice.reflare.trace.traceElement
 import org.fernice.reflare.trace.traceRoot
-import org.fernice.reflare.util.VacatingRef
+import org.fernice.reflare.util.VacatingReference
 import org.fernice.reflare.util.observableMutableSetOf
+import org.fernice.std.EnumSet
+import org.fernice.std.set
 import org.fernice.std.systemFlag
 import java.awt.Component
 import java.awt.Graphics
 import java.awt.Window
 import java.awt.event.HierarchyEvent
 import java.beans.PropertyChangeEvent
-import java.util.EventListener
-import java.util.EventObject
+import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import javax.swing.JComponent
 import javax.swing.SwingUtilities
@@ -45,7 +46,7 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
         require(componentInstance !is Window) { "windows cannot be elements" }
     }
 
-    private val componentReference = VacatingRef(componentInstance)
+    private val componentReference = VacatingReference(componentInstance)
     val component: Component
         get() = componentReference.deref()
 
@@ -84,7 +85,7 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
 
     /**
      * Notifies the parent of invalid css by mark every parent as a dirty branch
-     * if they are not marked dirty yet. Additionally request a new pulse if the
+     * if they are not marked dirty yet. Additionally, request a new pulse if the
      * root node was not marked as dirty yet.
      */
     private fun notifyParentOfInvalidatedCSS() {
@@ -181,7 +182,7 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
     }
 
     /**
-     * Process this elements's dirty state. If this element is marked as reapply [doProcessCSS]
+     * Process this element's dirty state. If this element is marked as reapply [doProcessCSS]
      * will be called in order to restyle the element. If the css flag is [StyleState.DIRTY_BRANCH]
      * it will cascade this call down to all children.
      */
@@ -197,7 +198,7 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
 
     /**
      * Processes the dirty state by restyling the element and marks this element as clean
-     * afterwards. Does nothing if the element is already clean.
+     * afterward. Does nothing if the element is already clean.
      * If this element is a parent, then it will cascade the process down to all of its
      * children.
      */
@@ -205,6 +206,8 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
         if (componentReference.hasVacated()) return
 
         context.traceElement(this)
+
+        // todo(kralli) this should use EngineInstance.style(Element, EngineContext)
         context.styleContext.prepare(this)
 
         val styleResolver = ElementStyleResolver(this, context.styleContext)
@@ -224,8 +227,6 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
     // ***************************** Old Dirty ***************************** //
 
     fun restyle() {
-        Statistics.increment("force-restyle")
-
         applyCSS(origin = "force")
     }
 
@@ -260,7 +261,7 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
 
     internal abstract fun parentChanged(old: Frame?, new: Frame?)
 
-    final override val owner: Element? get() = this
+    final override val owner: Element get() = this
 
     final override var parent: AWTContainerElement? = null
         internal set
@@ -291,6 +292,8 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
     override val pseudoElement: PseudoElement? get() = null
 
     override fun isRoot(): Boolean = parent == null
+
+    override fun isLink(): Boolean = false
 
     init {
         component.addHierarchyListener { event ->
@@ -330,18 +333,54 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
     override fun hasPseudoElement(pseudoElement: PseudoElement): Boolean = false
     override fun matchPseudoElement(pseudoElement: PseudoElement): Boolean = false
 
-    private var hover = false
-    private var focus = false
+    final override fun matchNonTSPseudoClass(pseudoClass: NonTSPseudoClass): Boolean {
+        if (isHinted(pseudoClass)) return true
+        return matchNonTSPseudoClass(pseudoClass, component)
+    }
 
-    override fun matchNonTSPseudoClass(pseudoClass: NonTSPseudoClass): Boolean {
+    protected open fun matchNonTSPseudoClass(pseudoClass: NonTSPseudoClass, component: Component): Boolean {
         return when (pseudoClass) {
-            is NonTSPseudoClass.Enabled -> component.isEnabled
-            is NonTSPseudoClass.Disabled -> !component.isEnabled
-            is NonTSPseudoClass.Focus -> component.isFocusOwner || focus
-            is NonTSPseudoClass.Hover -> hover
-            is NonTSPseudoClass.Active -> active
+            NonTSPseudoClass.Enabled -> component.isEnabled
+            NonTSPseudoClass.Disabled -> !component.isEnabled
+            NonTSPseudoClass.Focus -> component.isFocusOwner
+            NonTSPseudoClass.FocusVisible -> component.isFocusOwner
+            NonTSPseudoClass.FocusWithin -> component.isFocusWithin
+            NonTSPseudoClass.Hover -> isHovered
             else -> false
         }
+    }
+
+    override fun matchNonTSFPseudoClass(pseudoClass: NonTSFPseudoClass): Boolean = false
+
+    internal var isHovered = false
+        set(hovered) {
+            if (hovered != field) {
+                field = hovered
+
+                reapplyCSS(origin = "hover")
+            }
+        }
+
+    private var pseudoClassHints: EnumSet<NonTSPseudoClass>? = null
+
+    fun hint(pseudoClass: NonTSPseudoClass, active: Boolean) {
+        var pseudoClassHints = this.pseudoClassHints
+        if (pseudoClassHints == null) {
+            // don't bother allocating anything
+            if (!active) return
+
+            pseudoClassHints = EnumSet()
+            this.pseudoClassHints = pseudoClassHints
+        }
+
+        if (pseudoClassHints.set(pseudoClass, active)) {
+            reapplyCSS(origin = "hint")
+        }
+    }
+
+    fun isHinted(pseudoClass: NonTSPseudoClass): Boolean {
+        val pseudoClassHints = this.pseudoClassHints
+        return pseudoClassHints != null && pseudoClassHints.contains(pseudoClass)
     }
 
     // ***************************** Inline ***************************** //
@@ -361,7 +400,7 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
             field = value
 
             styleAttribute = if (value.isNotBlank()) {
-                StyleAttribute.from(value, this)
+                StyleAttribute.from(value, Url(""), QuirksMode.NoQuirks, CssRuleType.Style)
             } else {
                 null
             }
@@ -398,7 +437,7 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
         for ((index, pseudoStyle) in styles.pseudos.iterator().withIndex()) {
             if (pseudoStyle == null) continue
 
-            val pseudoElement = PseudoElement.fromEagerOrdinal(index)
+            val pseudoElement = PseudoElement.entries[index]
 
             if (!hasPseudoElement(pseudoElement)) continue
 
@@ -491,41 +530,6 @@ abstract class AWTComponentElement(componentInstance: Component) : Element {
             "enabled" -> reapplyCSS(origin = "enabled")
             "visible" -> if (event.newValue == true) applyCSS(origin = "visible")
         }
-    }
-
-    fun hoverHint(hover: Boolean): Boolean {
-        val old = this.hover
-        this.hover = hover
-
-        if (old != hover) {
-            reapplyCSS(origin = "hover:hint")
-        }
-
-        return old
-    }
-
-    fun focusHint(focus: Boolean): Boolean {
-        val old = this.focus
-        this.focus = focus
-
-        if (old != focus) {
-            reapplyCSS(origin = "focus:hint")
-        }
-
-        return old
-    }
-
-    protected var active: Boolean = false
-
-    fun activeHint(active: Boolean): Boolean {
-        val old = this.active
-        this.active = active
-
-        if (old != active) {
-            reapplyCSS(origin = "active:hint")
-        }
-
-        return old
     }
 
     // ***************************** Listeners ***************************** //

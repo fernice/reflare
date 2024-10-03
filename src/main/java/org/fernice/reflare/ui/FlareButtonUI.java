@@ -6,6 +6,7 @@
 package org.fernice.reflare.ui;
 
 import fernice.reflare.StyledIcon;
+
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -19,6 +20,7 @@ import javax.swing.JComponent;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicButtonUI;
+
 import org.fernice.reflare.element.ButtonElement;
 import org.fernice.reflare.element.ComponentElement;
 import org.fernice.reflare.element.StyleTreeElementLookup;
@@ -99,24 +101,25 @@ public class FlareButtonUI extends BasicButtonUI implements FlareUI {
             return;
         }
 
-        if (b.isSelected()) {
-            Icon selectedIcon = b.getSelectedIcon();
-            if (selectedIcon != null) {
-                icon = selectedIcon;
+        if (!b.isEnabled()) {
+            Icon disabledIcon = model.isSelected() ? b.getDisabledSelectedIcon() : b.getDisabledIcon();
+            if (disabledIcon != null && (!(disabledIcon instanceof UIResource) || !(icon instanceof StyledIcon))) {
+                icon = disabledIcon;
             }
-        }
-
-        if (model.isPressed()) {
+        } else if (model.isPressed() && model.isArmed()) {
             Icon pressedIcon = b.getPressedIcon();
             if (pressedIcon != null) {
                 icon = pressedIcon;
             }
-        }
-
-        if (!b.isEnabled()) {
-            Icon disabledIcon = b.getDisabledIcon();
-            if (disabledIcon != null && (!(disabledIcon instanceof UIResource) || !(icon instanceof StyledIcon))) {
-                icon = disabledIcon;
+        } else if (b.isRolloverEnabled() && model.isRollover()) {
+            Icon rolloverIcon = model.isSelected() ? b.getRolloverSelectedIcon() : b.getRolloverIcon();
+            if (rolloverIcon != null) {
+                icon = rolloverIcon;
+            }
+        } else if (model.isSelected()) {
+            Icon selectedIcon = b.getSelectedIcon();
+            if (selectedIcon != null) {
+                icon = selectedIcon;
             }
         }
 
