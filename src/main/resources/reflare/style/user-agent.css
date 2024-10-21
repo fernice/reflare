@@ -132,8 +132,10 @@ menuitem:disabled, menu:disabled {
   color: #636363;
 }
 
-menuseparator {
-  color: #ff00ff
+separator {
+  background-color: white;
+  padding: 5px 5px;
+  color: #bfbfbf;
 }
 
 scrollbar {

@@ -12,6 +12,7 @@ import org.fernice.reflare.element.StyleTreeElementLookup
 import org.fernice.reflare.element.TableHeaderElement
 import org.fernice.reflare.element.element
 import org.fernice.reflare.render.CellRendererPane
+import org.fernice.reflare.util.drawAALine
 import java.awt.BasicStroke
 import java.awt.Component
 import java.awt.Dimension
@@ -138,34 +139,30 @@ open class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(),
             renderer = header.defaultRenderer!!
         }
 
-        val hasFocus = (!header.isPaintingForPrint
-                && columnIndex == getSelectedColumnIndex()
-                && header.hasFocus())
+        val selectionModel = header.columnModel.selectionModel
+
+        var isSelected = false
+        var hasFocus = false
+
+        if (!header.isPaintingForPrint) {
+            isSelected = selectionModel.isSelectedIndex(columnIndex)
+            hasFocus = columnIndex == selectionModel.leadSelectionIndex && header.hasFocus()
+        }
 
         val component = renderer.getTableCellRendererComponent(
             header.table,
             aColumn.headerValue,
-            false, hasFocus,
+            isSelected, hasFocus,
             -1, columnIndex
         )
 
         val element = component.element
 
         element.hint(NonTSPseudoClass.Hover, columnIndex == rolloverColumn)
-        element.hint(NonTSPseudoClass.Active, false)
+        element.hint(NonTSPseudoClass.Active, isSelected)
         element.hint(NonTSPseudoClass.Focus, hasFocus)
 
         return component
-    }
-
-    private var selectedColumnIndex: Int = 0
-
-    private fun getSelectedColumnIndex(): Int {
-        val numCols = header.columnModel.columnCount
-        if (numCols in 1..selectedColumnIndex) {
-            selectedColumnIndex = numCols - 1
-        }
-        return selectedColumnIndex
     }
 
     private fun paintCell(g: Graphics, cellRect: Rectangle, columnIndex: Int) {
@@ -193,17 +190,17 @@ open class FlareTableHeaderUI(tableHeader: JTableHeader) : BasicTableHeaderUI(),
             val draggedColumn = header.draggedColumn
             if (draggedColumn != null && table.showVerticalLines && column == viewIndexForColumn(draggedColumn)) {
                 g.color = table.gridColor
-                g.drawLine(cellRect.x - 1, cellRect.y, cellRect.x - 1, cellRect.y + cellRect.height - 1)
+                g.drawAALine(cellRect.x - 1, cellRect.y, cellRect.x - 1, cellRect.y + cellRect.height - 1)
             }
 
             if (table.showVerticalLines) {
                 g.color = table.gridColor
-                g.drawLine(cellRect.x + cellRect.width - 1, cellRect.y, cellRect.x + cellRect.width - 1, cellRect.y + cellRect.height - 1)
+                g.drawAALine(cellRect.x + cellRect.width - 1, cellRect.y, cellRect.x + cellRect.width - 1, cellRect.y + cellRect.height - 1)
             }
 
             // if (table.showHorizontalLines) {
             g.color = table.gridColor
-            g.drawLine(cellRect.x, cellRect.y + cellRect.height - 1, cellRect.x + cellRect.width - 1, cellRect.y + cellRect.height - 1)
+            g.drawAALine(cellRect.x, cellRect.y + cellRect.height - 1, cellRect.x + cellRect.width - 1, cellRect.y + cellRect.height - 1)
             // }
         }
     }

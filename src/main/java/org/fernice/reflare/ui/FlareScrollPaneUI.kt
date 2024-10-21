@@ -220,6 +220,7 @@ class FlareScrollPaneUI(scrollPane: JScrollPane) : BasicScrollPaneUI(), FlareUI 
 
     companion object {
         @DefinedBy(Api.LOOK_AND_FEEL)
+        @JvmStatic
         fun createUI(c: JComponent): ComponentUI {
             return FlareScrollPaneUI(c as JScrollPane)
         }
