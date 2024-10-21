@@ -13,6 +13,7 @@ import org.fernice.reflare.element.StyleTreeElementLookup
 import org.fernice.reflare.element.TableElement
 import org.fernice.reflare.element.element
 import org.fernice.reflare.render.CellRendererPane
+import org.fernice.reflare.util.drawAALine
 import java.awt.*
 import javax.swing.JComponent
 import javax.swing.JTable
@@ -22,7 +23,7 @@ import javax.swing.plaf.basic.BasicTableUI
 import javax.swing.table.TableColumn
 
 @Suppress("ACCIDENTAL_OVERRIDE")
-class FlareTableUI(table: JTable) : BasicTableUI(), FlareUI {
+open class FlareTableUI(table: JTable) : BasicTableUI(), FlareUI {
 
     override val element = TableElement(table)
 
@@ -256,7 +257,7 @@ class FlareTableUI(table: JTable) : BasicTableUI(), FlareUI {
             var y = damagedArea.y
             for (row in rMin..rMax) {
                 y += table.getRowHeight(row)
-                g.drawLine(damagedArea.x, y - 1, tableWidth - 1, y - 1)
+                g.drawAALine(damagedArea.x, y - 1, tableWidth - 1, y - 1)
             }
         }
         if (table.showVerticalLines) {
@@ -268,14 +269,14 @@ class FlareTableUI(table: JTable) : BasicTableUI(), FlareUI {
                 for (column in cMin..cMax) {
                     val w = cm.getColumn(column).width
                     x += w
-                    g.drawLine(x - 1, 0, x - 1, tableHeight - 1)
+                    g.drawAALine(x - 1, 0, x - 1, tableHeight - 1)
                 }
             } else {
                 x = damagedArea.x
                 for (column in cMax downTo cMin) {
                     val w = cm.getColumn(column).width
                     x += w
-                    g.drawLine(x - 1, 0, x - 1, tableHeight - 1)
+                    g.drawAALine(x - 1, 0, x - 1, tableHeight - 1)
                 }
             }
         }
@@ -377,9 +378,9 @@ class FlareTableUI(table: JTable) : BasicTableUI(), FlareUI {
             val x2 = x1 + vacatedColumnRect.width - 1
             val y2 = y1 + vacatedColumnRect.height - 1
             // Left
-            g.drawLine(x1 - 1, y1, x1 - 1, y2)
+            g.drawAALine(x1 - 1, y1, x1 - 1, y2)
             // Right
-            g.drawLine(x2, y1, x2, y2)
+            g.drawAALine(x2, y1, x2, y2)
         }
 
         for (row in rMin..rMax) {
@@ -397,7 +398,7 @@ class FlareTableUI(table: JTable) : BasicTableUI(), FlareUI {
                 val y1 = rcr.y
                 val x2 = x1 + rcr.width - 1
                 val y2 = y1 + rcr.height - 1
-                g.drawLine(x1, y2, x2, y2)
+                g.drawAALine(x1, y2, x2, y2)
             }
         }
     }
@@ -413,6 +414,9 @@ class FlareTableUI(table: JTable) : BasicTableUI(), FlareUI {
             val renderer = table.getCellRenderer(row, column)
             val component = table.prepareRenderer(renderer, row, column)
 
+            val columnSelectionModel = table.columnModel.selectionModel
+            val rowSelectionModel = table.selectionModel
+
             var isSelected = false
             var hasFocus = false
 
@@ -420,8 +424,8 @@ class FlareTableUI(table: JTable) : BasicTableUI(), FlareUI {
             if (!table.isPaintingForPrint) {
                 isSelected = table.isCellSelected(row, column)
 
-                val rowIsLead = table.selectionModel.leadSelectionIndex == row
-                val colIsLead = table.columnModel.selectionModel.leadSelectionIndex == column
+                val rowIsLead = rowSelectionModel.leadSelectionIndex == row
+                val colIsLead = columnSelectionModel.leadSelectionIndex == column
 
                 hasFocus = rowIsLead && colIsLead && table.isFocusOwner
             }

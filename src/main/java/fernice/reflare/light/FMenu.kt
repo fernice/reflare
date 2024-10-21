@@ -57,4 +57,8 @@ open class FMenu : JMenu {
         mi.verticalTextPosition = JButton.CENTER
         return mi
     }
+
+    override fun addSeparator() {
+        super.addSeparator()
+    }
 }

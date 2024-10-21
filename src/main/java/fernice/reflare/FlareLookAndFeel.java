@@ -16,6 +16,7 @@ import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicLookAndFeel;
+
 import org.fernice.reflare.FlareDefaultLookup;
 import org.fernice.reflare.element.AWTComponentElement;
 import org.fernice.reflare.element.StyleTreeHelper;
@@ -27,6 +28,7 @@ import org.fernice.reflare.internal.PopupFactoryHelper;
 import org.fernice.reflare.meta.DefinedBy;
 import org.fernice.reflare.meta.DefinedBy.Api;
 import org.fernice.reflare.platform.GTKKeybindings;
+import org.fernice.reflare.platform.MacosKeybindings;
 import org.fernice.reflare.platform.Platform;
 import org.fernice.reflare.platform.WindowsKeybindings;
 import org.fernice.reflare.ui.text.FlareHTMLEditorKit;
@@ -149,11 +151,10 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
         if (defaults == null) {
             defaults = super.getDefaults();
 
-            final String osName = System.getProperty("os.name");
-            final boolean isWindows = osName != null && osName.contains("Windows");
-
-            if (isWindows) {
+            if (Platform.isWindows()) {
                 WindowsKeybindings.installKeybindings(defaults);
+            } else if (Platform.isMac()) {
+                MacosKeybindings.installKeybindings(defaults);
             } else {
                 GTKKeybindings.installKeybindings(defaults);
             }
@@ -199,6 +200,9 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
             defaults.put("MenuBarUI", basicPackageName + (Platform.isMac() ? "FlareAppleMenuBarUI" : "FlareMenuBarUI"));
             defaults.put("MenuUI", basicPackageName + "FlareMenuUI");
             defaults.put("MenuItemUI", basicPackageName + "FlareMenuItemUI");
+            defaults.put("SeparatorUI", basicPackageName + "FlareSeparatorUI");
+            defaults.put("PopupMenuSeparatorUI", basicPackageName + "FlareSeparatorUI");
+
             defaults.put("CheckBoxMenuItemUI", basicPackageName + "FlareCheckBoxMenuItemUI");
             defaults.put("RadioButtonMenuItemUI", basicPackageName + "FlareRadioButtonMenuItemUI");
 
@@ -236,7 +240,10 @@ public class FlareLookAndFeel extends BasicLookAndFeel {
         return disabledIcon != null ? disabledIcon : super.getDisabledIcon(component, icon);
     }
 
-    public static @Nullable Icon createDisabledIcon(@NotNull Icon icon) {
+    public static @Nullable Icon createDisabledIcon(@Nullable Icon icon) {
+        if (icon == null) {
+            return null;
+        }
         Image image = ImageIcon.findImage(icon);
         if (image != null) {
             return new ImageIconUIResource(GrayFilter.createDisabledImage(image));
